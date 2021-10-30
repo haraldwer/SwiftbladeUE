@@ -67,6 +67,9 @@ void UFPMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 		myDashTimer += DeltaTime;
 
 	{
+		if(myDashTimer < myDashDuration)
+			movement->Velocity = myDashDirection * myDashVelocity;
+		
 		// Dash camera effect
 		const float dashIn = myDashTimer * 1.5f / myDashDuration;
 		const float dashOut = FMath::Clamp((myDashDuration - myDashTimer) / myDashDuration, 0.0f, 1.0f);
@@ -161,8 +164,9 @@ void UFPMovement::Dash()
 		vel.Normalize();
 		vel.Z += 0.1f * (1 - abs(vel.Z));
 		vel.Z *= myDashVerticalMul;
-		movement->Velocity = FVector();
-		movement->AddImpulse(vel * myDashImpuleStrength, true);
+
+		myDashDirection = vel;
+		movement->Velocity = vel * myDashVelocity;
 		myHasDashed = true;
 		myDashTimer = 0;
 		
@@ -234,6 +238,8 @@ void UFPMovement::Landed(const FHitResult& Hit)
 
 void UFPMovement::StartWallrun(FVector aNormal)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Hit wall");
+	
 	if (myHasHitHead)
 		return;
 	
@@ -255,13 +261,20 @@ void UFPMovement::StartWallrun(FVector aNormal)
 	if (!movement)
 		return;
 	
-	movement->SetPlaneConstraintNormal(aNormal);
-	myWallNormal = aNormal;
+	
 	if (myIsWallRunning)
 	{
-		// TODO: Transfer velocity
-		return;
+		const auto vel = movement->GetLastUpdateVelocity();
+		const float speed = vel.Size();
+		const auto projected = FVector::VectorPlaneProject(vel, aNormal);
+		movement->Velocity = projected.GetSafeNormal() * speed;
 	}
+
+	movement->SetPlaneConstraintNormal(aNormal);
+	myWallNormal = aNormal;
+	
+	if (myIsWallRunning)
+		return;
 	
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Starting wallrun with normal " + FString::SanitizeFloat(aNormal.Size()));	
 	movement->SetPlaneConstraintEnabled(true);
@@ -310,7 +323,7 @@ void UFPMovement::Wallrun(float aDT)
 		const float movementForwardDot = FVector::DotProduct(myWallNormal, character->GetLastMovementInputVector());
 
 		// WallClimb
-		if ((lookForwardDot < -myWallClimbDot))
+		if (lookForwardDot < -myWallClimbDot)
 		{
 			if(animator)
 				animator->SetState(UFPAnimator::WALL_CLIMBING);
@@ -360,17 +373,20 @@ void UFPMovement::Wallrun(float aDT)
 		bool noOverlaps = true;
 		auto overlapInfo = myWallDetection->GetOverlapInfos();
 		for (auto& it : overlapInfo)
-			if(!it.OverlapInfo.GetActor()->IsA(ASword::StaticClass()))
-				noOverlaps = false;
+		{
+			if(it.OverlapInfo.GetActor() == GetOwner())
+				continue;
+
+			if(it.OverlapInfo.GetActor()->IsA(ASword::StaticClass()))
+				continue;
+			
+			noOverlaps = false;
+		}
 
 		if (noOverlaps)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Overlaps empty");
 			StopWallrun();
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Overlaps");
 		}
 	}
 	else if (movement->IsWalking() || myCoyoteTimer > myCoyoteTime)

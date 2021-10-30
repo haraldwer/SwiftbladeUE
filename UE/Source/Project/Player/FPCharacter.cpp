@@ -138,7 +138,8 @@ void AFPCharacter::LookVertical(float aValue)
 void AFPCharacter::Landed(const FHitResult& aHit)
 {
 	Super::Landed(aHit);
-	myMovement->Landed(aHit);
+	if(myMovement)
+		myMovement->Landed(aHit);
 }
 
 void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,

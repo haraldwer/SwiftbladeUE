@@ -36,22 +36,22 @@ public:
 private:
 	class AFPCharacter* GetFPCharacter() const;
 
-public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Wallrunning")
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="WallRun")
 	class UCapsuleComponent* myWallDetection;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myWallrunExitDot = 0.8f;
-	UPROPERTY(EditDefaultsOnly, Category="Movement")
+	UPROPERTY(EditDefaultsOnly, Category="WallRun")
 	float myWallrunMinVelocity = 1.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myWallrunJumpMul = 1.5f;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "WallClimb")
 	float myWallClimbDot = 0.8f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "WallClimb")
 	float myWallClimbTime = 1.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "WallClimb")
 	float myWallClimbSpeed = 410.0f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
@@ -59,26 +59,26 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	int myNumAirJumps = 1;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float myDashImpuleStrength = 1024.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+	float myDashVelocity = 1024.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashVerticalMul = 0.25f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashDuration = 0.2f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashFov = 1.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myGrappleDist = 2048.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myGrappleDot = 0.2f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myGrappleForceMul = 2.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myGrappleVerticalMul = 0.75f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myGrappleCooldown = 1.0f;
-	
+
 private:
 	// B-Hopping
 	bool myHoldingJump = false;
@@ -92,11 +92,15 @@ private:
 	// Wall climbing
 	float myPrevWallZVel = 0.0f;
 
+	// Dash
+	FVector myDashDirection;
+	bool myHasDashed = false;
+	float myDashTimer = 0.0f;
+
+	// Grapple
+	float myGrappleTimer = 0.0f;
+	
 	// General
 	float myCoyoteTimer = 0.0f;
 	int myAirJumpCount = 0;
-	bool myHasDashed = false;
-	float myDashTimer = 0.0f;
-	float myGrappleTimer = 0.0f;
-	
 };

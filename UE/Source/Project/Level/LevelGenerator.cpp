@@ -92,11 +92,10 @@ void ALevelGenerator::MoveLevels()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Moving levels");
 
-	FVector previousPosition;
+	FVector previousPosition = FVector(0, 0, 0);
 	const auto& streamingLevels = GetWorld()->GetStreamingLevels();
-	for (int32 i = 0; i < streamingLevels.Num(); i++)
+	for(auto& level : streamingLevels)
 	{
-		const auto& level = streamingLevels[i];
 		const auto loadedLevel = level->GetLoadedLevel();
 		if (!loadedLevel)
 			continue;
@@ -121,7 +120,6 @@ void ALevelGenerator::EnableOverlapEvents() const
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), actors);
 	for(auto& it : actors)
 	{
-		it->bGenerateOverlapEventsDuringLevelStreaming = true;
 		const auto comp = it->GetComponentByClass(UStaticMeshComponent::StaticClass());
 		if (!comp)
 			continue;

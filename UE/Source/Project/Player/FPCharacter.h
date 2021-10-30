@@ -31,7 +31,7 @@ public:
 	void LookVertical(float aValue);
 
 	virtual void Landed(const FHitResult& aHit) override;
-	
+
 	void SetCheckpoint(class AActor* aActor);
 	
 	class UCameraComponent* GetCamera() const;
@@ -41,7 +41,7 @@ public:
 
 	class AHand* GetRightHand() const;
 	class AHand* GetLeftHand() const;
-	
+
 private:
 	
 	UFUNCTION()
