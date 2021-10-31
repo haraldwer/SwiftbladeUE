@@ -71,7 +71,7 @@ protected:
 	class ASword* mySword;
 
 	UPROPERTY(EditDefaultsOnly)
-	float mySmoothing = 15.0f;
+	float mySmoothing = 10.0f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myReadyDuration = 0.5f;

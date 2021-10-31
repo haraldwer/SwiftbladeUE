@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FGenericCrashContext>
+<RuntimeProperties>
+<CrashVersion>3</CrashVersion>
+<ExecutionGuid>EE9C3D6F4B328F0391E1CEB78CC05CBF</ExecutionGuid>
+<CrashGUID>UE4CC-Windows-F001E1004A3A681A74AB5D839BC31152_0003</CrashGUID>
+<IsEnsure>true</IsEnsure>
+<IsAssert>false</IsAssert>
+<CrashType>Ensure</CrashType>
+<ErrorMessage>Ensure condition failed: !NewTransform.ContainsNaN() [File:D:/Build/++UE4/Sync/Engine/Source/Runtime/Engine/Private/PhysicsEngine/BodyInstance.cpp] [Line: 2594]
+SetBodyTransform contains NaN (/Game/Levels/Start.Start:PersistentLevel.BP_Sword_2.Collider)
+-nan(ind),-nan(ind),-nan(ind)|8.050859,123.017876,-76.974228|4.000000,4.000000,4.000000
+Stack: 
+0x00007ff6843f8e06 Project.exe!UnknownFunction []
+0x00007ff68293bfcd Project.exe!UnknownFunction []
+0x00007ff6822e8dec Project.exe!UnknownFunction []
+0x00007ff68232e1cd Project.exe!UnknownFunction []
+0x00007ff68233f000 Project.exe!UnknownFunction []
+0x00007ff67de25915 Project.exe!UnknownFunction []
+0x00007ff68233e050 Project.exe!UnknownFunction []
+0x00007ff68232e2be Project.exe!UnknownFunction []
+0x00007ff68233f000 Project.exe!UnknownFunction []
+0x00007ff6823263ac Project.exe!UnknownFunction []
+0x00007ff682328c08 Project.exe!UnknownFunction []
+0x00007ff6823351ed Project.exe!UnknownFunction []
+0x00007ff682335d38 Project.exe!UnknownFunction []
+0x00007ff67ec41512 Project.exe!UnknownFunction []
+0x00007ff68221cdcc Project.exe!UnknownFunction []
+0x00007ff682245164 Project.exe!UnknownFunction []
+0x00007ff682d3fffb Project.exe!UnknownFunction []
+0x00007ff682d473cf Project.exe!UnknownFunction []
+0x00007ff67ec938ad Project.exe!UnknownFunction []
+0x00007ff67ec93b9a Project.exe!UnknownFunction []
+0x00007ff67ec93e62 Project.exe!UnknownFunction []
+0x00007ff682d5c601 Project.exe!UnknownFunction []
+0x00007ff682d61da2 Project.exe!UnknownFunction []
+0x00007ff682682e0f Project.exe!UnknownFunction []
+0x00007ff68268df8a Project.exe!UnknownFunction []
+0x00007ff6824e2a31 Project.exe!UnknownFunction []
+0x00007ff67ddc79e5 Project.exe!UnknownFunction []
+0x00007ff67dddc8ec Project.exe!UnknownFunction []
+0x00007ff67dddc9aa Project.exe!UnknownFunction []
+0x00007ff67ddefae0 Project.exe!UnknownFunction []
+0x00007ff683ed403e Project.exe!UnknownFunction []
+0x00007ffe68e97034 KERNEL32.DLL!UnknownFunction []
+0x00007ffe69e02651 ntdll.dll!UnknownFunction []
+</ErrorMessage>
+<CrashReporterMessage></CrashReporterMessage>
+<ProcessId>5948</ProcessId>
+<SecondsSinceStart>8</SecondsSinceStart>
+<IsInternalBuild>false</IsInternalBuild>
+<IsPerforceBuild>false</IsPerforceBuild>
+<IsSourceDistribution>false</IsSourceDistribution>
+<GameName>UE4-Project</GameName>
+<ExecutableName>Project</ExecutableName>
+<BuildConfiguration>Development</BuildConfiguration>
+<GameSessionID></GameSessionID>
+<Symbols>**UE4*Release-4.26-CL-15973114-Win64-Development</Symbols>
+<PlatformName>WindowsNoEditor</PlatformName>
+<PlatformNameIni>Windows</PlatformNameIni>
+<EngineMode>Game</EngineMode>
+<EngineModeEx>Unset</EngineModeEx>
+<DeploymentName></DeploymentName>
+<EngineVersion>4.26.2-15973114+++UE4+Release-4.26</EngineVersion>
+<CommandLine> Project</CommandLine>
+<LanguageLCID>0</LanguageLCID>
+<AppDefaultLocale>en-US</AppDefaultLocale>
+<BuildVersion>++UE4+Release-4.26-CL-15973114</BuildVersion>
+<IsUE4Release>false</IsUE4Release>
+<IsRequestingExit>false</IsRequestingExit>
+<UserName></UserName>
+<BaseDir>D:/Dev/Project/Builds/WindowsNoEditor/Project/Binaries/Win64/</BaseDir>
+<RootDir>D:/Dev/Project/Builds/WindowsNoEditor/</RootDir>
+<MachineId>BE961F044E5C0CC6A3416DBCD5DEED25</MachineId>
+<LoginId>be961f044e5c0cc6a3416dbcd5deed25</LoginId>
+<EpicAccountId>475ab523c2054379b0b8f163fbc25e54</EpicAccountId>
+<SourceContext></SourceContext>
+<UserDescription></UserDescription>
+<UserActivityHint></UserActivityHint>
+<CrashDumpMode>0</CrashDumpMode>
+<GameStateName></GameStateName>
+<Misc.NumberOfCores>8</Misc.NumberOfCores>
+<Misc.NumberOfCoresIncludingHyperthreads>16</Misc.NumberOfCoresIncludingHyperthreads>
+<Misc.Is64bitOperatingSystem>1</Misc.Is64bitOperatingSystem>
+<Misc.CPUVendor>AuthenticAMD</Misc.CPUVendor>
+<Misc.CPUBrand>AMD Ryzen 7 3700X 8-Core Processor             </Misc.CPUBrand>
+<Misc.PrimaryGPUBrand>AMD Radeon RX 5700 XT</Misc.PrimaryGPUBrand>
+<Misc.OSVersionMajor>Windows 10 (Release 2009)</Misc.OSVersionMajor>
+<Misc.OSVersionMinor></Misc.OSVersionMinor>
+<MemoryStats.TotalPhysical>17107857408</MemoryStats.TotalPhysical>
+<MemoryStats.TotalVirtual>140737488224256</MemoryStats.TotalVirtual>
+<MemoryStats.PageSize>4096</MemoryStats.PageSize>
+<MemoryStats.TotalPhysicalGB>16</MemoryStats.TotalPhysicalGB>
+<MemoryStats.AvailablePhysical>10634166272</MemoryStats.AvailablePhysical>
+<MemoryStats.AvailableVirtual>10901069824</MemoryStats.AvailableVirtual>
+<MemoryStats.UsedPhysical>283684864</MemoryStats.UsedPhysical>
+<MemoryStats.PeakUsedPhysical>310104064</MemoryStats.PeakUsedPhysical>
+<MemoryStats.UsedVirtual>1213861888</MemoryStats.UsedVirtual>
+<MemoryStats.PeakUsedVirtual>1217863680</MemoryStats.PeakUsedVirtual>
+<MemoryStats.bIsOOM>0</MemoryStats.bIsOOM>
+<MemoryStats.OOMAllocationSize>0</MemoryStats.OOMAllocationSize>
+<MemoryStats.OOMAllocationAlignment>0</MemoryStats.OOMAllocationAlignment>
+<NumMinidumpFramesToIgnore>0</NumMinidumpFramesToIgnore>
+<CallStack></CallStack>
+<PCallStack>
+Project   0x00007ff67d4c0000 + 6f38e06         
+Project   0x00007ff67d4c0000 + 547bfcd         
+Project   0x00007ff67d4c0000 + 4e28dec         
+Project   0x00007ff67d4c0000 + 4e6e1cd         
+Project   0x00007ff67d4c0000 + 4e7f000         
+Project   0x00007ff67d4c0000 + 965915          
+Project   0x00007ff67d4c0000 + 4e7e050         
+Project   0x00007ff67d4c0000 + 4e6e2be         
+Project   0x00007ff67d4c0000 + 4e7f000         
+Project   0x00007ff67d4c0000 + 4e663ac         
+Project   0x00007ff67d4c0000 + 4e68c08         
+Project   0x00007ff67d4c0000 + 4e751ed         
+Project   0x00007ff67d4c0000 + 4e75d38         
+Project   0x00007ff67d4c0000 + 1781512         
+Project   0x00007ff67d4c0000 + 4d5cdcc         
+Project   0x00007ff67d4c0000 + 4d85164         
+Project   0x00007ff67d4c0000 + 587fffb         
+Project   0x00007ff67d4c0000 + 58873cf         
+Project   0x00007ff67d4c0000 + 17d38ad         
+Project   0x00007ff67d4c0000 + 17d3b9a         
+Project   0x00007ff67d4c0000 + 17d3e62         
+Project   0x00007ff67d4c0000 + 589c601         
+Project   0x00007ff67d4c0000 + 58a1da2         
+Project   0x00007ff67d4c0000 + 51c2e0f         
+Project   0x00007ff67d4c0000 + 51cdf8a         
+Project   0x00007ff67d4c0000 + 5022a31         
+Project   0x00007ff67d4c0000 + 9079e5          
+Project   0x00007ff67d4c0000 + 91c8ec          
+Project   0x00007ff67d4c0000 + 91c9aa          
+Project   0x00007ff67d4c0000 + 92fae0          
+Project   0x00007ff67d4c0000 + 6a1403e         
+KERNEL32  0x00007ffe68e80000 + 17034           
+ntdll     0x00007ffe69db0000 + 52651           
+</PCallStack>
+<PCallStackHash>CF6C4D6EA6CB4C58254F4C46E79AAF050C2F2D80</PCallStackHash>
+</RuntimeProperties>
+<PlatformProperties>
+<PlatformIsRunningWindows>1</PlatformIsRunningWindows>
+<IsRunningOnBattery>false</IsRunningOnBattery>
+<PlatformCallbackResult>0</PlatformCallbackResult>
+</PlatformProperties>
+<EngineData>
+<RHI.IsGPUOverclocked>false</RHI.IsGPUOverclocked>
+<RHI.RHIName>D3D11</RHI.RHIName>
+<RHI.AdapterName>AMD Radeon RX 5700 XT</RHI.AdapterName>
+<RHI.UserDriverVersion>Adrenalin 2020 21.3.1</RHI.UserDriverVersion>
+<RHI.InternalDriverVersion>27.20.15003.1004</RHI.InternalDriverVersion>
+<RHI.DriverDate>3-10-2021</RHI.DriverDate>
+<RHI.FeatureLevel>SM5</RHI.FeatureLevel>
+<Platform.AppHasFocus>true</Platform.AppHasFocus>
+</EngineData>
+<GameData>
+</GameData>
+</FGenericCrashContext>

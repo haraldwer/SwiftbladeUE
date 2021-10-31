@@ -37,6 +37,7 @@ public:
 
 	void UpdateCrouch(float aDT);
 	void UpdateDash(float aDT);
+	void UpdateGrapple(float aDT);
 
 	void StartSlide(FVector aVelocity);
 	void StopSlide();
@@ -85,11 +86,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myGrappleDot = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
-	float myGrappleForceMul = 2.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
-	float myGrappleVerticalMul = 0.75f;
-	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myGrappleCooldown = 1.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
+	float myGrappleReleaseDist = 100.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
+	float myGrappleReleaseTime = 0.1f;
+	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
+	float myGrappleSpeedMul = 1.5f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Crouch")
 	float myCrouchCamHeightMul = 0.5f;
@@ -120,7 +123,8 @@ private:
 	float myDashTimer = 0.0f;
 
 	// Grapple
-	float myGrappleTimer = 0.0f;
+	float myGrappleTimer = 9999.0f;
+	FVector myGrappleTargetLocation;
 
 	// Crouch
 	float mySlideTimer = 0.0f;

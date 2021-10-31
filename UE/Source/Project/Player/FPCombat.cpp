@@ -290,6 +290,7 @@ void UFPCombat::UpdateTransforms(float aDT)
 	
 	right->SetActorRelativeTransform(rTrans);
 	left->SetActorRelativeTransform(lTrans);
+	left->SetActorRelativeScale3D(FVector(1, -1, 1));
 	
 	if(mySword && myState != EFPCombatState::NO_SWORD)
 		mySword->SetActorRelativeTransform(rTrans);

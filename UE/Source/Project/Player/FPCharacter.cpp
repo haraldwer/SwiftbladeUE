@@ -78,7 +78,7 @@ void AFPCharacter::BeginPlay()
 			myLeftHand = GetWorld()->SpawnActor<AHand>(myHandBP, params);
 			myLeftHand->AttachToActor(this,
 				FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-			myLeftHand->SetActorRelativeScale3D(FVector(-1, 1, 1));
+			myLeftHand->SetActorRelativeScale3D(FVector(1, -1, 1));
 		}		
 	}
 }

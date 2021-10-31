@@ -60,14 +60,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Hands")
 	FVector myDefaultHandRotation;
 	UPROPERTY(EditAnywhere, Category = "Hands")
-	float myHandSmoothing;
+	float myHandSmoothing = 10.0f;
 
 	UPROPERTY(EditAnywhere, Category = "General")
 	float myRotationStrength = 0.02f;
 	UPROPERTY(EditAnywhere, Category = "General")
 	float myPositionStrength = 5.0f;
 	UPROPERTY(EditAnywhere, Category = "General")
-	float mySpeed = 15.0f;
+	float mySpeed = 10.0f;
 	UPROPERTY(EditAnywhere, Category = "General")
 	float mySmoothing = 10.0f;
 

@@ -72,8 +72,7 @@ void UFPMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	UpdateCrouch(DeltaTime);
 	Wallrun(DeltaTime);
 	UpdateDash(DeltaTime);
-	
-	myGrappleTimer += DeltaTime;
+	UpdateGrapple(DeltaTime);
 
 	if (!myIsWallRunning && !myIsSliding)
 	{
@@ -267,15 +266,12 @@ void UFPMovement::Grapple()
 
 	if(ptr)
 	{
-		auto diff = (ptr->GetTransform().GetTranslation() - character->GetTransform().GetTranslation());
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Grapple dot " + FString::SanitizeFloat(dot) + " dist " + FString::SanitizeFloat(diff.Size()));
-		auto cm = character->GetCharacterMovement();
-		cm->Velocity = FVector();
-		diff.Z *= myGrappleVerticalMul;
-		diff *= myGrappleForceMul;
-		cm->AddImpulse(diff, true);
+		myGrappleTargetLocation = ptr->GetTransform().GetTranslation();
 		myGrappleTimer = 0.0f;
-
+		
+		const auto movement = character->GetCharacterMovement();		
+		movement->AddImpulse(FVector(0, 0, movement->JumpZVelocity), true);
+		
 		const auto animator = character->GetAnimator();
 		if (animator)
 			animator->StartGrapple();
@@ -513,6 +509,26 @@ void UFPMovement::UpdateDash(float aDT)
 		character->GetActorForwardVector()), -1.0f, 1.0f);
 	camera->AddAdditiveOffset(FTransform(),
 		FMath::Min(dashIn, dashOut) * myDashFov * dashForwardMul);
+}
+
+void UFPMovement::UpdateGrapple(float aDT)
+{
+	myGrappleTimer += aDT;
+
+	if(myGrappleTimer > myGrappleReleaseTime)
+		return;
+	
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+
+	const auto movement = character->GetCharacterMovement();
+	if (!movement)
+		return;
+	
+	const auto diff = myGrappleTargetLocation - character->GetActorLocation();
+	if(diff.Size() > myGrappleReleaseDist)
+		movement->Velocity = diff * myGrappleSpeedMul;
 }
 
 void UFPMovement::StartSlide(FVector aVelocity)
