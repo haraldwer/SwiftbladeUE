@@ -67,7 +67,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "General")
 	float myPositionStrength = 5.0f;
 	UPROPERTY(EditAnywhere, Category = "General")
-	float mySpeed = 10.0f;
+	float mySpeed = 15.0f;
 	UPROPERTY(EditAnywhere, Category = "General")
 	float mySmoothing = 10.0f;
 
@@ -79,7 +79,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Idle")
 	float myIdleSpeed = 0.5f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
+	TSubclassOf<AActor> myFootstepBP;
+	
 private:
+	void Step();
+	
 	State myState = State::IDLE;
 
 	// Headbob
@@ -100,4 +105,6 @@ private:
 	float myJumpTime = 9999.0f;
 
 	float mySwordPart = 0.0f;
+
+	bool myStepRight = false;
 };

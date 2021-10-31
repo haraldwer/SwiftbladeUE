@@ -155,9 +155,20 @@ void UFPAnimator::Running(float aDT)
 	const auto camera = character->GetCamera();
 	if (!camera)
 		return;
-	
+
+	// when going back from side
+
+	const float prevSin = FMath::Sin(myTimer);	
 	myTimer += aDT * mySpeed;
-	const float off = FMath::Sin(myTimer);
+	const float newSin = FMath::Sin(myTimer);
+
+	if((myStepRight && prevSin < newSin) || (!myStepRight && prevSin > newSin))
+	{
+		Step();
+		myStepRight = !myStepRight;
+	}
+	
+	const float off = newSin;
 	myHeadRotation = off * myRotationStrength;
 	myHeadPosition = FMath::Abs(off) * myPositionStrength;
 
@@ -181,7 +192,7 @@ void UFPAnimator::Running(float aDT)
 	myRight.SetRotation(FQuat::MakeFromEuler(myDefaultHandRotation));
 	myLeft.SetRotation(FQuat::MakeFromEuler(myDefaultHandRotation * FVector(-1, 1, -1)));
 
-	mySwordPart = 0.8f;
+	mySwordPart = 0.7f;
 }
 
 void UFPAnimator::WallRunning(float aDT)
@@ -353,5 +364,26 @@ void UFPAnimator::Grapple(float aDT)
 		rot.Y += 20;
 		
 		myLeft.SetRotation(FMath::Lerp(FQuat::MakeFromEuler(rot), myLeft.GetRotation(), fadePart));
+	}
+}
+
+void UFPAnimator::Step()
+{
+	if (myFootstepBP)
+	{
+		FActorSpawnParameters params;
+		AActor* actor = GetWorld()->SpawnActor<AActor>(myFootstepBP, params);
+		if (actor)
+		{
+			const auto character = GetFPCharacter();
+			const auto movement = character->GetMovementComponent();
+			if (character && movement)
+			{
+				actor->SetActorRotation(character->GetActorRotation());
+				actor->SetActorLocation(movement->GetActorFeetLocation());
+				if (myStepRight)
+					actor->SetActorScale3D(FVector(1, -1, 1));
+			}
+		}
 	}
 }

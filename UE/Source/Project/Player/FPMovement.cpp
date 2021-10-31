@@ -26,12 +26,24 @@ UFPMovement::UFPMovement()
 		myWallDetection->InitCapsuleSize(radius + 10, halfHeight + 10);
 		myWallDetection->SetupAttachment(GetFPCharacter()->GetRootComponent());
 		myWallDetection->SetGenerateOverlapEvents(true);
-	}
+	}	
 }
 
 void UFPMovement::BeginPlay()
 {
 	Super::BeginPlay();
+
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+	
+	const auto camera = character->GetCamera();
+	const auto capsule = character->GetCapsuleComponent();
+	if (camera && capsule)
+	{
+		myCameraHeight = camera->GetRelativeLocation().Z + capsule->GetScaledCapsuleHalfHeight();
+		myOriginalCameraHeight = myCameraHeight;
+	}
 }
 
 void UFPMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -53,39 +65,41 @@ void UFPMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	const auto animator = character->GetAnimator();
 	if (!animator)
 		return;
-	
-	camera->ClearAdditiveOffset();
 
 	myCoyoteTimer = myIsWallRunning || movement->IsWalking() ? 
 		0.0f : myCoyoteTimer + DeltaTime;
 
+	UpdateCrouch(DeltaTime);
 	Wallrun(DeltaTime);
-
-	if (movement->IsWalking())
-		myHasDashed = false;
-	else
-		myDashTimer += DeltaTime;
-
-	{
-		if(myDashTimer < myDashDuration)
-			movement->Velocity = myDashDirection * myDashVelocity;
-		
-		// Dash camera effect
-		const float dashIn = myDashTimer * 1.5f / myDashDuration;
-		const float dashOut = FMath::Clamp((myDashDuration - myDashTimer) / myDashDuration, 0.0f, 1.0f);
-		const float dashForwardMul = FMath::Clamp(FVector::DotProduct(movement->GetLastUpdateVelocity(),
-			character->GetActorForwardVector()), -1.0f, 1.0f);
-		camera->AddAdditiveOffset(FTransform(),
-			FMath::Min(dashIn, dashOut) * myDashFov * dashForwardMul);
-	}
-
+	UpdateDash(DeltaTime);
+	
 	myGrappleTimer += DeltaTime;
 
-	if(!myIsWallRunning)
+	if (!myIsWallRunning && !myIsSliding)
 	{
 		if (movement->IsWalking())
 			animator->SetState(movement->GetLastInputVector().Size() > 0.3f ? UFPAnimator::RUNNING : UFPAnimator::IDLE);
 		else animator->SetState(UFPAnimator::FALLING);
+	}
+
+	// Update camera height
+	{
+		const float targetCamHeight = myOriginalCameraHeight * 
+			(movement->IsCrouching() ? myCrouchCamHeightMul : 1.0f);
+		
+		myCameraHeight = FMath::FInterpTo(
+			myCameraHeight,
+			targetCamHeight,
+			DeltaTime,
+			myCameraHeightSmoothing);
+
+		const auto capsule = character->GetCapsuleComponent();
+		if(capsule)
+		{
+			const float height = myCameraHeight - capsule->GetScaledCapsuleHalfHeight();
+			// Feet location + height
+			camera->SetRelativeLocation(FVector(0, 0, height));
+		}
 	}
 }
 
@@ -105,6 +119,44 @@ void UFPMovement::PressJump()
 void UFPMovement::ReleaseJump()
 {
 	myHoldingJump = false;
+}
+
+void UFPMovement::PressCrouch()
+{
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+
+	const auto movement = character->GetCharacterMovement();
+	if (!movement)
+		return;
+
+	if (!movement->IsWalking())
+		return;
+
+	if (character->bIsCrouched)
+		return;
+	
+	character->Crouch();
+	
+	const auto vel = movement->GetLastUpdateVelocity(); 
+	if (vel.Size2D() > movement->MaxWalkSpeedCrouched)
+		StartSlide(vel);
+}
+
+void UFPMovement::ReleaseCrouch()
+{
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+
+	if (!character->bIsCrouched)
+		return;
+
+	if (myIsSliding)
+		return;
+	
+	character->UnCrouch();
 }
 
 void UFPMovement::Jump()
@@ -136,6 +188,7 @@ void UFPMovement::Jump()
 		if(!onGround)
 			myAirJumpCount++;
 		animator->StartJump();
+		StopSlide();
 	}
 }
 
@@ -260,7 +313,6 @@ void UFPMovement::StartWallrun(FVector aNormal)
 	const auto movement = character->GetCharacterMovement();
 	if (!movement)
 		return;
-	
 	
 	if (myIsWallRunning)
 	{
@@ -394,6 +446,98 @@ void UFPMovement::Wallrun(float aDT)
 		myWasWallRunning = false;
 		myHasHitHead = false;
 	}
+}
+
+void UFPMovement::UpdateCrouch(float aDT)
+{
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+
+	const auto movement = character->GetCharacterMovement();
+	if (!movement)
+		return;
+
+	const auto camera = character->GetCamera();
+	if (!camera)
+		return;
+
+	if (!character->bIsCrouched)
+		return;
+	
+	if (myIsSliding)
+	{
+		mySlideTimer += aDT;
+		if(mySlideTimer > mySlideDuration)
+			StopSlide();
+
+		const float movementDot = FVector::DotProduct(movement->GetLastInputVector(), movement->Velocity);
+		if(movementDot < mySlideMinDot)
+			StopSlide();
+		
+		movement->Velocity =
+			mySlideDirection *
+			movement->MaxWalkSpeed *
+			mySlideSpeedMul;
+	}
+}
+
+void UFPMovement::UpdateDash(float aDT)
+{
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+
+	const auto movement = character->GetCharacterMovement();
+	if (!movement)
+		return;
+
+	const auto camera = character->GetCamera();
+	if (!camera)
+		return;
+	
+	if (movement->IsWalking())
+		myHasDashed = false;
+	
+	const bool wasDashing = myDashTimer < myDashDuration;
+	myDashTimer += aDT;
+	const bool isDashing = myDashTimer < myDashDuration;
+	if (wasDashing || isDashing)
+		movement->Velocity = myDashDirection *
+			((wasDashing && !isDashing) ? movement->MaxWalkSpeed : myDashVelocity);
+
+	// Dash camera effect
+	const float dashIn = myDashTimer * 1.5f / myDashDuration;
+	const float dashOut = FMath::Clamp((myDashDuration - myDashTimer) / myDashDuration, 0.0f, 1.0f);
+	const float dashForwardMul = FMath::Clamp(FVector::DotProduct(movement->GetLastUpdateVelocity(),
+		character->GetActorForwardVector()), -1.0f, 1.0f);
+	camera->AddAdditiveOffset(FTransform(),
+		FMath::Min(dashIn, dashOut) * myDashFov * dashForwardMul);
+}
+
+void UFPMovement::StartSlide(FVector aVelocity)
+{
+	myIsSliding = true;
+	mySlideTimer = 0.0f;
+	mySlideDirection = aVelocity;
+	mySlideDirection.Z = 0;
+	mySlideDirection.Normalize();
+
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+	
+	const auto animator = character->GetAnimator();
+	if (!animator)
+		return;
+
+	animator->SetState(UFPAnimator::IDLE);
+}
+
+void UFPMovement::StopSlide()
+{
+	myIsSliding = false;
+	ReleaseCrouch();
 }
 
 FVector UFPMovement::GetWallNormal() const

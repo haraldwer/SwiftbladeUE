@@ -22,15 +22,25 @@ public:
 	void PressJump();
 	void ReleaseJump();
 	
-	void Jump();
-	void Dash();
+	void PressCrouch();
+	void ReleaseCrouch();
 	
+	void Jump();
+	void Dash();	
 	void Grapple();
+	
 	void Landed(const FHitResult& aHit);
+	
 	void StartWallrun(FVector aNormal);
 	void StopWallrun();
 	void Wallrun(float aDT);
 
+	void UpdateCrouch(float aDT);
+	void UpdateDash(float aDT);
+
+	void StartSlide(FVector aVelocity);
+	void StopSlide();
+	
 	FVector GetWallNormal() const;
 	
 private:
@@ -58,6 +68,8 @@ protected:
 	float myCoyoteTime = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	int myNumAirJumps = 1;
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float myCameraHeightSmoothing = 15.0f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashVelocity = 1024.0f;
@@ -79,6 +91,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myGrappleCooldown = 1.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Crouch")
+	float myCrouchCamHeightMul = 0.5f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Slide")
+	float mySlideDuration = 1.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Slide")
+	float mySlideMinDot = 0.5f;
+	UPROPERTY(EditDefaultsOnly, Category = "Slide")
+	float mySlideSpeedMul = 1.5f;
+
 private:
 	// B-Hopping
 	bool myHoldingJump = false;
@@ -99,8 +121,15 @@ private:
 
 	// Grapple
 	float myGrappleTimer = 0.0f;
+
+	// Crouch
+	float mySlideTimer = 0.0f;
+	bool myIsSliding = false;
+	FVector mySlideDirection;
 	
 	// General
 	float myCoyoteTimer = 0.0f;
 	int myAirJumpCount = 0;
+	float myCameraHeight = 0.0f;
+	float myOriginalCameraHeight = 0.0f;
 };

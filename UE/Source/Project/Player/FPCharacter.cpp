@@ -16,6 +16,12 @@
 AFPCharacter::AFPCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	const auto movement = GetCharacterMovement();
+	if(movement)
+	{
+		movement->NavAgentProps.bCanCrouch = true;
+	}
 	
 	if (!myCamera)
 	{
@@ -53,6 +59,7 @@ void AFPCharacter::BeginPlay()
 	{
 		capsule->OnComponentHit.RemoveDynamic(this, &AFPCharacter::OnHit);
 		capsule->OnComponentHit.AddDynamic(this, &AFPCharacter::OnHit);
+		myFullHeight = capsule->GetUnscaledCapsuleHalfHeight();
 	}
 
 	if (myHandBP)
@@ -93,6 +100,8 @@ void AFPCharacter::BeginDestroy()
 void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunction& ThisTickFunction)
 {
 	Super::TickActor(DeltaTime, Tick, ThisTickFunction);
+
+	myCamera->ClearAdditiveOffset();
 }
 
 void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -106,6 +115,8 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	InputComponent->BindAction("Jump", IE_Pressed, myMovement, &UFPMovement::PressJump);
 	InputComponent->BindAction("Jump", IE_Released, myMovement, &UFPMovement::ReleaseJump);
+	InputComponent->BindAction("Crouch", IE_Pressed, myMovement, &UFPMovement::PressCrouch);
+	InputComponent->BindAction("Crouch", IE_Released, myMovement, &UFPMovement::ReleaseCrouch);
 	InputComponent->BindAction("Dash", IE_Pressed, myMovement, &UFPMovement::Dash);
 	InputComponent->BindAction("Grapple", IE_Pressed, myMovement, &UFPMovement::Grapple);
 	
@@ -208,4 +219,30 @@ AHand* AFPCharacter::GetRightHand() const
 AHand* AFPCharacter::GetLeftHand() const
 {
 	return myRightHand;
+}
+
+void AFPCharacter::SetHalfHeight()
+{
+	const auto capsule = GetCapsuleComponent();
+	if (!capsule)
+		return;
+	if (capsule->GetUnscaledCapsuleHalfHeight() == myFullHeight * 0.5f)
+		return;
+	capsule->SetCapsuleHalfHeight(myFullHeight * 0.5f, false);
+	auto l = GetActorLocation();
+	l.Z -= myFullHeight * 0.5f;
+	SetActorLocation(l);
+}
+
+void AFPCharacter::SetFullHeight()
+{
+	const auto capsule = GetCapsuleComponent();
+	if (!capsule)
+		return;
+	if (capsule->GetUnscaledCapsuleHalfHeight() == myFullHeight)
+		return;
+	capsule->SetCapsuleHalfHeight(myFullHeight, false);
+	auto l = GetActorLocation();
+	l.Z += myFullHeight * 0.5f;
+	SetActorLocation(l);
 }

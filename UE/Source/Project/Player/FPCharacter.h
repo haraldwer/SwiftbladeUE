@@ -41,6 +41,9 @@ public:
 
 	class AHand* GetRightHand() const;
 	class AHand* GetLeftHand() const;
+	
+	void SetHalfHeight();
+	void SetFullHeight();
 
 private:
 	
@@ -64,7 +67,7 @@ protected:
 
 	// Hands
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hands")
-	TSubclassOf<AActor> myHandBP = nullptr;
+	TSubclassOf<AActor> myHandBP;
 	UPROPERTY()
 	class AHand* myLeftHand;
 	UPROPERTY()
@@ -77,7 +80,7 @@ protected:
 	float mySensitivity = 0.5f;
 	
 private:
-	
+	float myFullHeight = 0.0f;
 	FVector myCheckpointLocation;
 	bool myHasCheckpoint = true;
 	int myRespawnCount = 0;

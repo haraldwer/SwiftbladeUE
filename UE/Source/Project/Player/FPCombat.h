@@ -13,14 +13,27 @@ enum class EFPCombatState : uint8 {
 	DEFLECT 	UMETA(DisplayName = "DEFLECT")
 };
 
+USTRUCT()
+struct FSwordAnimationData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	FTransform myReadyTransform;
+
+	UPROPERTY(EditDefaultsOnly)
+	FTransform myStrikeTransform;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FTransform myDeflectTransform;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECT_API UFPCombat : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-
-	
+public:
 	
 	UFPCombat();
 
@@ -39,7 +52,8 @@ public:
 
 	void UpdateStrike();
 	void UpdateSword(float aDT);
-	
+
+	void SetTransforms();
 	void UpdateTransforms(float aDT);
 	
 	class ASword* GetSword() const;
@@ -59,6 +73,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float mySmoothing = 15.0f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float myReadyDuration = 0.5f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FTransform myIdleSwordTransform;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FSwordAnimationData> myAnimations;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 myDefaultAnimIndex = -1;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myStrikeDuration = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myDeflectDuration = 0.5f;
+	
 private:
 
 	bool myUseBothHands = false;
@@ -75,6 +107,8 @@ private:
 	FTransform myTrans;
 	
 	float myStrikeTime = 9999.0f;
+	int32 myAnimIndex = 0;
 
 	EFPCombatState myState = EFPCombatState::NO_SWORD;
+	
 };
