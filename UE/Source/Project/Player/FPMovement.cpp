@@ -1,5 +1,6 @@
 #include "FPMovement.h"
 #include "FPCharacter.h"
+#include "../../../../../../Games/Epic Games/UE_5.0EA/Engine/Source/Runtime/Engine/Classes/GameFramework/Actor.h"
 #include "Actors/Sword.h"
 #include "Animation/FPAnimator.h"
 #include "Camera/CameraComponent.h"
@@ -107,6 +108,11 @@ AFPCharacter* UFPMovement::GetFPCharacter() const
 	return Cast<AFPCharacter>(GetOwner());
 }
 
+void UFPMovement::SafeSetActorTransformRelative(AActor* anActor, const FTransform& aTransform)
+{
+    
+}
+
 void UFPMovement::PressJump()
 {
 	if (myIsWallRunning)
@@ -122,40 +128,14 @@ void UFPMovement::ReleaseJump()
 
 void UFPMovement::PressCrouch()
 {
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-
-	const auto movement = character->GetCharacterMovement();
-	if (!movement)
-		return;
-
-	if (!movement->IsWalking())
-		return;
-
-	if (character->bIsCrouched)
-		return;
-	
-	character->Crouch();
-	
-	const auto vel = movement->GetLastUpdateVelocity(); 
-	if (vel.Size2D() > movement->MaxWalkSpeedCrouched)
-		StartSlide(vel);
+	myHoldingCrouch = true;
+	StartCrouch();
 }
 
 void UFPMovement::ReleaseCrouch()
 {
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-
-	if (!character->bIsCrouched)
-		return;
-
-	if (myIsSliding)
-		return;
-	
-	character->UnCrouch();
+	myHoldingCrouch = false;
+	StopCrouch();
 }
 
 void UFPMovement::Jump()
@@ -281,6 +261,8 @@ void UFPMovement::Grapple()
 void UFPMovement::Landed(const FHitResult& Hit)
 {
 	myAirJumpCount = 0;
+	if(myHoldingCrouch)
+		StartCrouch();
 	if (myHoldingJump)
 		Jump();
 }
@@ -531,6 +513,44 @@ void UFPMovement::UpdateGrapple(float aDT)
 		movement->Velocity = diff * myGrappleSpeedMul;
 }
 
+void UFPMovement::StartCrouch()
+{
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+
+	const auto movement = character->GetCharacterMovement();
+	if (!movement)
+		return;
+
+	if (!movement->IsWalking())
+		return;
+
+	if (character->bIsCrouched)
+		return;
+	
+	character->Crouch();
+	
+	const auto vel = movement->GetLastUpdateVelocity(); 
+	if (vel.Size2D() > movement->MaxWalkSpeedCrouched)
+		StartSlide(vel);
+}
+
+void UFPMovement::StopCrouch()
+{
+	const auto character = GetFPCharacter();
+	if (!character)
+		return;
+
+	if (!character->bIsCrouched)
+		return;
+
+	if (myIsSliding)
+		return;
+	
+	character->UnCrouch();
+}
+
 void UFPMovement::StartSlide(FVector aVelocity)
 {
 	myIsSliding = true;
@@ -553,7 +573,7 @@ void UFPMovement::StartSlide(FVector aVelocity)
 void UFPMovement::StopSlide()
 {
 	myIsSliding = false;
-	ReleaseCrouch();
+	StopCrouch();
 }
 
 FVector UFPMovement::GetWallNormal() const

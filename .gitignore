@@ -76,3 +76,4 @@ UE/Plugins/*/Intermediate/*
 # Cache files for the editor to use
 UE/DerivedDataCache/*
 
+Builds/*

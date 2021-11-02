@@ -39,6 +39,9 @@ public:
 	void UpdateDash(float aDT);
 	void UpdateGrapple(float aDT);
 
+	void StartCrouch();
+	void StopCrouch();
+
 	void StartSlide(FVector aVelocity);
 	void StopSlide();
 	
@@ -46,6 +49,8 @@ public:
 	
 private:
 	class AFPCharacter* GetFPCharacter() const;
+
+	void SafeSetActorTransformRelative(AActor* anActor, const FTransform& aTransform);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="WallRun")
@@ -127,6 +132,7 @@ private:
 	FVector myGrappleTargetLocation;
 
 	// Crouch
+	bool myHoldingCrouch = false;
 	float mySlideTimer = 0.0f;
 	bool myIsSliding = false;
 	FVector mySlideDirection;
