@@ -32,7 +32,7 @@ public:
 
 	virtual void Landed(const FHitResult& aHit) override;
 
-	void SetCheckpoint(class AActor* aActor);
+	void SetCheckpoint(AActor* aActor);
 	
 	class UCameraComponent* GetCamera() const;
 	class UFPAnimator* GetAnimator() const;

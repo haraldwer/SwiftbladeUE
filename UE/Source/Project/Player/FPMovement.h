@@ -50,8 +50,6 @@ public:
 private:
 	class AFPCharacter* GetFPCharacter() const;
 
-	void SafeSetActorTransformRelative(AActor* anActor, const FTransform& aTransform);
-
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="WallRun")
 	class UCapsuleComponent* myWallDetection;

@@ -272,6 +272,12 @@ void UFPCombat::UpdateTransforms(float aDT)
 	if (!animator)
 		return;
 
+	if (!myTargetTrans.IsValid())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Invalid target transform");
+		return;
+	}
+	
 	const float locationWeight = FMath::Max(myTargetLocationWeight, animator->GetSwordPart()) * myUseWeight;
 	const float rotationWeight = FMath::Max(myTargetRotationWeight, animator->GetSwordPart()) * myUseWeight;
 
@@ -279,6 +285,11 @@ void UFPCombat::UpdateTransforms(float aDT)
 	myRotationWeight = FMath::FInterpTo(myRotationWeight, rotationWeight, aDT, mySmoothing);
 
 	myTrans = DTLerpTrans(myTrans, myTargetTrans, aDT, mySmoothing);
+	if (!myTrans.IsValid())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Invalid transform");
+		return;
+	}
 	
 	const auto rTrans =
 		LerpTrans(animator->GetRight(), myTrans, myLocationWeight, myRotationWeight);
@@ -287,6 +298,18 @@ void UFPCombat::UpdateTransforms(float aDT)
 		myUseBothHands ?
 			LerpTrans(animator->GetLeft(), myTrans, myLocationWeight, myRotationWeight) :
 			animator->GetLeft();
+
+	if (!rTrans.IsValid())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Invalid right");
+		return;
+	}
+
+	if (!lTrans.IsValid())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Invalid left");
+		return;
+	}
 	
 	right->SetActorRelativeTransform(rTrans);
 	left->SetActorRelativeTransform(lTrans);

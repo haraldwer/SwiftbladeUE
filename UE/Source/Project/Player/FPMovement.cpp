@@ -108,11 +108,6 @@ AFPCharacter* UFPMovement::GetFPCharacter() const
 	return Cast<AFPCharacter>(GetOwner());
 }
 
-void UFPMovement::SafeSetActorTransformRelative(AActor* anActor, const FTransform& aTransform)
-{
-    
-}
-
 void UFPMovement::PressJump()
 {
 	if (myIsWallRunning)

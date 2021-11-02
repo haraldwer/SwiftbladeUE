@@ -51,6 +51,7 @@ UE/SourceArt/**/*.tga
 # Binary Files
 UE/Binaries/*
 UE/Plugins/*/Binaries/*
+UE/Plugins/Developer/*/Binaries/*
 
 # Builds
 UE/Build/*
@@ -72,6 +73,7 @@ UE/Saved/*
 # Compiled source files for the engine to use
 UE/Intermediate/*
 UE/Plugins/*/Intermediate/*
+UE/Plugins/Developer/*/Intermediate/*
 
 # Cache files for the editor to use
 UE/DerivedDataCache/*
