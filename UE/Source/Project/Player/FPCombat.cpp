@@ -6,6 +6,7 @@
 #include "Animation/FPAnimator.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Project/Utility.h"
 #include "Project/Enemies/Enemy.h"
 #include "Project/Gameplay/Checkpoint.h"
 
@@ -32,10 +33,9 @@ void UFPCombat::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UFPCombat::PickupSword()
 {
-	if (!mySword)
-		return;
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "PickupSword");
-	mySword->SetPlayer(GetFPCharacter());
+	CHECK_RETURN_LOG(!mySword, "Sword ptr not set");
+	LOG("PickupSword");
+	mySword->SetPlayer(&GetCharacter());
 	mySword->AttachToActor(GetOwner(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	myState = EFPCombatState::IDLE;
 }
@@ -47,12 +47,8 @@ bool UFPCombat::GetHasSword() const
 
 void UFPCombat::Strike()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "StrikePressed");
-
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-
+	LOG("Strike pressed");
+	
 	myStrikeTime = 0.0f;
 	if (mySword)
 		myState = EFPCombatState::READY;
@@ -63,7 +59,7 @@ void UFPCombat::Strike()
 	if(!mySword)
 	{
 		TArray<AActor*> actors;
-		character->GetCapsuleComponent()->GetOverlappingActors(actors, ASword::StaticClass());
+		GetCapsule().GetOverlappingActors(actors, ASword::StaticClass());
 		for (const auto& it : actors)
 		{
 			mySword = Cast<ASword>(it);
@@ -74,23 +70,16 @@ void UFPCombat::Strike()
 
 void UFPCombat::UpdateStrike()
 {
-	if (myState != EFPCombatState::READY)
-		return;
-
-	if (!mySword)
-		return;
+	CHECK_RETURN(myState != EFPCombatState::READY);
+	CHECK_RETURN(!mySword);
 	
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-
 	EFPCombatState newState = EFPCombatState::READY; 
 	
 	// Checkpoints
 	for (auto& c : mySword->GetOverlaps(ACheckpoint::StaticClass()))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, "Checkpoint");
-		character->SetCheckpoint(c);
+		LOG("Checkpoint");
+		GetCharacter().SetCheckpoint(c);
 		newState = EFPCombatState::DEFLECT;
 		break;
 	}
@@ -98,7 +87,7 @@ void UFPCombat::UpdateStrike()
 	// Enemies
 	for (auto& c : mySword->GetOverlaps(AEnemy::StaticClass()))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, "Enemy");
+		LOG("Enemy");
 		newState = EFPCombatState::STRIKE;
 		break;
 	}
@@ -113,15 +102,7 @@ void UFPCombat::UpdateStrike()
 }
 
 void UFPCombat::UpdateSword(float aDT)
-{
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-
-	const auto camera = character->GetCamera();
-	if (!camera)
-		return;
-	
+{	
 	myStrikeTime += aDT;
 	
 	if (!mySword)
@@ -136,15 +117,15 @@ void UFPCombat::UpdateSword(float aDT)
 			if (mySword)
 			{
 				myTargetTrans = FTransform(
-					character->GetTransform().InverseTransformPosition(
+					GetActorTransform().InverseTransformPosition(
 						mySword->GetActorLocation()));
 			}
 			else
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Extending");
+				LOG("Extending");
 				myTargetTrans = FTransform();
 				myTargetTrans.SetLocation(FVector(50, 20, 30));
-				myTargetTrans.SetRotation(FQuat::MakeFromEuler(FVector(-30, 0, 0)));
+				myTargetTrans.SetRotation(FQuat::MakeFromEuler(FVector(-10, 40, 0)));
 			}
 			myUseBothHands = false;
 			myUseWeight = true;
@@ -221,33 +202,28 @@ void UFPCombat::UpdateSword(float aDT)
 
 void UFPCombat::SetTransforms()
 {
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
+	const auto& character = GetCharacter();
+	const auto& animator = GetAnimator();
 	
-	const auto right = character->GetRightHand();
-	const auto left = character->GetLeftHand();
+	const auto right = character.GetRightHand();
+	const auto left = character.GetLeftHand();
 	if (!right || !left)
 		return;
 
-	const auto animator = character->GetAnimator();
-	if (!animator)
-		return;
-
-	const float locationWeight = FMath::Max(myTargetLocationWeight, animator->GetSwordPart()) * myUseWeight;
-	const float rotationWeight = FMath::Max(myTargetRotationWeight, animator->GetSwordPart()) * myUseWeight;
+	const float locationWeight = FMath::Max(myTargetLocationWeight, animator.GetSwordPart()) * myUseWeight;
+	const float rotationWeight = FMath::Max(myTargetRotationWeight, animator.GetSwordPart()) * myUseWeight;
 
 	myLocationWeight = locationWeight;
 	myRotationWeight = rotationWeight;
 	myTrans = myTargetTrans;
 	
 	const auto rTrans =
-		LerpTrans(animator->GetRight(), myTrans, myLocationWeight, myRotationWeight);
+		LerpTrans(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
 	
 	const auto lTrans =
 		myUseBothHands ?
-			LerpTrans(animator->GetLeft(), myTrans, myLocationWeight, myRotationWeight) :
-			animator->GetLeft();
+			LerpTrans(animator.GetLeft(), myTrans, myLocationWeight, myRotationWeight) :
+			animator.GetLeft();
 	
 	right->SetActorRelativeTransform(rTrans);
 	left->SetActorRelativeTransform(lTrans);
@@ -259,61 +235,66 @@ void UFPCombat::SetTransforms()
 
 void UFPCombat::UpdateTransforms(float aDT)
 {
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
+	const auto& character = GetCharacter();
+	const auto& animator = GetAnimator();
 	
-	const auto right = character->GetRightHand();
-	const auto left = character->GetLeftHand();
+	const auto right = character.GetRightHand();
+	const auto left = character.GetLeftHand();
 	if (!right || !left)
 		return;
 
-	const auto animator = character->GetAnimator();
-	if (!animator)
-		return;
-
-	if (!myTargetTrans.IsValid())
+	if (!myTargetTrans.IsValid() || myTargetTrans.GetLocation().Size() > 500.0f)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Invalid target transform");
+		LOG("Invalid target transform");
 		return;
 	}
 	
-	const float locationWeight = FMath::Max(myTargetLocationWeight, animator->GetSwordPart()) * myUseWeight;
-	const float rotationWeight = FMath::Max(myTargetRotationWeight, animator->GetSwordPart()) * myUseWeight;
+	const float locationWeight = FMath::Max(myTargetLocationWeight, animator.GetSwordPart()) * myUseWeight;
+	const float rotationWeight = FMath::Max(myTargetRotationWeight, animator.GetSwordPart()) * myUseWeight;
 
 	myLocationWeight = FMath::FInterpTo(myLocationWeight, locationWeight, aDT, mySmoothing);
 	myRotationWeight = FMath::FInterpTo(myRotationWeight, rotationWeight, aDT, mySmoothing);
 
 	myTrans = DTLerpTrans(myTrans, myTargetTrans, aDT, mySmoothing);
-	if (!myTrans.IsValid())
+	if (!myTrans.IsValid() || myTrans.GetLocation().Size() > 500.0f)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Invalid transform");
+		LOG("Invalid transform");
 		return;
 	}
 	
 	const auto rTrans =
-		LerpTrans(animator->GetRight(), myTrans, myLocationWeight, myRotationWeight);
-	
+		LerpTrans(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
+
+	auto leftTarget = myTrans;
+	leftTarget.SetLocation(leftTarget.TransformPosition(FVector(0, 0, 5)));
+	myLeftWeight = FMath::FInterpTo(myLeftWeight, myUseBothHands, aDT, mySmoothing);
 	const auto lTrans =
-		myUseBothHands ?
-			LerpTrans(animator->GetLeft(), myTrans, myLocationWeight, myRotationWeight) :
-			animator->GetLeft();
+		LerpTrans(animator.GetLeft(), leftTarget, myLocationWeight * myLeftWeight, myRotationWeight * myLeftWeight);
 
 	if (!rTrans.IsValid())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Invalid right");
+		LOG("Invalid right");
 		return;
 	}
 
-	if (!lTrans.IsValid())
+	if (rTrans.GetLocation().Size() > 500.0f)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Invalid left");
+		LOG("Invalid right");
+		return;
+	}
+
+	if (!lTrans.IsValid() || lTrans.GetLocation().Size() > 500.0f)
+	{
+		LOG("Invalid left");
 		return;
 	}
 	
 	right->SetActorRelativeTransform(rTrans);
 	left->SetActorRelativeTransform(lTrans);
 	left->SetActorRelativeScale3D(FVector(1, -1, 1));
+	
+	right->SetIsOpen(!GetHasSword());
+	left->SetIsOpen(!GetHasSword() || !myUseBothHands);
 	
 	if(mySword && myState != EFPCombatState::NO_SWORD)
 		mySword->SetActorRelativeTransform(rTrans);
@@ -322,11 +303,6 @@ void UFPCombat::UpdateTransforms(float aDT)
 ASword* UFPCombat::GetSword() const
 {
 	return mySword;
-}
-
-AFPCharacter* UFPCombat::GetFPCharacter() const
-{
-	return Cast<AFPCharacter>(GetOwner());
 }
 
 FTransform UFPCombat::LerpTrans(const FTransform& aFirst, const FTransform& aSecond, float aLocationWeight, float aRotationWeight)

@@ -21,10 +21,6 @@ void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	const auto character = Cast<AFPCharacter>(GetOwner());
-	if(!character)
-		return;
-	
 	switch (myState)
 	{
 	case IDLE:			Idle(DeltaTime);			break;
@@ -43,10 +39,9 @@ void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	myRealHeadPosition = FMath::FInterpTo(myRealHeadPosition, myHeadPosition, DeltaTime, mySmoothing);
 	myRealHeadRotation = FMath::FInterpTo(myRealHeadRotation, myHeadRotation, DeltaTime, mySmoothing);
 
-	const auto camera = character->GetCamera();
-	if(camera)
-		camera->AddAdditiveOffset(FTransform(
-			FQuat(FVector(1, 0, 0), myRealHeadRotation), // Rotation
+	auto& camera = GetCamera();
+	camera.AddAdditiveOffset(FTransform(
+		FQuat(FVector(1, 0, 0), myRealHeadRotation), // Rotation
 			FVector(0, 0, myRealHeadPosition)), 0); // Position
 
 	myRealRight.SetRotation(
@@ -107,20 +102,10 @@ float UFPAnimator::GetSwordPart() const
 	return mySwordPart;
 }
 
-AFPCharacter* UFPAnimator::GetFPCharacter() const
-{
-	return Cast<AFPCharacter>(GetOwner()); 
-}
-
 void UFPAnimator::Idle(float aDT)
 {
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-	
-	const auto camera = character->GetCamera();
-	if(!camera)
-		return;
+	const auto& character = GetCharacter();
+	const auto& camera = GetCamera();
 	
 	myTimer += aDT * mySpeed * myIdleSpeed;
 	const float off = FMath::Sin(myTimer);
@@ -128,7 +113,7 @@ void UFPAnimator::Idle(float aDT)
 	myHeadRotation = 0.0f;
 
 	const float upDot = FVector::DotProduct(
-		character->GetActorUpVector(), camera->GetForwardVector());
+		character.GetActorUpVector(), camera.GetForwardVector());
 	
 	FVector look;
 	look.Z = upDot * 10 - 5;
@@ -148,13 +133,8 @@ void UFPAnimator::Idle(float aDT)
 
 void UFPAnimator::Running(float aDT)
 {
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-	
-	const auto camera = character->GetCamera();
-	if (!camera)
-		return;
+	const auto& character = GetCharacter();
+	const auto& camera = GetCamera();
 
 	// when going back from side
 
@@ -173,7 +153,7 @@ void UFPAnimator::Running(float aDT)
 	myHeadPosition = FMath::Abs(off) * myPositionStrength;
 
 	const float upDot = FVector::DotProduct(
-		character->GetActorUpVector(), camera->GetForwardVector());
+		character.GetActorUpVector(), camera.GetForwardVector());
 
 	FVector look;
 	look.X = upDot * 20;
@@ -197,28 +177,21 @@ void UFPAnimator::Running(float aDT)
 
 void UFPAnimator::WallRunning(float aDT)
 {
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-	
-	const auto movement = character->GetMovement();
-	if (!movement)
-		return;
-
-	const auto camera = character->GetCamera();
-	if (!camera)
-		return;
+	const auto& character = GetCharacter();
+	const auto& camera = GetCamera();
+	const auto& movement = GetMovement();
 	
 	myTimer += aDT * mySpeed;
-	const float rightDot = FVector::DotProduct(movement->GetWallNormal(), character->GetActorRightVector());
-	const float forwardDot = FVector::DotProduct(movement->GetWallNormal(), camera->GetForwardVector());
+	const auto wallNormal = movement.GetWallNormal();
+	const float rightDot = FVector::DotProduct(wallNormal, character.GetActorRightVector());
+	const float forwardDot = FVector::DotProduct(wallNormal, camera.GetForwardVector());
 	const float tiltOff = -rightDot * myWallrunTilt;
 	const float off = FMath::Sin(myTimer);
 	myHeadRotation = off * myRotationStrength + tiltOff;
 	myHeadPosition = FMath::Abs(off) * myPositionStrength;
 
 	const float upDot = FVector::DotProduct(
-		character->GetActorUpVector(), camera->GetForwardVector());
+		character.GetActorUpVector(), camera.GetForwardVector());
 
 	FVector look;
 	look.Z = upDot * 10;
@@ -238,19 +211,21 @@ void UFPAnimator::WallRunning(float aDT)
 	right.Z += rTilt * 35;
 	right.X += rTilt * 20;
 	right.Y += (forwardDot * 30 + 10) * rTilt;
-	rightRot -= rTilt * 160 + lTilt * 30;
+	rightRot -= rTilt * 120 + lTilt * 20;
 
 	//left.Y -= lTilt * 20;
 	left.Z += lTilt * 35;
 	left.X += lTilt * 20;
 	left.Y -= (forwardDot * 30 + 10) * lTilt;
-	leftRot += lTilt * 160 + rTilt * 30;
+	leftRot += lTilt * 120 + rTilt * 20;
 	
 	myRight.SetLocation(myDefaultHandLocation + right + look);
 	myLeft.SetLocation((myDefaultHandLocation + look) * FVector(1, -1, 1) + left);
 
-	myRight.SetRotation(FQuat::MakeFromEuler(myDefaultHandRotation + FVector(rightRot, 0, 0)));
-	myLeft.SetRotation(FQuat::MakeFromEuler(myDefaultHandRotation * FVector(-1, 1, -1) + FVector(leftRot, 0, 0)));
+	myRight.SetRotation(FQuat::MakeFromEuler(myDefaultHandRotation +
+		FVector(rightRot, 0, -20)));
+	myLeft.SetRotation(FQuat::MakeFromEuler(myDefaultHandRotation *
+		FVector(-1, 1, -1) + FVector(leftRot, 0, 20)));
 	
 	mySwordPart = 0.8f;
 }
@@ -286,19 +261,14 @@ void UFPAnimator::WallClimbing(float aDT)
 
 void UFPAnimator::Falling(float aDT)
 {
-	const auto character = GetFPCharacter();
-	if (!character)
-		return;
-	
-	const auto camera = character->GetCamera();
-	if (!camera)
-		return;
-	
+	const auto& character = GetCharacter();
+	const auto& camera = GetCamera();
+		
 	myHeadPosition = 0;
 	myHeadRotation = 0;
 
 	const float upDot = FVector::DotProduct(
-		character->GetActorUpVector(), camera->GetForwardVector());
+		character.GetActorUpVector(), camera.GetForwardVector());
 	
 	FVector look;
 	look.Z = upDot * 10;
@@ -308,7 +278,7 @@ void UFPAnimator::Falling(float aDT)
 	FVector left;
 	static float timer = 0;
 	timer += aDT;
-	float vel = character->GetVelocity().Z * 0.02f;
+	float vel = character.GetVelocity().Z * 0.02f;
 	right.Z = FMath::PerlinNoise1D(timer) * 5 + vel + 5;
 	left.Z = FMath::PerlinNoise1D(timer * 1.3f) * 5 + vel * 0.02f + 5;
 	right.Y = -vel * 0.5f;
@@ -367,23 +337,19 @@ void UFPAnimator::Grapple(float aDT)
 	}
 }
 
-void UFPAnimator::Step()
+void UFPAnimator::Step() const
 {
 	if (myFootstepBP)
 	{
 		FActorSpawnParameters params;
-		AActor* actor = GetWorld()->SpawnActor<AActor>(myFootstepBP, params);
-		if (actor)
+		if (AActor* actor = GetWorld()->SpawnActor<AActor>(myFootstepBP, params))
 		{
-			const auto character = GetFPCharacter();
-			const auto movement = character->GetMovementComponent();
-			if (character && movement)
-			{
-				actor->SetActorRotation(character->GetActorRotation());
-				actor->SetActorLocation(movement->GetActorFeetLocation());
-				if (myStepRight)
-					actor->SetActorScale3D(FVector(1, -1, 1));
-			}
+			const auto& character = GetCharacter();
+			const auto& movement = GetCharacterMovement();
+			actor->SetActorRotation(character.GetActorRotation());
+			actor->SetActorLocation(movement.GetActorFeetLocation());
+			if (myStepRight)
+				actor->SetActorScale3D(FVector(1, -1, 1));
 		}
 	}
 }

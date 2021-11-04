@@ -11,5 +11,5 @@ class PROJECT_API AHand : public AActor
 	
 public:	
 	AHand();
-
+	void SetIsOpen(bool aIsOpen) const;
 };

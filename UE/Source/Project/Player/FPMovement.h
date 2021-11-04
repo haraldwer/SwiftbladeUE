@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "FPComponentBase.h"
 #include "FPMovement.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_API UFPMovement : public UActorComponent
+class PROJECT_API UFPMovement : public UFPComponentBase
 {
 	GENERATED_BODY()
 
@@ -40,15 +40,12 @@ public:
 	void UpdateGrapple(float aDT);
 
 	void StartCrouch();
-	void StopCrouch();
+	void StopCrouch() const;
 
 	void StartSlide(FVector aVelocity);
 	void StopSlide();
 	
 	FVector GetWallNormal() const;
-	
-private:
-	class AFPCharacter* GetFPCharacter() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="WallRun")

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Project/Player/FPComponentBase.h"
 #include "FPAnimator.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_API UFPAnimator : public UActorComponent
+class PROJECT_API UFPAnimator : public UFPComponentBase
 {
 	GENERATED_BODY()
 
@@ -41,8 +41,6 @@ public:
 	float GetSwordPart() const;
 
 private:
-
-	class AFPCharacter* GetFPCharacter() const;
 	
 	void Idle(float aDT);
 	void Running(float aDT);
@@ -55,6 +53,7 @@ private:
 	void Grapple(float aDT);
 	
 public:
+	
 	UPROPERTY(EditAnywhere, Category = "Hands")
 	FVector myDefaultHandLocation;
 	UPROPERTY(EditAnywhere, Category = "Hands")
@@ -83,7 +82,8 @@ public:
 	TSubclassOf<AActor> myFootstepBP;
 	
 private:
-	void Step();
+	
+	void Step() const;
 	
 	State myState = State::IDLE;
 

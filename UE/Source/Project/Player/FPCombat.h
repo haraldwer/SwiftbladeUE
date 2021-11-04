@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "FPComponentBase.h"
 #include "FPCombat.generated.h"
 
 UENUM(BlueprintType)
@@ -29,7 +29,7 @@ struct FSwordAnimationData
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_API UFPCombat : public UActorComponent
+class PROJECT_API UFPCombat : public UFPComponentBase
 {
 	GENERATED_BODY()
 
@@ -59,8 +59,6 @@ public:
 	class ASword* GetSword() const;
 
 private:
-	
-	class AFPCharacter* GetFPCharacter() const;
 	
 	static FTransform LerpTrans(const FTransform& aFirst, const FTransform& aSecond, float aLocationWeight, float aRotationWeight);
 	static FTransform DTLerpTrans(const FTransform& aFirst, const FTransform& aSecond, float aDT, float aSmoothing);
@@ -99,6 +97,7 @@ private:
 	
 	float myTargetLocationWeight = 0.0f;
 	float myLocationWeight = 0.0f;
+	float myLeftWeight = 0.0f;
 
 	float myTargetRotationWeight = 0.0f;
 	float myRotationWeight = 0.0f;
