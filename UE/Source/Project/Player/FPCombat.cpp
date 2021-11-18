@@ -122,7 +122,6 @@ void UFPCombat::UpdateSword(float aDT)
 			}
 			else
 			{
-				LOG("Extending");
 				myTargetTrans = FTransform();
 				myTargetTrans.SetLocation(FVector(50, 20, 30));
 				myTargetTrans.SetRotation(FQuat::MakeFromEuler(FVector(-10, 40, 0)));
@@ -279,7 +278,7 @@ void UFPCombat::UpdateTransforms(float aDT)
 
 	if (rTrans.GetLocation().Size() > 500.0f)
 	{
-		LOG("Invalid right");
+		LOG("Weird right position");
 		return;
 	}
 

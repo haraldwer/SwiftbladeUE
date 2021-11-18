@@ -13,20 +13,6 @@
 UFPMovement::UFPMovement()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
-	if (const auto character = Cast<AFPCharacter>(GetOwner()))
-	{
-		if(const auto capsule = character->GetCapsuleComponent())
-		{
-			myWallDetection = CreateDefaultSubobject<UCapsuleComponent>("WallDetection");
-			check(myWallDetection != nullptr);
-			float radius, halfHeight;
-			capsule->GetUnscaledCapsuleSize(radius, halfHeight);
-			myWallDetection->InitCapsuleSize(radius + 10, halfHeight + 10);
-			myWallDetection->SetupAttachment(character->GetRootComponent());
-			myWallDetection->SetGenerateOverlapEvents(true);	
-		}
-	}
 }
 
 void UFPMovement::BeginPlay()
@@ -35,6 +21,9 @@ void UFPMovement::BeginPlay()
 	
 	myCameraHeight = GetCamera().GetRelativeLocation().Z + GetCapsule().GetScaledCapsuleHalfHeight();
 	myOriginalCameraHeight = myCameraHeight;
+	
+	auto& movement = GetCharacterMovement();
+	movement.GravityScale = myOverrideGravityScale;
 }
 
 void UFPMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -55,8 +44,8 @@ void UFPMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	if (!myIsWallRunning && !myIsSliding)
 	{
 		if (movement.IsWalking())
-			animator.SetState(movement.GetLastInputVector().Size() > 0.3f ? UFPAnimator::RUNNING : UFPAnimator::IDLE);
-		else animator.SetState(UFPAnimator::FALLING);
+			animator.SetState(movement.GetLastInputVector().Size() > 0.3f ? UFPAnimator::State::RUNNING : UFPAnimator::State::IDLE);
+		else animator.SetState(UFPAnimator::State::FALLING);
 	}
 
 	// Update camera height
@@ -78,6 +67,7 @@ void UFPMovement::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 void UFPMovement::PressJump()
 {
+	LOG("Jump pressed");
 	if (myIsWallRunning)
 		StopWallrun();
 	myHoldingJump = true;
@@ -107,6 +97,7 @@ void UFPMovement::Jump()
 	const bool onGround = myIsWallRunning || movement.IsWalking() || myCoyoteTimer < myCoyoteTime;
 	if(onGround || myAirJumpCount < myNumAirJumps)
 	{
+		LOG("Jump");
 		FVector direction = FVector(0, 0, 1);
 		if (myWasWallRunning) direction += myWallNormal * myWallrunJumpMul * 
 			(1 - FMath::Abs(FVector::DotProduct(myWallNormal, GetCamera().GetForwardVector())));
@@ -175,10 +166,12 @@ void UFPMovement::Grapple()
 	auto& movement = GetCharacterMovement();	
 	movement.AddImpulse(FVector(0, 0, movement.JumpZVelocity), true);
 	GetAnimator().StartGrapple();
+	LOG("Grapple");
 }
 
 void UFPMovement::Landed(const FHitResult& Hit)
 {
+	LOG("Landed");
 	myAirJumpCount = 0;
 	if(myHoldingCrouch)
 		StartCrouch();
@@ -188,8 +181,6 @@ void UFPMovement::Landed(const FHitResult& Hit)
 
 void UFPMovement::StartWallrun(FVector aNormal)
 {
-	LOG("Hit wall");
-
 	CHECK_RETURN(myHasHitHead);
 	CHECK_RETURN(aNormal.Size() < 0.5f);
 	
@@ -227,12 +218,13 @@ void UFPMovement::StartWallrun(FVector aNormal)
 
 void UFPMovement::StopWallrun()
 {
-	GetAnimator().SetState(UFPAnimator::FALLING);
+	GetAnimator().SetState(UFPAnimator::State::FALLING);
 	auto& movement = GetCharacterMovement();
 	movement.SetPlaneConstraintEnabled(false);
-	movement.GravityScale = 1.0f;
+	movement.GravityScale = myOverrideGravityScale;
 	myIsWallRunning = false;
 	myCoyoteTimer = 0.0f;
+	LOG("Stop wallrun");
 }
 
 void UFPMovement::Wallrun(float aDT)
@@ -250,18 +242,18 @@ void UFPMovement::Wallrun(float aDT)
 		if (lookForwardDot < -myWallClimbDot)
 		{
 			
-			animator.SetState(UFPAnimator::WALL_CLIMBING);
+			animator.SetState(UFPAnimator::State::WALL_CLIMBING);
 			movement.SetPlaneConstraintEnabled(false);
 			movement.Velocity = FVector(0, 0, myWallClimbSpeed);
 			if (character.GetInputAxisValue("MoveVertical") < 0.1f)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Exited wallclimb");
+				LOG("Exited wallclimb");
 				StopWallrun();
 			}
 		}
 		else
 		{
-			animator.SetState(UFPAnimator::WALL_RUNNING);
+			animator.SetState(UFPAnimator::State::WALL_RUNNING);
 			
 			// Lim movement
 			movement.SetPlaneConstraintEnabled(true);
@@ -294,18 +286,22 @@ void UFPMovement::Wallrun(float aDT)
 		}
 
 		bool noOverlaps = true;
-		auto overlapInfo = myWallDetection->GetOverlapInfos();
-		for (auto& it : overlapInfo)
+		const auto capsule = character.GetWallDetection();
+		if (capsule)
 		{
-			if(it.OverlapInfo.GetActor() == GetOwner())
-				continue;
+			auto overlapInfo = capsule->GetOverlapInfos();
+			for (auto& it : overlapInfo)
+			{
+				if(it.OverlapInfo.GetActor() == GetOwner())
+					continue;
 
-			if(it.OverlapInfo.GetActor()->IsA(ASword::StaticClass()))
-				continue;
+				if(it.OverlapInfo.GetActor()->IsA(ASword::StaticClass()))
+					continue;
 			
-			noOverlaps = false;
+				noOverlaps = false;
+			}			
 		}
-
+		
 		if (noOverlaps)
 		{
 			LOG("Overlaps empty");
@@ -378,6 +374,7 @@ void UFPMovement::StartCrouch()
 	CHECK_RETURN(!movement.IsWalking())
 	auto& character = GetCharacter();
 	CHECK_RETURN(character.bIsCrouched)
+	LOG("Start crouch");
 	character.Crouch();
 	const auto vel = movement.GetLastUpdateVelocity(); 
 	if (vel.Size2D() > movement.MaxWalkSpeedCrouched)
@@ -389,17 +386,19 @@ void UFPMovement::StopCrouch() const
 	auto& character = GetCharacter();
 	CHECK_RETURN(!character.bIsCrouched)
 	CHECK_RETURN(myIsSliding)
+	LOG("Stop slide");
 	character.UnCrouch();
 }
 
 void UFPMovement::StartSlide(FVector aVelocity)
 {
+	LOG("Start slide");
 	myIsSliding = true;
 	mySlideTimer = 0.0f;
 	mySlideDirection = aVelocity;
 	mySlideDirection.Z = 0;
 	mySlideDirection.Normalize();
-	GetAnimator().SetState(UFPAnimator::IDLE);
+	GetAnimator().SetState(UFPAnimator::State::IDLE);
 }
 
 void UFPMovement::StopSlide()

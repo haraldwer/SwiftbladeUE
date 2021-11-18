@@ -38,6 +38,7 @@ public:
 	class UFPAnimator* GetAnimator() const;
 	class UFPMovement* GetMovement() const;
 	class UFPCombat* GetCombat() const;
+	class UCapsuleComponent* GetWallDetection() const;
 
 	class AHand* GetRightHand() const;
 	class AHand* GetLeftHand() const;
@@ -56,21 +57,24 @@ private:
 protected:
 
 	// Components
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Components")
-	class UCameraComponent* myCamera;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Components")
-	class UFPAnimator* myAnimator;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Components")
-	class UFPMovement* myMovement;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Components")
-	class UFPCombat* myCombat;
+	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	UCameraComponent* myCamera;
+	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	class UFPMovement* myFPMovement;
+	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	class UFPAnimator* myFPAnimator;
+	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	class UFPCombat* myFPCombat;
 
+	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	UCapsuleComponent* myWallDetection;
+	
 	// Hands
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Hands")
+	UPROPERTY(EditDefaultsOnly, Category = "Hands")
 	TSubclassOf<AActor> myHandBP;
-	UPROPERTY()
+	UPROPERTY(Instanced)
 	class AHand* myLeftHand;
-	UPROPERTY()
+	UPROPERTY(Instanced)
 	class AHand* myRightHand;
 
 	// Gameplay

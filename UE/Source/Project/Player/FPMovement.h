@@ -48,13 +48,11 @@ public:
 	FVector GetWallNormal() const;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="WallRun")
-	class UCapsuleComponent* myWallDetection;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myWallrunExitDot = 0.8f;
 	UPROPERTY(EditDefaultsOnly, Category="WallRun")
-	float myWallrunMinVelocity = 1.0f;
+	float myWallrunMinVelocity = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myWallrunJumpMul = 1.5f;
 	
@@ -71,6 +69,8 @@ protected:
 	int myNumAirJumps = 1;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float myCameraHeightSmoothing = 15.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float myOverrideGravityScale = 1.5f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashVelocity = 1024.0f;

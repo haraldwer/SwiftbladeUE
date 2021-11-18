@@ -14,7 +14,7 @@ UFPAnimator::UFPAnimator()
 void UFPAnimator::BeginPlay()
 {
 	Super::BeginPlay();
-	myState = IDLE;
+	myState = State::IDLE;
 }
 
 void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -23,12 +23,12 @@ void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 	switch (myState)
 	{
-	case IDLE:			Idle(DeltaTime);			break;
-	case RUNNING:		Running(DeltaTime);		break;
-	case WALL_RUNNING:	WallRunning(DeltaTime);	break;
-	case WALL_CLIMBING:	WallClimbing(DeltaTime);	break;
-	case FALLING:		Falling(DeltaTime);		break;
-	default:			myState = IDLE;
+	case State::IDLE:			Idle(DeltaTime);		break;
+	case State::RUNNING:		Running(DeltaTime);		break;
+	case State::WALL_RUNNING:	WallRunning(DeltaTime);	break;
+	case State::WALL_CLIMBING:	WallClimbing(DeltaTime);break;
+	case State::FALLING:		Falling(DeltaTime);		break;
+	default:			myState = State::IDLE;
 	}
 
 	// Apply overrides here
@@ -112,8 +112,8 @@ void UFPAnimator::Idle(float aDT)
 	myHeadPosition = FMath::Abs(off) * myPositionStrength * myIdleScale;
 	myHeadRotation = 0.0f;
 
-	const float upDot = FVector::DotProduct(
-		character.GetActorUpVector(), camera.GetForwardVector());
+	float upDot = FMath::Clamp(FVector::DotProduct(
+		character.GetActorUpVector(), camera.GetForwardVector()), 0.0f, 1.0f);
 	
 	FVector look;
 	look.Z = upDot * 10 - 5;
@@ -152,8 +152,8 @@ void UFPAnimator::Running(float aDT)
 	myHeadRotation = off * myRotationStrength;
 	myHeadPosition = FMath::Abs(off) * myPositionStrength;
 
-	const float upDot = FVector::DotProduct(
-		character.GetActorUpVector(), camera.GetForwardVector());
+	const float upDot = FMath::Clamp(FVector::DotProduct(
+		character.GetActorUpVector(), camera.GetForwardVector()), 0.0f, 1.0f);
 
 	FVector look;
 	look.X = upDot * 20;
@@ -190,8 +190,8 @@ void UFPAnimator::WallRunning(float aDT)
 	myHeadRotation = off * myRotationStrength + tiltOff;
 	myHeadPosition = FMath::Abs(off) * myPositionStrength;
 
-	const float upDot = FVector::DotProduct(
-		character.GetActorUpVector(), camera.GetForwardVector());
+	const float upDot = FMath::Clamp(FVector::DotProduct(
+		character.GetActorUpVector(), camera.GetForwardVector()), 0.0f, 1.0f);
 
 	FVector look;
 	look.Z = upDot * 10;
@@ -267,8 +267,8 @@ void UFPAnimator::Falling(float aDT)
 	myHeadPosition = 0;
 	myHeadRotation = 0;
 
-	const float upDot = FVector::DotProduct(
-		character.GetActorUpVector(), camera.GetForwardVector());
+	const float upDot = FMath::Clamp(FVector::DotProduct(
+		character.GetActorUpVector(), camera.GetForwardVector()), 0.0f, 1.0f);
 	
 	FVector look;
 	look.Z = upDot * 10;

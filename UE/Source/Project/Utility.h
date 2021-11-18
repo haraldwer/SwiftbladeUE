@@ -1,9 +1,10 @@
 ﻿#pragma once
 
-#define LOG(text) \
-GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, FString(text));
 #define LOG_CONSOLE(text) \
-UE_LOG(LogTemp, Display, text);
+UE_LOG(LogTemp, Display, TEXT("%s"), *FString(text));
+#define LOG(text) \
+GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, FString(text)); \
+LOG_CONSOLE(text);
 
 #define CHECK_ASSERT(condition) \
 check(!condition);

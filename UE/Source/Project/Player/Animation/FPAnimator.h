@@ -21,7 +21,7 @@ public:
 	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	enum State
+	enum class State
 	{
 		IDLE,
 		RUNNING,

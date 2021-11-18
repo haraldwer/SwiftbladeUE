@@ -12,6 +12,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Animation/FPAnimator.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
+#include "Project/Utility.h"
 
 AFPCharacter::AFPCharacter()
 {
@@ -19,34 +20,31 @@ AFPCharacter::AFPCharacter()
 
 	const auto movement = GetCharacterMovement();
 	if(movement)
-	{
 		movement->NavAgentProps.bCanCrouch = true;
-	}
 	
-	if (!myCamera)
-	{
-		myCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCamera");
-		check(myCamera != nullptr);
-		myCamera->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
-		myCamera->bUsePawnControlRotation = true;
-	}
+	myCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCamera");
+	CHECK_ASSERT(!myCamera);
+	myCamera->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
+	myCamera->bUsePawnControlRotation = true;
+		
+	myFPMovement = CreateDefaultSubobject<UFPMovement>("FPMovement");
+	CHECK_ASSERT(!myFPMovement);
+	
+	myFPAnimator = CreateDefaultSubobject<UFPAnimator>("FPAnimator");
+	CHECK_ASSERT(!myFPAnimator);
+	
+	myFPCombat = CreateDefaultSubobject<UFPCombat>("FPCombat");
+	CHECK_ASSERT(!myFPCombat);
 
-	if (!myAnimator)
+	if(const auto capsule = GetCapsuleComponent())
 	{
-		myAnimator = CreateDefaultSubobject<UFPAnimator>("Animator");
-		check(myAnimator != nullptr);
-	}
-
-	if (!myMovement)
-	{
-		myMovement = CreateDefaultSubobject<UFPMovement>("Movement");
-		check(myMovement != nullptr);
-	}
-
-	if (!myCombat)
-	{
-		myCombat = CreateDefaultSubobject<UFPCombat>("Combat");
-		check(myCombat != nullptr);
+		myWallDetection = CreateDefaultSubobject<UCapsuleComponent>("WallDetection");
+		CHECK_ASSERT(!myWallDetection);
+		float radius, halfHeight;
+		capsule->GetUnscaledCapsuleSize(radius, halfHeight);
+		myWallDetection->InitCapsuleSize(radius + 10, halfHeight + 10);
+		myWallDetection->SetupAttachment(RootComponent);
+		myWallDetection->SetGenerateOverlapEvents(true);
 	}
 }
 
@@ -81,6 +79,8 @@ void AFPCharacter::BeginPlay()
 			myLeftHand->SetActorRelativeScale3D(FVector(1, -1, 1));
 		}		
 	}
+
+	myCheckpointLocation = GetActorLocation();
 }
 
 void AFPCharacter::BeginDestroy()
@@ -107,20 +107,26 @@ void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunctio
 void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	
+	LOG("Binding input");
+	
 	InputComponent->BindAxis("MoveHorizontal", this, &AFPCharacter::MoveHorizontal);
 	InputComponent->BindAxis("MoveVertical", this, &AFPCharacter::MoveVertical);
 	InputComponent->BindAxis("LookHorizontal", this, &AFPCharacter::LookHorizontal);
 	InputComponent->BindAxis("LookVertical", this, &AFPCharacter::LookVertical);
 
-	InputComponent->BindAction("Jump", IE_Pressed, myMovement, &UFPMovement::PressJump);
-	InputComponent->BindAction("Jump", IE_Released, myMovement, &UFPMovement::ReleaseJump);
-	InputComponent->BindAction("Crouch", IE_Pressed, myMovement, &UFPMovement::PressCrouch);
-	InputComponent->BindAction("Crouch", IE_Released, myMovement, &UFPMovement::ReleaseCrouch);
-	InputComponent->BindAction("Dash", IE_Pressed, myMovement, &UFPMovement::Dash);
-	InputComponent->BindAction("Grapple", IE_Pressed, myMovement, &UFPMovement::Grapple);
+	CHECK_RETURN_LOG(!myFPMovement, "Movement not set");
 	
-	InputComponent->BindAction("Strike", IE_Pressed, myCombat, &UFPCombat::Strike);
+	InputComponent->BindAction("Jump", IE_Pressed, myFPMovement, &UFPMovement::PressJump);
+	InputComponent->BindAction("Jump", IE_Released, myFPMovement, &UFPMovement::ReleaseJump);
+	InputComponent->BindAction("Crouch", IE_Pressed, myFPMovement, &UFPMovement::PressCrouch);
+	InputComponent->BindAction("Crouch", IE_Released, myFPMovement, &UFPMovement::ReleaseCrouch);
+	InputComponent->BindAction("Dash", IE_Pressed, myFPMovement, &UFPMovement::Dash);
+	InputComponent->BindAction("Grapple", IE_Pressed, myFPMovement, &UFPMovement::Grapple);
+
+	CHECK_RETURN_LOG(!myFPCombat, "Combat not set");
+	
+	InputComponent->BindAction("Strike", IE_Pressed, myFPCombat, &UFPCombat::Strike);
 }
 
 void AFPCharacter::MoveHorizontal(float aValue)
@@ -149,16 +155,16 @@ void AFPCharacter::LookVertical(float aValue)
 void AFPCharacter::Landed(const FHitResult& aHit)
 {
 	Super::Landed(aHit);
-	if(myMovement)
-		myMovement->Landed(aHit);
+	if(myFPMovement)
+		myFPMovement->Landed(aHit);
 }
 
 void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
                          FVector NormalImpulse, const FHitResult& Hit)
 {
 	const auto c = GetMovementComponent();
-	if (c && myMovement && c->IsFalling())
-		myMovement->StartWallrun(Hit.ImpactNormal);
+	if (c && myFPMovement && c->IsFalling())
+		myFPMovement->StartWallrun(Hit.ImpactNormal);
 }
 
 void AFPCharacter::Die(FString anObjectName)
@@ -168,15 +174,10 @@ void AFPCharacter::Die(FString anObjectName)
 	myDiedThisFrame = true;
 	
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "You died: " + anObjectName);
-	if(!myHasCheckpoint)
+	SetActorLocation(myCheckpointLocation);
+	SetActorRotation(FQuat());
+	if(myHasCheckpoint)
 	{
-		const auto controller = GetController();
-		Destroy();
-		GetWorld()->GetAuthGameMode()->RestartPlayer(controller);
-	}
-	else
-	{
-		SetActorLocationAndRotation(myCheckpointLocation, FQuat(), false, nullptr, ETeleportType::TeleportPhysics);
 		myRespawnCount++;
 		if (myRespawnCount > myRespawns)
 			myHasCheckpoint = false;
@@ -198,17 +199,22 @@ UCameraComponent* AFPCharacter::GetCamera() const
 
 UFPAnimator* AFPCharacter::GetAnimator() const
 {
-	return myAnimator;
+	return myFPAnimator;
 }
 
 UFPMovement* AFPCharacter::GetMovement() const
 {
-	return myMovement;
+	return myFPMovement;
 }
 
 UFPCombat* AFPCharacter::GetCombat() const
 {
-	return myCombat;
+	return myFPCombat;
+}
+
+UCapsuleComponent* AFPCharacter::GetWallDetection() const
+{
+	return myWallDetection;
 }
 
 AHand* AFPCharacter::GetRightHand() const
