@@ -48,7 +48,7 @@ void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 		FMath::QInterpTo(
 			myRealRight.GetRotation(),
 			myRight.GetRotation(), 
-			DeltaTime, myHandSmoothing));
+			DeltaTime, myHandSmoothing).GetNormalized());
 	myRealRight.SetLocation(
 		FMath::VInterpTo(
 			myRealRight.GetLocation(),
@@ -59,7 +59,7 @@ void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 		FMath::QInterpTo(
 			myRealLeft.GetRotation(),
 			myLeft.GetRotation(),
-			DeltaTime, myHandSmoothing));
+			DeltaTime, myHandSmoothing).GetNormalized());
 	myRealLeft.SetLocation(
 		FMath::VInterpTo(
 			myRealLeft.GetLocation(),

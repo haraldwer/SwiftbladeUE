@@ -12,14 +12,6 @@
 	],
 	"Plugins": [
 		{
-			"Name": "CameraShakePreviewer",
-			"Enabled": false
-		},
-		{
-			"Name": "AudioSynesthesia",
-			"Enabled": true
-		},
-		{
 			"Name": "OculusVR",
 			"Enabled": false,
 			"SupportedTargetPlatforms": [
