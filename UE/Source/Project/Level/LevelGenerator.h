@@ -36,7 +36,7 @@ private:
 	void GenerateLevels();
 	void MoveLevels();
 	void EnableOverlapEvents() const;
-	int FindLevelIndex(ULevel* aLevel);
+	int FindLevelIndex(const ULevel* aLevel);
 	static TArray<FString> GetLevelPool(FString aType, int aNumb);
 
 	TArray<FString> myLoadedLevels;

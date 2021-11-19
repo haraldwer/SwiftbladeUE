@@ -1,11 +1,6 @@
 ﻿#pragma once
 
 #include "Engine/Engine.h"
-#include "Engine/World.h"
-#include "Engine/LevelStreaming.h"
-#include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
-
 
 #define LOG_CONSOLE(text) \
 UE_LOG(LogTemp, Display, TEXT("%s"), *FString(FString(text) + FString(__FILE__) + FString::FromInt(__LINE__) + FString(__FUNCTION__)));

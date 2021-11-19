@@ -1,7 +1,9 @@
 #include "LevelGenerator.h"
 
-#include "Project/Utility.h"
 #include "LevelEndLocation.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/LevelStreaming.h"
+#include "Kismet/GameplayStatics.h"
 
 ALevelGenerator::ALevelGenerator()
 {
@@ -75,15 +77,15 @@ void ALevelGenerator::GenerateLevels()
 	}
 
 	int uuid = 0;
-	FLatentActionInfo LoadInfo;
-	LoadInfo.CallbackTarget = this;
-	LoadInfo.ExecutionFunction = "LevelLoaded";
-	LoadInfo.Linkage = 0;
+	FLatentActionInfo loadInfo;
+	loadInfo.CallbackTarget = this;
+	loadInfo.ExecutionFunction = "LevelLoaded";
+	loadInfo.Linkage = 0;
 	for (auto& it : myLoadedLevels)
 	{
 		uuid++;
-		LoadInfo.UUID = uuid;
-		UGameplayStatics::LoadStreamLevel(this, *it, true, true, LoadInfo);
+		loadInfo.UUID = uuid;
+		UGameplayStatics::LoadStreamLevel(this, *it, true, true, loadInfo);
 	}
 }
 
@@ -127,7 +129,7 @@ void ALevelGenerator::EnableOverlapEvents() const
 	}
 }
 
-int ALevelGenerator::FindLevelIndex(ULevel* aLevel)
+int ALevelGenerator::FindLevelIndex(const ULevel* aLevel)
 {
 	const auto name = aLevel->GetOuter()->GetName();
 	int j = 0;
@@ -140,7 +142,7 @@ int ALevelGenerator::FindLevelIndex(ULevel* aLevel)
 	return -1; 
 }
 
-TArray<FString> ALevelGenerator::GetLevelPool(FString aType, int aNumb)
+TArray<FString> ALevelGenerator::GetLevelPool(const FString aType, int aNumb)
 {
 	TArray<FString> vec;
 	for (int i = 0; i < aNumb; i++)

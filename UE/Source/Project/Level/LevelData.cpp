@@ -1,7 +1,7 @@
 #include "LevelData.h"
 
-#include "GameMapsSettings.h"
-#include "Project/Utility.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
 ALevelData::ALevelData()
 {
@@ -11,10 +11,10 @@ ALevelData::ALevelData()
 void ALevelData::BeginPlay()
 {
 	Super::BeginPlay();
-	const auto defaultLevel = UGameMapsSettings::GetGameDefaultMap();
-	if (GetWorld()->GetCurrentLevel() != defaultLevel)
+	
+	LOG(UGameplayStatics::GetCurrentLevelName(GetWorld()));
+	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) != "Base")
 	{
-		LOG("Starting from sublevel, will load StartLevel instead");
-		UGameplayStatics::OpenLevel(GetWorld(), FName(*defaultLevel));
+		UGameplayStatics::OpenLevel(GetWorld(), FName("Base"));
 	}
 }

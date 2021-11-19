@@ -1,6 +1,6 @@
 #include "Hand.h"
 
-#include "Project/Utility.h"
+#include "Components/StaticMeshComponent.h"
 
 AHand::AHand()
 {
