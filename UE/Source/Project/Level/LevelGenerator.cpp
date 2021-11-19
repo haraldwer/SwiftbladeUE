@@ -1,7 +1,6 @@
 #include "LevelGenerator.h"
 
-#include "Kismet/GameplayStatics.h"
-#include "Engine/LevelStreaming.h"
+#include "Project/Utility.h"
 #include "LevelEndLocation.h"
 
 ALevelGenerator::ALevelGenerator()
@@ -29,13 +28,13 @@ void ALevelGenerator::Tick(float DeltaTime)
 
 void ALevelGenerator::LevelLoaded()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Level loaded");
+	LOG("Level loaded");
 	myStaticInvalid = true;
 }
 
 void ALevelGenerator::GenerateLevels()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Generating levels");
+	LOG("Generating levels");
 
 	TArray<FString> easy = GetLevelPool("Easy", myNumbEasyLevels);
 	TArray<FString> arena = GetLevelPool("Arena", myNumbArenas);
@@ -90,7 +89,7 @@ void ALevelGenerator::GenerateLevels()
 
 void ALevelGenerator::MoveLevels()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Moving levels");
+	LOG("Moving levels");
 
 	FVector previousPosition = FVector(0, 0, 0);
 	const auto& streamingLevels = GetWorld()->GetStreamingLevels();
@@ -108,13 +107,13 @@ void ALevelGenerator::MoveLevels()
 		if (end && *end)
 			previousPosition = (*end)->GetActorLocation();
 		else
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString("Missing end location for level") + loadedLevel->GetFName().ToString());
+			LOG("Missing end location for level");
 	}
 }
 
 void ALevelGenerator::EnableOverlapEvents() const
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, "Enabling overlap events");
+	LOG("Enabling overlap events");
 
 	TArray<AActor*> actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), actors);

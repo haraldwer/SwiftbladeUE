@@ -78,4 +78,6 @@ UE/Plugins/Developer/*/Intermediate/*
 # Cache files for the editor to use
 UE/DerivedDataCache/*
 
+UE/Plugins/Developer/RiderLink/*
+
 Builds/*

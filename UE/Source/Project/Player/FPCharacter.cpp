@@ -167,13 +167,9 @@ void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 		myFPMovement->StartWallrun(Hit.ImpactNormal);
 }
 
-void AFPCharacter::Die(FString anObjectName)
+void AFPCharacter::Die(const FString& anObjectName)
 {
-	if (myDiedThisFrame)
-		return;
-	myDiedThisFrame = true;
-	
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, "You died: " + anObjectName);
+	Restart();
 	SetActorLocation(myCheckpointLocation);
 	SetActorRotation(FQuat());
 	if(myHasCheckpoint)

@@ -254,6 +254,7 @@ void UFPCombat::UpdateTransforms(float aDT)
 	myLocationWeight = FMath::FInterpTo(myLocationWeight, locationWeight, aDT, mySmoothing);
 	myRotationWeight = FMath::FInterpTo(myRotationWeight, rotationWeight, aDT, mySmoothing);
 
+	// Sword transform
 	myTrans = DTLerpTrans(myTrans, myTargetTrans, aDT, mySmoothing);
 	if (!myTrans.IsValid() || myTrans.GetLocation().Size() > 500.0f)
 	{
@@ -265,13 +266,19 @@ void UFPCombat::UpdateTransforms(float aDT)
 	{
 		LOG("Animator right invalid");
 	}
-	
+
+	// Right hand transform, lerp between animation and sword trans
 	const auto rTrans =
 		LerpTrans(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
 
+	// Sword left hand transform 
 	auto leftTarget = myTrans;
-	leftTarget.SetLocation(leftTarget.TransformPosition(FVector(0, 0, 5)));
+	leftTarget.SetLocation(myTrans.TransformPosition(FVector(0, 0, 5)));
+
+	// Left hand weight, Use both hands?
 	myLeftWeight = FMath::FInterpTo(myLeftWeight, myUseBothHands, aDT, mySmoothing);
+
+	// Left hand transform, lerp between animation and sword trans
 	const auto lTrans =
 		LerpTrans(animator.GetLeft(), leftTarget, myLocationWeight * myLeftWeight, myRotationWeight * myLeftWeight);
 

@@ -11,4 +11,6 @@ class PROJECT_API ALevelData : public AActor
 	
 public:	
 	ALevelData();
+
+	virtual void BeginPlay() override;
 };

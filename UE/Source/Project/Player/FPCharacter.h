@@ -52,7 +52,7 @@ private:
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 	
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void Die(FString anObjectName);
+	void Die(const FString& anObjectName);
 
 protected:
 
@@ -88,5 +88,4 @@ private:
 	FVector myCheckpointLocation;
 	bool myHasCheckpoint = true;
 	int myRespawnCount = 0;
-	bool myDiedThisFrame = false;
 };

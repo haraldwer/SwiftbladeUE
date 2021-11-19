@@ -4,6 +4,7 @@
 #include "Project/Player/Actors/Hand.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Project/Utility.h"
 #include "Project/Player/FPMovement.h"
 
 UFPAnimator::UFPAnimator()
@@ -65,6 +66,16 @@ void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 			myRealLeft.GetLocation(),
 			myLeft.GetLocation(),
 			DeltaTime, myHandSmoothing));
+
+	if (!myRealRight.IsValid())
+	{
+		LOG("Animator right not valid");
+	}
+	
+	if (!myRealLeft.IsValid())
+	{
+		LOG("Animator left not valid");
+	}
 }
 
 void UFPAnimator::SetState(State aState)
