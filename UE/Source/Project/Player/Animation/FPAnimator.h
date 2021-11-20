@@ -40,6 +40,9 @@ public:
 	FTransform GetLeft() const;
 	float GetSwordPart() const;
 
+	void MoveLeft(const FVector& aVector);
+	void MoveRight(const FVector& aVector);
+
 private:
 	
 	void Idle(float aDT);

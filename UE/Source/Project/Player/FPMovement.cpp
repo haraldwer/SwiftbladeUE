@@ -112,6 +112,8 @@ void UFPMovement::Jump()
 void UFPMovement::Dash()
 {
 	CHECK_RETURN(myHasDashed);
+
+	StopSlide();
 	
 	auto& movement = GetCharacterMovement();
 	auto vel = GetCamera().GetForwardVector();
@@ -173,12 +175,12 @@ void UFPMovement::Landed(const FHitResult& Hit)
 	LOG("Landed");
 	myAirJumpCount = 0;
 	if(myHoldingCrouch)
-		StartCrouch();
+		StartCrouch(true);
 	if (myHoldingJump)
 		Jump();
 }
 
-void UFPMovement::StartWallrun(FVector aNormal)
+void UFPMovement::StartWallrun(const FVector& aNormal)
 {
 	CHECK_RETURN(myHasHitHead);
 	CHECK_RETURN(aNormal.Size() < 0.5f);
@@ -226,7 +228,7 @@ void UFPMovement::StopWallrun()
 	LOG("Stop wallrun");
 }
 
-void UFPMovement::Wallrun(float aDT)
+void UFPMovement::Wallrun(const float aDT)
 {
 	const auto& character = GetCharacter();
 	auto& movement = GetCharacterMovement();
@@ -314,7 +316,7 @@ void UFPMovement::Wallrun(float aDT)
 	}
 }
 
-void UFPMovement::UpdateCrouch(float aDT)
+void UFPMovement::UpdateCrouch(const float aDT)
 {
 	CHECK_RETURN(!GetCharacter().bIsCrouched);
 	
@@ -336,7 +338,7 @@ void UFPMovement::UpdateCrouch(float aDT)
 	}
 }
 
-void UFPMovement::UpdateDash(float aDT)
+void UFPMovement::UpdateDash(const float aDT)
 {
 	auto& movement = GetCharacterMovement();
 	if (movement.IsWalking())
@@ -358,7 +360,7 @@ void UFPMovement::UpdateDash(float aDT)
 		FMath::Min(dashIn, dashOut) * myDashFov * dashForwardMul);
 }
 
-void UFPMovement::UpdateGrapple(float aDT)
+void UFPMovement::UpdateGrapple(const float aDT)
 {
 	myGrappleTimer += aDT;
 	CHECK_RETURN(myGrappleTimer > myGrappleReleaseTime);
@@ -367,14 +369,17 @@ void UFPMovement::UpdateGrapple(float aDT)
 		GetCharacterMovement().Velocity = diff * myGrappleSpeedMul;
 }
 
-void UFPMovement::StartCrouch()
+void UFPMovement::StartCrouch(const bool aForceCrouch)
 {
 	const auto& movement = GetCharacterMovement();
-	CHECK_RETURN(!movement.IsWalking())
+	CHECK_RETURN((!aForceCrouch && !movement.IsWalking()))
 	auto& character = GetCharacter();
 	CHECK_RETURN(character.bIsCrouched)
 	LOG("Start crouch");
 	character.Crouch();
+	//auto& animator = GetAnimator();
+	//animator.MoveLeft(FVector(0, 0, 50));
+	//animator.MoveRight(FVector(0, 0, 50));
 	const auto vel = movement.GetLastUpdateVelocity(); 
 	if (vel.Size2D() > movement.MaxWalkSpeedCrouched)
 		StartSlide(vel);
@@ -385,11 +390,14 @@ void UFPMovement::StopCrouch() const
 	auto& character = GetCharacter();
 	CHECK_RETURN(!character.bIsCrouched)
 	CHECK_RETURN(myIsSliding)
-	LOG("Stop slide");
+	LOG("Stop crouch");
 	character.UnCrouch();
+	auto& animator = GetAnimator(); 
+	animator.MoveLeft(FVector(0, 0, -50));
+	animator.MoveRight(FVector(0, 0, -50));
 }
 
-void UFPMovement::StartSlide(FVector aVelocity)
+void UFPMovement::StartSlide(const FVector& aVelocity)
 {
 	LOG("Start slide");
 	myIsSliding = true;

@@ -113,6 +113,16 @@ float UFPAnimator::GetSwordPart() const
 	return mySwordPart;
 }
 
+void UFPAnimator::MoveLeft(const FVector& aVector)
+{
+	myRealLeft.SetLocation(myRealLeft.GetLocation() + aVector);
+}
+
+void UFPAnimator::MoveRight(const FVector& aVector)
+{
+	myRealRight.SetLocation(myRealRight.GetLocation() + aVector);
+}
+
 void UFPAnimator::Idle(float aDT)
 {
 	const auto& character = GetCharacter();
@@ -123,8 +133,8 @@ void UFPAnimator::Idle(float aDT)
 	myHeadPosition = FMath::Abs(off) * myPositionStrength * myIdleScale;
 	myHeadRotation = 0.0f;
 
-	float upDot = FMath::Clamp(FVector::DotProduct(
-		character.GetActorUpVector(), camera.GetForwardVector()), 0.0f, 1.0f);
+	const float upDot = FMath::Clamp(FVector::DotProduct(
+		                                 character.GetActorUpVector(), camera.GetForwardVector()), 0.0f, 1.0f);
 	
 	FVector look;
 	look.Z = upDot * 10 - 5;

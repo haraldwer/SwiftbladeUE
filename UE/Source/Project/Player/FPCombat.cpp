@@ -318,22 +318,8 @@ ASword* UFPCombat::GetSword() const
 
 FTransform UFPCombat::LerpTrans(const FTransform& aFirst, const FTransform& aSecond, float aLocationWeight, float aRotationWeight)
 {
-	FVector location;
-	if (aLocationWeight < 0.1f)
-		location = aFirst.GetLocation();
-	else if (aLocationWeight > 0.9f)
-		location = aSecond.GetLocation();
-	else
-		location = FMath::Lerp(aFirst.GetLocation(), aSecond.GetLocation(), aLocationWeight);
-
-	FQuat rotation;
-	if (aLocationWeight < 0.1f)
-		rotation = aFirst.GetRotation();
-	else if (aLocationWeight > 0.9f)
-		rotation = aSecond.GetRotation();
-	else
-		rotation = FQuat::Slerp(aFirst.GetRotation(), aSecond.GetRotation(), aRotationWeight).GetNormalized();
-	
+	const FVector location = FMath::Lerp(aFirst.GetLocation(), aSecond.GetLocation(), aLocationWeight);
+	const FQuat rotation = FQuat::Slerp(aFirst.GetRotation(), aSecond.GetRotation(), aRotationWeight).GetNormalized();
 	return FTransform(rotation, location);
 }
 

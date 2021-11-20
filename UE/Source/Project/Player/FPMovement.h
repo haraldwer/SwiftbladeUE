@@ -31,7 +31,7 @@ public:
 	
 	void Landed(const FHitResult& aHit);
 	
-	void StartWallrun(FVector aNormal);
+	void StartWallrun(const FVector& aNormal);
 	void StopWallrun();
 	void Wallrun(float aDT);
 
@@ -39,10 +39,10 @@ public:
 	void UpdateDash(float aDT);
 	void UpdateGrapple(float aDT);
 
-	void StartCrouch();
+	void StartCrouch(bool aForceCrouch = false);
 	void StopCrouch() const;
 
-	void StartSlide(FVector aVelocity);
+	void StartSlide(const FVector& aVelocity);
 	void StopSlide();
 	
 	FVector GetWallNormal() const;
