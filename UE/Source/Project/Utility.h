@@ -8,8 +8,8 @@ UE_LOG(LogTemp, Display, TEXT("%s"), *FString(FString(text) + " | " + FString(__
 GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, FString(text)); \
 LOG_CONSOLE(text);
 
-#define CHECK_ASSERT(condition) \
-check(!condition);
+#define CHECK_ASSERT(condition, text) \
+check(!(condition) && text);
 
 #define CHECK_RETURN(condition, ...) \
 if (condition) { return __VA_ARGS__; }
@@ -24,7 +24,7 @@ if (condition) { LOG(); break; }
 if (condition) { LOG(text); break; }
 
 #define CHECK_CONTINUE(condition) \
-if (condition) { LOG(); continue; }
+if (condition) { continue; }
 
 #define CHECK_CONTINUE_LOG(condition, text) \
 if (condition) { LOG(text); continue; }

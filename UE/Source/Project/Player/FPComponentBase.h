@@ -22,4 +22,6 @@ public:
 	class UFPAnimator& GetAnimator() const;
 	class UFPMovement& GetMovement() const;
 	class UFPCombat& GetCombat() const;
+
+	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform) const;
 };

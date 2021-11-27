@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Project/Utility.h"
 #include "Project/Gameplay/GrapplePoint.h"
+#include "Project/Gameplay/StickySurface.h"
 
 UFPMovement::UFPMovement()
 {
@@ -106,6 +107,7 @@ void UFPMovement::Jump()
 			myAirJumpCount++;
 		GetAnimator().StartJump();
 		StopSlide();
+		CreateEffect(myJumpEffect, GetActorTransform());
 	}
 }
 
@@ -173,6 +175,7 @@ void UFPMovement::Grapple()
 void UFPMovement::Landed(const FHitResult& Hit)
 {
 	LOG("Landed");
+	CreateEffect(myLandedEffect, GetActorTransform());
 	myAirJumpCount = 0;
 	if(myHoldingCrouch)
 		StartCrouch(true);
@@ -184,6 +187,12 @@ void UFPMovement::StartWallrun(const FVector& aNormal)
 {
 	CHECK_RETURN(myHasHitHead);
 	CHECK_RETURN(aNormal.Size() < 0.5f);
+
+	if (!IsTouchingStickySurface())
+	{
+		LOG("Not touching sticy wall");
+		return;
+	}
 	
 	if (abs(aNormal.Z) > 0.5f)
 	{
@@ -286,24 +295,7 @@ void UFPMovement::Wallrun(const float aDT)
 			StopWallrun();
 		}
 
-		bool noOverlaps = true;
-		const auto capsule = character.GetWallDetection();
-		if (capsule)
-		{
-			auto overlapInfo = capsule->GetOverlapInfos();
-			for (auto& it : overlapInfo)
-			{
-				if(it.OverlapInfo.GetActor() == GetOwner())
-					continue;
-
-				if(it.OverlapInfo.GetActor()->IsA(ASword::StaticClass()))
-					continue;
-			
-				noOverlaps = false;
-			}			
-		}
-		
-		if (noOverlaps)
+		if (!IsTouchingStickySurface())
 		{
 			LOG("Overlaps empty");
 			StopWallrun();
@@ -314,6 +306,19 @@ void UFPMovement::Wallrun(const float aDT)
 		myWasWallRunning = false;
 		myHasHitHead = false;
 	}
+}
+
+bool UFPMovement::IsTouchingStickySurface() const
+{
+	const auto capsule = GetCharacter().GetWallDetection();
+	if (capsule)
+	{
+		auto overlapInfo = capsule->GetOverlapInfos();
+		for (auto& it : overlapInfo)
+			if(it.OverlapInfo.GetActor()->IsA(AStickySurface::StaticClass()))
+				return true;
+	}
+	return false;
 }
 
 void UFPMovement::UpdateCrouch(const float aDT)

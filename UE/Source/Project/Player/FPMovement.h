@@ -28,12 +28,13 @@ public:
 	void Jump();
 	void Dash();	
 	void Grapple();
-	
+
 	void Landed(const FHitResult& aHit);
 	
 	void StartWallrun(const FVector& aNormal);
 	void StopWallrun();
 	void Wallrun(float aDT);
+	bool IsTouchingStickySurface() const;
 
 	void UpdateCrouch(float aDT);
 	void UpdateDash(float aDT);
@@ -103,6 +104,12 @@ protected:
 	float mySlideMinDot = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Slide")
 	float mySlideSpeedMul = 1.5f;
+
+	// Effects
+	UPROPERTY(EditDefaultsOnly, Category = "Effect BPs")
+	TSubclassOf<class AEffect> myJumpEffect;
+	UPROPERTY(EditDefaultsOnly, Category = "Effect BPs")
+	TSubclassOf<class AEffect> myLandedEffect;
 
 private:
 	// B-Hopping

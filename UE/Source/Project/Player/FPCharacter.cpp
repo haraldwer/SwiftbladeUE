@@ -11,7 +11,9 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "Animation/FPAnimator.h"
+#include "Blueprint/UserWidget.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
+#include "Project/Effect.h"
 #include "Project/Utility.h"
 
 AFPCharacter::AFPCharacter()
@@ -23,23 +25,23 @@ AFPCharacter::AFPCharacter()
 		movement->NavAgentProps.bCanCrouch = true;
 	
 	myCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCamera");
-	CHECK_ASSERT(!myCamera);
+	CHECK_ASSERT(!myCamera, "Failed to create camera component");
 	myCamera->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
 	myCamera->bUsePawnControlRotation = true;
 		
 	myFPMovement = CreateDefaultSubobject<UFPMovement>("FPMovement");
-	CHECK_ASSERT(!myFPMovement);
+	CHECK_ASSERT(!myFPMovement, "Failed to create movement component");
 	
 	myFPAnimator = CreateDefaultSubobject<UFPAnimator>("FPAnimator");
-	CHECK_ASSERT(!myFPAnimator);
+	CHECK_ASSERT(!myFPAnimator, "Failed to create animator component");
 	
 	myFPCombat = CreateDefaultSubobject<UFPCombat>("FPCombat");
-	CHECK_ASSERT(!myFPCombat);
+	CHECK_ASSERT(!myFPCombat, "Failed to create combat component");
 
 	if(const auto capsule = GetCapsuleComponent())
 	{
 		myWallDetection = CreateDefaultSubobject<UCapsuleComponent>("WallDetection");
-		CHECK_ASSERT(!myWallDetection);
+		CHECK_ASSERT(!myWallDetection, "Failed to create wall detection component");
 		float radius, halfHeight;
 		capsule->GetUnscaledCapsuleSize(radius, halfHeight);
 		myWallDetection->InitCapsuleSize(radius + 10, halfHeight + 10);
@@ -114,7 +116,7 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	InputComponent->BindAxis("MoveVertical", this, &AFPCharacter::MoveVertical);
 	InputComponent->BindAxis("LookHorizontal", this, &AFPCharacter::LookHorizontal);
 	InputComponent->BindAxis("LookVertical", this, &AFPCharacter::LookVertical);
-
+	
 	CHECK_RETURN_LOG(!myFPMovement, "Movement not set");
 	
 	InputComponent->BindAction("Jump", IE_Pressed, myFPMovement, &UFPMovement::PressJump);
@@ -129,12 +131,12 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	InputComponent->BindAction("Strike", IE_Pressed, myFPCombat, &UFPCombat::Strike);
 }
 
-void AFPCharacter::MoveHorizontal(float aValue)
+void AFPCharacter::MoveHorizontal(const float aValue)
 {
 	AddMovementInput(FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y), aValue);
 }
 
-void AFPCharacter::MoveVertical(float aValue)
+void AFPCharacter::MoveVertical(const float aValue)
 {
 	auto rot = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
 	rot.Z = 0.0f;
@@ -142,12 +144,12 @@ void AFPCharacter::MoveVertical(float aValue)
 	AddMovementInput(rot, aValue);
 }
 
-void AFPCharacter::LookHorizontal(float aValue)
+void AFPCharacter::LookHorizontal(const float aValue)
 {
 	AddControllerYawInput(aValue * mySensitivity);
 }
 
-void AFPCharacter::LookVertical(float aValue)
+void AFPCharacter::LookVertical(const float aValue)
 {
 	AddControllerPitchInput(aValue * mySensitivity * -1.0f);
 }
@@ -169,9 +171,14 @@ void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 
 void AFPCharacter::Die(const FString& anObjectName)
 {
+	if (const auto camera = GetCamera())
+		camera->SetRelativeRotation(FRotator());
+	if (const auto capsule = GetCapsuleComponent())
+		capsule->SetRelativeRotation(FRotator());
+	if (const auto controller = GetController())
+		controller->SetControlRotation(FRotator());
+	TeleportTo(myCheckpointLocation, FRotator());
 	Restart();
-	SetActorLocation(myCheckpointLocation);
-	SetActorRotation(FQuat());
 	if(myHasCheckpoint)
 	{
 		myRespawnCount++;
@@ -247,4 +254,16 @@ void AFPCharacter::SetFullHeight()
 	auto l = GetActorLocation();
 	l.Z += myFullHeight * 0.5f;
 	SetActorLocation(l);
+}
+
+AEffect* AFPCharacter::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform)
+{
+	const auto bp = aBP.Get();
+	CHECK_RETURN_LOG(!bp, "Effect BP not set", nullptr);
+	AActor* actor = GetWorld()->SpawnActor(aBP.Get());
+	CHECK_RETURN_LOG(!actor, "Failed to create effect", nullptr);
+	AEffect* effect = Cast<AEffect>(actor);
+	CHECK_RETURN_LOG(!effect, "Effect not of type AEffect", nullptr)
+	effect->SetActorTransform(aTransform);
+	return effect;
 }

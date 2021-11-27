@@ -23,7 +23,6 @@ void ALevelGenerator::Tick(float DeltaTime)
 	if(myStaticInvalid)
 	{
 		MoveLevels();
-		EnableOverlapEvents();
 		myStaticInvalid = false;
 	}
 }

@@ -46,6 +46,8 @@ public:
 	void SetHalfHeight();
 	void SetFullHeight();
 
+	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform);
+
 private:
 	
 	UFUNCTION()
@@ -57,13 +59,13 @@ private:
 protected:
 
 	// Components
-	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UCameraComponent* myCamera;
-	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	class UFPMovement* myFPMovement;
-	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	class UFPAnimator* myFPAnimator;
-	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	class UFPCombat* myFPCombat;
 
 	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
@@ -76,7 +78,7 @@ protected:
 	class AHand* myLeftHand;
 	UPROPERTY(Instanced)
 	class AHand* myRightHand;
-
+	
 	// Gameplay
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	int myRespawns = 2;
