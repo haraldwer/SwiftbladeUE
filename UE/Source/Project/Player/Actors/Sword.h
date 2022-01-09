@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "GameFramework/Actor.h"
 #include "Sword.generated.h"
 
@@ -10,32 +9,31 @@ class PROJECT_API ASword : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
+public:
+	
 	ASword();
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 	TArray<AActor*> GetOverlaps(UClass* aClass);
 	void SetPlayer(class AFPCharacter* aPlayer);
 	void Return();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Before pickup")
+	float myRotationSpeed = 15.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Before pickup")
+	float myPositionSpeed = 10.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Before pickup")
+	float myPositionScale = 50.0f;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+private:
+	
 	UPROPERTY()
 	class AFPCharacter* myPlayer;
 	
-	UPROPERTY(EditAnywhere, Category = "Before pickup")
-	float myRotationSpeed = 15.0f;
-	UPROPERTY(EditAnywhere, Category = "Before pickup")
-	float myPositionSpeed = 10.0f;
-	UPROPERTY(EditAnywhere, Category = "Before pickup")
-	float myPositionScale = 50.0f;
-	
 	float myTimer;
 	FVector myStartLocation;
+
 };

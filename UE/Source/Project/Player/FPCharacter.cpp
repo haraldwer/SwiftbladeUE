@@ -2,6 +2,7 @@
 #include "FPCharacter.h"
 
 #include "FPCombat.h"
+#include "FPController.h"
 #include "FPMovement.h"
 #include "Actors/Hand.h"
 #include "Camera/CameraComponent.h"
@@ -82,7 +83,9 @@ void AFPCharacter::BeginPlay()
 		}		
 	}
 
-	myCheckpointLocation = GetActorLocation();
+	const auto controller = GetFPController();
+	if (controller)
+		controller->CharacterCreated(this);
 }
 
 void AFPCharacter::BeginDestroy()
@@ -97,6 +100,11 @@ void AFPCharacter::BeginDestroy()
 		myRightHand->Destroy();
 	if(myLeftHand)
 		myLeftHand->Destroy();
+}
+
+AFPController* AFPCharacter::GetFPController() const
+{
+	return Cast<AFPController>(GetController());
 }
 
 void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunction& ThisTickFunction)
@@ -171,28 +179,9 @@ void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 
 void AFPCharacter::Die(const FString& anObjectName)
 {
-	if (const auto camera = GetCamera())
-		camera->SetRelativeRotation(FRotator());
-	if (const auto capsule = GetCapsuleComponent())
-		capsule->SetRelativeRotation(FRotator());
-	if (const auto controller = GetController())
-		controller->SetControlRotation(FRotator());
-	TeleportTo(myCheckpointLocation, FRotator());
-	Restart();
-	if(myHasCheckpoint)
-	{
-		myRespawnCount++;
-		if (myRespawnCount > myRespawns)
-			myHasCheckpoint = false;
-	}
-}
-
-void AFPCharacter::SetCheckpoint(AActor* aActor)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, "Checkpoint Set");
-	myHasCheckpoint = true;
-	myRespawnCount = 0;
-	myCheckpointLocation = GetActorLocation();
+	const auto controller = GetFPController();
+	CHECK_RETURN_LOG(!controller, "Controller nullptr");
+	controller->CharacterKilled();
 }
 
 UCameraComponent* AFPCharacter::GetCamera() const

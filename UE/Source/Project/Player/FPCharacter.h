@@ -21,6 +21,8 @@ protected:
 
 public:
 
+	class AFPController* GetFPController() const;
+	
 	virtual void TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -32,8 +34,6 @@ public:
 
 	virtual void Landed(const FHitResult& aHit) override;
 
-	void SetCheckpoint(AActor* aActor);
-	
 	class UCameraComponent* GetCamera() const;
 	class UFPAnimator* GetAnimator() const;
 	class UFPMovement* GetMovement() const;
@@ -48,14 +48,14 @@ public:
 
 	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform);
 
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void Die(const FString& anObjectName);
+	
 private:
 	
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 	
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void Die(const FString& anObjectName);
-
 protected:
 
 	// Components
@@ -81,13 +81,8 @@ protected:
 	
 	// Gameplay
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	int myRespawns = 2;
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	float mySensitivity = 0.5f;
 	
 private:
 	float myFullHeight = 0.0f;
-	FVector myCheckpointLocation;
-	bool myHasCheckpoint = true;
-	int myRespawnCount = 0;
 };

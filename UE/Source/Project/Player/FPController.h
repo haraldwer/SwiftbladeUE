@@ -10,15 +10,43 @@ class PROJECT_API AFPController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	virtual void BeginPlay() override;
 	
+	virtual ~AFPController() override = default;
+
+protected:
+	
+	virtual void BeginPlay() override;
+
+public:
+
+	class AFPCharacter* GetFPCharacter() const;
+	
+	void CharacterCreated(AFPCharacter* aCharacter);
+	void CharacterKilled();
+
+	UFUNCTION(BlueprintCallable)
+	void Respawn();
+
+	void SetCheckpoint(AActor* aActor);
+
 	void SetEnablePawnControls(bool aEnabled);
 
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+	TSubclassOf<AFPCharacter> myCharacterBlueprint;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+	int myRespawns = 2;
+	
 private:
-
+	
 	virtual void SetupInputComponent() override;
+	
 	void PausePressed();
-
-	UPROPERTY()
-	class AFPCharacter* myCharacter;
+	
+	FVector myCheckpointLocation;
+	FVector myStartLocation;
+	bool myHasCheckpoint = true;
+	int myRespawnCount = 0;
 };

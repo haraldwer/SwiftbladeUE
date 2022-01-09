@@ -1,11 +1,16 @@
 #include "FPAnimator.h"
 
+#include "DrawDebugHelpers.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Hand.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/LineBatchComponent.h"
 #include "Project/Utility.h"
+#include "Project/Player/FPCombat.h"
 #include "Project/Player/FPMovement.h"
+#include "Project/Player/Actors/Interaction.h"
 
 UFPAnimator::UFPAnimator()
 {
@@ -33,6 +38,7 @@ void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	}
 
 	// Apply overrides here
+	Interact(DeltaTime);
 	Jump(DeltaTime);
 	Dash(DeltaTime);
 	Grapple(DeltaTime);
@@ -315,6 +321,94 @@ void UFPAnimator::Falling(float aDT)
 	myLeft.SetRotation(FQuat::MakeFromEuler((myDefaultHandRotation + rot) * FVector(-1, 1, -1)));
 
 	mySwordPart = 0.2f;
+}
+
+void UFPAnimator::Interact(float aDT)
+{
+	CHECK_RETURN(myState == State::WALL_RUNNING);
+
+	auto& character = GetCharacter();
+	
+	if (myState == State::WALL_CLIMBING)
+	{
+		FHitResult result;
+		const FVector start = character.GetActorLocation() + FVector(0, 0, 75);
+		const FVector end = start + character.GetActorForwardVector().GetSafeNormal() * 100;  
+		if (!Raycast(result, start, end))
+		{
+			// Raycast straight down if climbing
+			InteractHand(myRight, FVector(30, 0,75), FVector(30, 0, -100), FVector(-90, 90, 0));
+			InteractHand(myLeft, FVector(30, 0,75), FVector(30, 0, -100), FVector(90, 90, 0));
+		}
+		return;		
+	}
+
+	TArray<AActor*> actors;
+	GetCapsule().GetOverlappingActors(actors, AInteraction::StaticClass());
+	for (const auto& it : actors)
+	{
+		CHECK_CONTINUE(!it);
+		
+		const auto interactionTrans = it->GetActorTransform();
+		const auto actorTrans = GetActorTransform();
+		const auto diff = interactionTrans.GetLocation() - actorTrans.GetLocation();
+
+		// Only if point is in front of player
+		const auto forward = character.GetActorForwardVector();
+		const auto forwardDot = FVector::DotProduct(forward, diff.GetSafeNormal());
+		CHECK_CONTINUE(forwardDot < 0.2);
+
+		// Right or left hand?
+		const auto right = character.GetActorRightVector();
+		const auto rightDot = FVector::DotProduct(right, diff.GetSafeNormal());
+		auto& handTrans = (rightDot > 0) ? myRight : myLeft;
+		handTrans.SetLocation(actorTrans.InverseTransformPosition(interactionTrans.GetLocation()));
+		handTrans.SetRotation(actorTrans.InverseTransformRotation(interactionTrans.GetRotation()));
+		LOG("Touching interaction");
+		return;
+	}
+	
+	if (!InteractHand(myRight, FVector(0, 0, 0), FVector(50, 30, 40), FVector(-90, 90, 0)))
+		InteractHand(myRight, FVector(0, 0, 0), FVector(50, 30, -30), FVector(-90, 90, 0));
+	
+	if (!InteractHand(myLeft, FVector(0, 0, 0), FVector(50, -30, 40), FVector(90, 90, 0)))
+		InteractHand(myLeft, FVector(0, 0, 0), FVector(50, -30, -30), FVector(90, 90, 0));
+
+}
+
+bool UFPAnimator::InteractHand(FTransform& aHandTrans, const FVector& aStart, const FVector& anEnd, const FVector& aHandRotation) const
+{
+	auto& character = GetCharacter();
+	auto actorTrans = GetActorTransform();
+	
+	const auto handPos = aHandTrans.GetLocation();
+	const FVector start = actorTrans.TransformPosition(handPos + aStart);
+	const FVector end = actorTrans.TransformPosition(handPos + anEnd);
+
+	FHitResult result;
+	if (Raycast(result, start, end))
+	{
+		aHandTrans.SetLocation(actorTrans.InverseTransformPosition(result.Location));
+		auto rotation = actorTrans.InverseTransformRotation((result.Normal * -1.0f).Rotation().Quaternion());
+		aHandTrans.SetRotation(FQuat::MakeFromEuler(rotation.Euler() + aHandRotation));
+		return true;
+	}
+	return false;
+}
+
+bool UFPAnimator::Raycast(FHitResult& aResult, const FVector& aStart, const FVector& anEnd) const
+{
+	const auto& character = GetCharacter();
+	//DrawDebugLine(GetWorld(), aStart, anEnd, FColor(255, 0, 0, 255), false, 0.0f, 0, 1.0f);
+
+	constexpr ECollisionChannel channel = ECC_WorldStatic;
+	FCollisionQueryParams params;
+	params.bFindInitialOverlaps = false;
+	params.AddIgnoredActor(&character);
+	params.AddIgnoredActor(character.GetRightHand());
+	params.AddIgnoredActor(character.GetLeftHand());
+	
+	return GetWorld()->LineTraceSingleByChannel(aResult, aStart, anEnd, channel, params);
 }
 
 void UFPAnimator::Jump(float aDT)

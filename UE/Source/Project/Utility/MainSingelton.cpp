@@ -5,21 +5,48 @@
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
 #include "Project/CustomGameMode.h"
-#include "Project/UI/Menus/MenuManager.h"
+#include "Project/Utility.h"
 
-AMenuManager* UMainSingelton::GetMenuManger()
+AMenuManager* UMainSingelton::GetMenuMangerPtr()
 {
-	const auto gameMode = GetGameMode();
-	CHECK_ASSERT(!gameMode, "GameMode nullptr");
-	const auto menuManager = Cast<AMenuManager>(gameMode->myMenuManager);
-	CHECK_ASSERT(!menuManager, "MenuManager nullptr");
-	return menuManager;
+	const auto& gameMode = GetGameMode();
+	CHECK_ASSERT(!gameMode.myMenuManager, "MenuManager nullptr");
+	return gameMode.myMenuManager;
+}
+
+AMenuManager& UMainSingelton::GetMenuManger()
+{
+	return *GetMenuMangerPtr();
+}
+
+APromptManager* UMainSingelton::GetPromptManagerPtr()
+{
+	const auto& gameMode = GetGameMode();
+	CHECK_ASSERT(!gameMode.myPromptManager, "PromptManager nullptr");
+	return gameMode.myPromptManager;
+}
+
+APromptManager& UMainSingelton::GetPromptManager()
+{
+	return *GetPromptManagerPtr();
+}
+
+AEnemyManager* UMainSingelton::GetEnemyManagerPtr()
+{
+	const auto& gameMode = GetGameMode();
+	CHECK_ASSERT(!gameMode.myEnemyManager, "EnemyManager nullptr");
+	return gameMode.myEnemyManager;
+}
+
+AEnemyManager& UMainSingelton::GetEnemyManager()
+{
+	return *GetEnemyManagerPtr();
 }
 
 AFPController* UMainSingelton::GetLocalController()
 {
-	const auto instance = GetGameInstance();
-	return Cast<AFPController>(instance->GetPrimaryPlayerController());
+	const auto& instance = GetGameInstance();
+	return Cast<AFPController>(instance.GetPrimaryPlayerController());
 }
 
 AFPCharacter* UMainSingelton::GetLocalPlayer()
@@ -29,7 +56,7 @@ AFPCharacter* UMainSingelton::GetLocalPlayer()
 	return Cast<AFPCharacter>(controller->GetCharacter());
 }
 
-ACustomGameMode* UMainSingelton::GetGameMode()
+ACustomGameMode& UMainSingelton::GetGameMode()
 {
 	const auto world = GEngine->GetCurrentPlayWorld();
 	CHECK_ASSERT(!world, "World nullptr");
@@ -37,10 +64,10 @@ ACustomGameMode* UMainSingelton::GetGameMode()
 	CHECK_ASSERT(!instance, "GameMode nullptr");
 	const auto customInstance = Cast<ACustomGameMode>(instance);
 	CHECK_ASSERT(!customInstance, "Custom GameMode nullptr");
-	return customInstance;
+	return *customInstance;
 }
 
-UCustomGameInstance* UMainSingelton::GetGameInstance()
+UCustomGameInstance& UMainSingelton::GetGameInstance()
 {
 	const auto world = GEngine->GetCurrentPlayWorld();
 	CHECK_ASSERT(!world, "World nullptr");
@@ -48,5 +75,5 @@ UCustomGameInstance* UMainSingelton::GetGameInstance()
 	CHECK_ASSERT(!instance, "Instance nullptr");
 	const auto customInstance = Cast<UCustomGameInstance>(instance);
 	CHECK_ASSERT(!customInstance, "Custom instance nullptr");
-	return customInstance;
+	return *customInstance;
 }

@@ -25,7 +25,6 @@ class PROJECT_API UMenuBase : public UWidgetBase
 	
 public:
 	virtual ~UMenuBase() override = default;
-	virtual void NativeConstruct() override;
 	void Init(EMenuType aMenuType);
 
 	UFUNCTION(BlueprintImplementableEvent)

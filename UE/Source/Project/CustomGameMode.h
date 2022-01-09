@@ -15,6 +15,15 @@ public:
 	virtual void InitGameState() override;
 
 private:
+	void CreateMenuManager();
+	void CreatePromptManager();
+	void CreateEnemyManager();
+	
 	UPROPERTY();
 	class AMenuManager* myMenuManager;
+	UPROPERTY();
+	class APromptManager* myPromptManager;
+	UPROPERTY();
+	class AEnemyManager* myEnemyManager;
+	
 };

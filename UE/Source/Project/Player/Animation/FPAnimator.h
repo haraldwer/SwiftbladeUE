@@ -51,6 +51,9 @@ private:
 	void WallClimbing(float aDT);
 	void Falling(float aDT);
 
+	void Interact(float aDT);
+	bool InteractHand(FTransform& aHandTrans, const FVector& aStart, const FVector& anEnd, const FVector& aHandRotation) const;
+	
 	void Jump(float aDT);
 	void Dash(float aDT);
 	void Grapple(float aDT);
@@ -85,7 +88,7 @@ public:
 	TSubclassOf<AActor> myFootstepBP;
 	
 private:
-	
+	bool Raycast(FHitResult& aResult, const FVector& aStart, const FVector& anEnd) const;
 	void Step() const;
 	
 	State myState = State::IDLE;

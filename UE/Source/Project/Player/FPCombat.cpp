@@ -1,14 +1,20 @@
 #include "FPCombat.h"
 
 #include "FPCharacter.h"
+#include "FPController.h"
 #include "Actors/Hand.h"
 #include "Actors/Sword.h"
 #include "Animation/FPAnimator.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/DamageType.h"
+#include "Kismet/GameplayStatics.h"
+#include "Project/CustomGameMode.h"
 #include "Project/Utility.h"
 #include "Project/Enemies/Enemy.h"
 #include "Project/Gameplay/Checkpoint.h"
+#include "Project/UI/Prompts/PromptManager.h"
+#include "Project/Utility/MainSingelton.h"
 
 UFPCombat::UFPCombat()
 {
@@ -76,18 +82,17 @@ void UFPCombat::UpdateStrike()
 	EFPCombatState newState = EFPCombatState::READY; 
 	
 	// Checkpoints
-	for (auto& c : mySword->GetOverlaps(ACheckpoint::StaticClass()))
+	for (const auto& c : mySword->GetOverlaps(ACheckpoint::StaticClass()))
 	{
-		LOG("Checkpoint");
-		GetCharacter().SetCheckpoint(c);
+		HitCheckpoint(c);
 		newState = EFPCombatState::DEFLECT;
 		break;
 	}
 
 	// Enemies
-	for (auto& c : mySword->GetOverlaps(AEnemy::StaticClass()))
+	for (const auto& e : mySword->GetOverlaps(AEnemy::StaticClass()))
 	{
-		LOG("Enemy");
+		HitEnemy(e);
 		newState = EFPCombatState::STRIKE;
 		break;
 	}
@@ -119,6 +124,7 @@ void UFPCombat::UpdateSword(float aDT)
 				myTargetTrans = FTransform(
 					GetActorTransform().InverseTransformPosition(
 						mySword->GetActorLocation()));
+				UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::INTRO);
 			}
 			else
 			{
@@ -328,4 +334,21 @@ FTransform UFPCombat::DTLerpTrans(const FTransform& aFirst, const FTransform& aS
 	const auto location = FMath::VInterpTo(aFirst.GetLocation(), aSecond.GetLocation(), aDT, aSmoothing);
 	const auto rotation = FMath::QInterpTo(aFirst.GetRotation(), aSecond.GetRotation(), aDT, aSmoothing);
 	return FTransform(rotation, location);
+}
+
+void UFPCombat::HitCheckpoint(AActor* aCheckpoint) const
+{
+	GetController().SetCheckpoint(aCheckpoint);
+}
+
+void UFPCombat::HitEnemy(AActor* anEnemy)
+{
+	const auto sword = GetSword();
+	CHECK_RETURN_LOG(!sword, "Sword nullptr");
+	UGameplayStatics::ApplyDamage(
+		anEnemy,
+		1.0f,
+		&GetController(),
+		sword,
+		UDamageType::StaticClass());
 }
