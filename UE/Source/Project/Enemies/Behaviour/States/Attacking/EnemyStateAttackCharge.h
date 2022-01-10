@@ -16,6 +16,7 @@ protected:
 	void Charge(const float aDT) override;
 	void Attack(const float aDT) override;
 	void Recover(const float aDT) override;
+	void PerformAttack(AActor* aTarget) override;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myChargeRotationSpeed = 10.0f;

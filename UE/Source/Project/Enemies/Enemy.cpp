@@ -3,6 +3,7 @@
 #include "EnemyAnimator.h"
 #include "EnemyBehaviour.h"
 #include "EnemyManager.h"
+#include "Components/StaticMeshComponent.h"
 #include "Project/Utility/MainSingelton.h"
 
 AEnemy::AEnemy()
@@ -13,6 +14,11 @@ AEnemy::AEnemy()
 	CHECK_RETURN_LOG(!myBehaviour, "Failed to create EnemyBehaviour component");
 	myAnimator = CreateDefaultSubobject<UEnemyAnimator>("EnemyAnimator");
 	CHECK_RETURN_LOG(!myAnimator, "Failed to create EnemyAnimator component");
+	myMesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
+	CHECK_RETURN_LOG(!myMesh, "Failed to create Mesh component");
+	myDamageHitboxParent = CreateDefaultSubobject<USceneComponent>("DamageHitboxParent");
+	CHECK_RETURN_LOG(!myDamageHitboxParent, "Failed to create DamageHitboxParent component");
+	myDamageHitboxParent->SetupAttachment(myMesh);
 }
 
 void AEnemy::BeginPlay()
@@ -28,6 +34,7 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AEnemy::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser)
 {
+	LOG("Enemy took damage " + FString::SanitizeFloat(aDamageAmount));
 	myHealth -= FMath::RoundToInt(aDamageAmount);
 	Super::TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser);
 	OnTookDamage(aDamageAmount, aDamageCauser);
@@ -37,11 +44,29 @@ float AEnemy::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, 
 }
 
 void AEnemy::Die()
-{	
+{
+	LOG("Enemy died");
 	OnDied();
 	UMainSingelton::GetEnemyManager().RemoveEnemy(this);
 	if (mySpawner)
 		mySpawner->RemoveEnemy(this);
 	// TODO: Death animation
 	Destroy();
+}
+
+bool AEnemy::IsActorInDamageHitbox(AActor* anActor)
+{
+	if (!anActor)
+		return false;
+	for (const auto& hitbox : myDamageHitboxParent->GetAttachChildren())
+	{
+		UShapeComponent* shape = Cast<UShapeComponent>(hitbox);
+		CHECK_CONTINUE_LOG(!shape, "Hitbox is not a shape");
+		TArray<AActor*> actors;
+		shape->GetOverlappingActors(actors, anActor->StaticClass());
+		for (const auto& overlap : actors)
+			if (overlap == anActor)
+				return true;
+	}
+	return false;
 }

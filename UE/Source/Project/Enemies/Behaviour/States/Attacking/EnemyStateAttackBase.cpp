@@ -1,7 +1,7 @@
 ﻿#include "EnemyStateAttackBase.h"
 
-#include "Project/Enemies/States/EnemyStateMove.h"
-#include "Project/Enemies/EnemyBehaviour.h"
+#include "Project/Enemies/Behaviour/States/EnemyStateMove.h"
+#include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 
 UEnemyStateAttackBase::UEnemyStateAttackBase()
 {
@@ -37,7 +37,7 @@ void UEnemyStateAttackBase::SetSubState(const EEnemyAttackState aSubState)
 {
 	mySubState = aSubState;
 	myEnterStateTime = GetWorld()->GetTimeSeconds();
-	myOnAttackStateChanged.Broadcast(aSubState);
+	OnAttackStateChanged(aSubState);
 }
 
 bool UEnemyStateAttackBase::ShouldChangeState(const float aStateTime) const
@@ -62,7 +62,7 @@ void UEnemyStateAttackBase::Charge(const float aDT)
 void UEnemyStateAttackBase::Attack(const float aDT)
 {
 	// override with custom code
-	
+
 	if (ShouldChangeState(myAttackTime))
 		SetSubState(EEnemyAttackState::RECOVER);
 }
@@ -73,4 +73,10 @@ void UEnemyStateAttackBase::Recover(const float aDT)
 	
 	if (ShouldChangeState(myRecoverTime))
 		SetState(UEnemyStateMove::StaticClass());
+}
+
+void UEnemyStateAttackBase::PerformAttack(AActor* aTarget)
+{
+	CHECK_RETURN_LOG(!aTarget, "No target");
+	OnPerformAttack(aTarget);
 }

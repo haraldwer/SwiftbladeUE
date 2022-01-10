@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Project/Enemies/States/EnemyBaseState.h"
+#include "Project/Enemies/Behaviour/States/EnemyBaseState.h"
 #include "EnemyStateAttackBase.generated.h"
 
 UENUM(BlueprintType)
@@ -12,8 +12,6 @@ enum class EEnemyAttackState : uint8
 	RECOVER,
 	COUNT
 };
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSubStateChanged, EEnemyAttackState, aState);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_API UEnemyStateAttackBase : public UEnemyBaseState
@@ -31,6 +29,18 @@ protected:
 	virtual void Charge(const float aDT);
 	virtual void Attack(const float aDT);
 	virtual void Recover(const float aDT);
+
+	virtual void PerformAttack(AActor* aTarget);
+
+	// DOES NOT WORK IN COMPONENTS!!
+	
+	// For effects related to performing attack
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPerformAttack(AActor* aTarget);
+	
+	// For effects related to attack states
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAttackStateChanged(EEnemyAttackState aState);
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myChargeTime = 1.0f;
@@ -39,10 +49,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float myRecoverTime = 1.0f;
 
-	// For effects related to attack states
-	UPROPERTY(BlueprintAssignable)
-	FSubStateChanged myOnAttackStateChanged;
-	
 private:
 	void SetSubState(EEnemyAttackState aSubState);
 	bool ShouldChangeState(const float aStateTime) const;

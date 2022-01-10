@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/SphereComponent.h"
 #include "States/EnemyBaseState.h"
 #include "EnemyBehaviour.generated.h"
 
@@ -16,7 +17,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void SetState(const TSubclassOf<UEnemyBaseState>& aClass);
-	UEnemyBaseState* GetState() const { return myCurrentState; };
+	UEnemyBaseState* GetState() const { return myCurrentState; }
+	bool CanDamageTarget() const;
 
 	// - Targeting - //
 	

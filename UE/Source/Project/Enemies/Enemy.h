@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/PrimitiveComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Enemy.generated.h"
 
@@ -13,14 +14,15 @@ public:
 	AEnemy();
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void SetSpawner(class AEnemySpawner* aSpawner) { mySpawner = aSpawner; }
 
 	virtual float TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) override;
 	void Die();
-	 
-	void SetSpawner(class AEnemySpawner* aSpawner) { mySpawner = aSpawner; }	
+
+	bool IsActorInDamageHitbox(AActor* anActor);
 	
 protected:
-
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnTookDamage(float aDamageAmount, AActor* aDamageCauser);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -30,6 +32,10 @@ protected:
 	class UEnemyBehaviour* myBehaviour;
 	UPROPERTY(EditDefaultsOnly)
 	class UEnemyAnimator* myAnimator;
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* myMesh;
+	UPROPERTY(EditDefaultsOnly)
+	class USceneComponent* myDamageHitboxParent;
 
 	UPROPERTY(EditDefaultsOnly)
 	int myHealth = 1;

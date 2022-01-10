@@ -48,6 +48,8 @@ public:
 
 	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform);
 
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Die(const FString& anObjectName);
 	

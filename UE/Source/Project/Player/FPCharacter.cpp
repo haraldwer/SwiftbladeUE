@@ -256,3 +256,10 @@ AEffect* AFPCharacter::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTran
 	effect->SetActorTransform(aTransform);
 	return effect;
 }
+
+float AFPCharacter::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator,
+	AActor* aDamageCauser)
+{
+	LOG("Took damage"); 
+	return Super::TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser);
+}

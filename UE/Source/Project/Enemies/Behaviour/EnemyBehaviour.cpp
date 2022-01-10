@@ -1,6 +1,6 @@
 ﻿#include "EnemyBehaviour.h"
 
-#include "EnemyManager.h"
+#include "Project/Enemies/EnemyManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Utility/MainSingelton.h"
@@ -32,6 +32,15 @@ void UEnemyBehaviour::SetState(const TSubclassOf<UEnemyBaseState>& aClass)
 	UEnemyBaseState* state = Cast<UEnemyBaseState>(GetOwner()->GetComponentByClass(aClass));
 	CHECK_RETURN_LOG(!state, "Invalid state");
 	myCurrentState = state;
+}
+
+bool UEnemyBehaviour::CanDamageTarget() const
+{
+	if (!myCurrentTarget)
+		return false;
+	auto self = Cast<AEnemy>(GetOwner());
+	CHECK_ASSERT(!self, "Invalid self");
+	return self->IsActorInDamageHitbox(myCurrentTarget);
 }
 
 AActor* UEnemyBehaviour::FindTarget()

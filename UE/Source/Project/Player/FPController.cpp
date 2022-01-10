@@ -32,7 +32,7 @@ void AFPController::CharacterKilled()
 
 	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::DEATH);
 
-	DetachFromPawn();
+	UnPossess();
 	
 	const auto character = GetFPCharacter();
 	CHECK_RETURN_LOG(!character, "Character nullptr");
@@ -54,7 +54,8 @@ void AFPController::Respawn()
 		character->SetActorLocation(
 			myHasCheckpoint ?
 				myCheckpointLocation : myStartLocation);
-	AttachToPawn(character);
+
+	Possess(character);
 }
 
 void AFPController::SetCheckpoint(AActor* aActor)
