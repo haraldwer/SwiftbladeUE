@@ -13,11 +13,14 @@ enum class EEnemyAttackState : uint8
 	COUNT
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnemyOnPerformAttack, AActor*, aTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnemyOnAttackStateChanged, EEnemyAttackState, aState);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_API UEnemyStateAttackBase : public UEnemyBaseState
 {
 	GENERATED_BODY()
-
+	
 public:
 	UEnemyStateAttackBase();
 	
@@ -32,15 +35,11 @@ protected:
 
 	virtual void PerformAttack(AActor* aTarget);
 
-	// DOES NOT WORK IN COMPONENTS!!
+	UPROPERTY(BlueprintReadWrite)
+	FEnemyOnPerformAttack myOnPerformAttackEvent;
 	
-	// For effects related to performing attack
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnPerformAttack(AActor* aTarget);
-	
-	// For effects related to attack states
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnAttackStateChanged(EEnemyAttackState aState);
+	UPROPERTY(BlueprintReadWrite)
+	FEnemyOnAttackStateChanged myOnAttackStateChangedEvent;
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myChargeTime = 1.0f;

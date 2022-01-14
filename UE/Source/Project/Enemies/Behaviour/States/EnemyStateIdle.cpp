@@ -1,7 +1,7 @@
 ﻿#include "EnemyStateIdle.h"
 
 #include "EnemyStateMove.h"
-#include "Project/Enemies/EnemyBehaviour.h"
+#include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 
 UEnemyStateIdle::UEnemyStateIdle()
 {

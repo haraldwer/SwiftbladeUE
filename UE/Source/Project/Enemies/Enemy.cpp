@@ -1,24 +1,24 @@
 #include "Enemy.h"
 
-#include "EnemyAnimator.h"
-#include "EnemyBehaviour.h"
+#include "Behaviour/EnemyBehaviour.h"
 #include "EnemyManager.h"
 #include "Components/StaticMeshComponent.h"
+#include "Project/ObjectAnimator.h"
 #include "Project/Utility/MainSingelton.h"
 
 AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	
+
 	myBehaviour = CreateDefaultSubobject<UEnemyBehaviour>("EnemyBehaviour");
 	CHECK_RETURN_LOG(!myBehaviour, "Failed to create EnemyBehaviour component");
-	myAnimator = CreateDefaultSubobject<UEnemyAnimator>("EnemyAnimator");
-	CHECK_RETURN_LOG(!myAnimator, "Failed to create EnemyAnimator component");
-	myMesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
-	CHECK_RETURN_LOG(!myMesh, "Failed to create Mesh component");
-	myDamageHitboxParent = CreateDefaultSubobject<USceneComponent>("DamageHitboxParent");
-	CHECK_RETURN_LOG(!myDamageHitboxParent, "Failed to create DamageHitboxParent component");
-	myDamageHitboxParent->SetupAttachment(myMesh);
+	
+	CreateChildComponent<USceneComponent>("MeshParent", myMeshParent);
+	CreateChildComponent<USceneComponent>("AnimationParent", myAnimationParent);
+	CreateChildComponent<USceneComponent>("DamageHitboxParent", myDamageHitboxParent);
+
+	myObjectAnimator = CreateDefaultSubobject<UObjectAnimator>("ObjectAnimator");
+	CHECK_RETURN_LOG(!myObjectAnimator, "Failed to create ObjectAnimator component");
 }
 
 void AEnemy::BeginPlay()
@@ -48,7 +48,7 @@ void AEnemy::Die()
 	LOG("Enemy died");
 	OnDied();
 	UMainSingelton::GetEnemyManager().RemoveEnemy(this);
-	if (mySpawner)
+	if (mySpawner.IsValid())
 		mySpawner->RemoveEnemy(this);
 	// TODO: Death animation
 	Destroy();

@@ -60,9 +60,6 @@ public:
 
 private:
 	
-	static FTransform LerpTrans(const FTransform& aFirst, const FTransform& aSecond, float aLocationWeight, float aRotationWeight);
-	static FTransform DTLerpTrans(const FTransform& aFirst, const FTransform& aSecond, float aDT, float aSmoothing);
-	
 	void HitCheckpoint(AActor* aCheckpoint) const;
 	void HitEnemy(AActor* anEnemy);
 	

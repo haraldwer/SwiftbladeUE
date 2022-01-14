@@ -3,7 +3,7 @@
 #include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Enemies/Enemy.h"
-#include "Project/Enemies/EnemyBehaviour.h"
+#include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 
 UEnemyStateAttackCharge::UEnemyStateAttackCharge()
 {

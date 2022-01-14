@@ -37,7 +37,7 @@ void UEnemyStateAttackBase::SetSubState(const EEnemyAttackState aSubState)
 {
 	mySubState = aSubState;
 	myEnterStateTime = GetWorld()->GetTimeSeconds();
-	OnAttackStateChanged(aSubState);
+	myOnAttackStateChangedEvent.Broadcast(aSubState);
 }
 
 bool UEnemyStateAttackBase::ShouldChangeState(const float aStateTime) const
@@ -78,5 +78,5 @@ void UEnemyStateAttackBase::Recover(const float aDT)
 void UEnemyStateAttackBase::PerformAttack(AActor* aTarget)
 {
 	CHECK_RETURN_LOG(!aTarget, "No target");
-	OnPerformAttack(aTarget);
+	myOnPerformAttackEvent.Broadcast(aTarget);
 }

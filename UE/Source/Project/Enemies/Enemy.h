@@ -14,12 +14,15 @@ public:
 	AEnemy();
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
 	void SetSpawner(class AEnemySpawner* aSpawner) { mySpawner = aSpawner; }
 
 	virtual float TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) override;
 	void Die();
 
 	bool IsActorInDamageHitbox(AActor* anActor);
+
+	class UObjectAnimator* GetObjectAnimator() const { return myObjectAnimator; }
 	
 protected:
 	
@@ -31,16 +34,27 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	class UEnemyBehaviour* myBehaviour;
 	UPROPERTY(EditDefaultsOnly)
-	class UEnemyAnimator* myAnimator;
+	class USceneComponent* myMeshParent;
 	UPROPERTY(EditDefaultsOnly)
-	class UStaticMeshComponent* myMesh;
+	class USceneComponent* myAnimationParent;
 	UPROPERTY(EditDefaultsOnly)
 	class USceneComponent* myDamageHitboxParent;
+	UPROPERTY(EditDefaultsOnly)
+	class UObjectAnimator* myObjectAnimator;
 
 	UPROPERTY(EditDefaultsOnly)
 	int myHealth = 1;
 
 private:
+	template <class T>
+	bool CreateChildComponent(const FName& aName, T*& aPtr)
+	{
+		aPtr = CreateDefaultSubobject<T>(aName);
+		CHECK_RETURN_LOG(!aPtr, "Failed to create " + aName.ToString() + " component", false);
+		aPtr->SetupAttachment(myBehaviour);
+		return true;
+	}
+	
 	UPROPERTY()
-	class AEnemySpawner* mySpawner; 
+	TWeakObjectPtr<AEnemySpawner> mySpawner; 
 };

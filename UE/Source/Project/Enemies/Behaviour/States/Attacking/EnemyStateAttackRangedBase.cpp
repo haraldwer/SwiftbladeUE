@@ -1,6 +1,6 @@
 ﻿#include "EnemyStateAttackRangedBase.h"
 
-#include "Project/Enemies/EnemyBehaviour.h"
+#include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 
 UEnemyStateAttackRangedBase::UEnemyStateAttackRangedBase()
 {

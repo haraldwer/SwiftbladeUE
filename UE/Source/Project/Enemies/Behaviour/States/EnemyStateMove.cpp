@@ -2,8 +2,7 @@
 
 #include "Attacking/EnemyStateAttackBase.h"
 #include "EnemyStateIdle.h"
-#include "Project/Enemies/Enemy.h"
-#include "Project/Enemies/EnemyBehaviour.h"
+#include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 
 UEnemyStateMove::UEnemyStateMove()
 {

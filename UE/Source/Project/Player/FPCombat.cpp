@@ -15,6 +15,7 @@
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/UI/Prompts/PromptManager.h"
 #include "Project/Utility/MainSingelton.h"
+#include "Project/Utility/Math/LerpTransform.h"
 
 UFPCombat::UFPCombat()
 {
@@ -223,11 +224,11 @@ void UFPCombat::SetTransforms()
 	myTrans = myTargetTrans;
 	
 	const auto rTrans =
-		LerpTrans(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
+		LerpTransWeight(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
 	
 	const auto lTrans =
 		myUseBothHands ?
-			LerpTrans(animator.GetLeft(), myTrans, myLocationWeight, myRotationWeight) :
+			LerpTransWeight(animator.GetLeft(), myTrans, myLocationWeight, myRotationWeight) :
 			animator.GetLeft();
 	
 	right->SetActorRelativeTransform(rTrans);
@@ -261,7 +262,7 @@ void UFPCombat::UpdateTransforms(float aDT)
 	myRotationWeight = FMath::FInterpTo(myRotationWeight, rotationWeight, aDT, mySmoothing);
 
 	// Sword transform
-	myTrans = DTLerpTrans(myTrans, myTargetTrans, aDT, mySmoothing);
+	myTrans = LerpTransDelta(myTrans, myTargetTrans, aDT, mySmoothing);
 	if (!myTrans.IsValid() || myTrans.GetLocation().Size() > 500.0f)
 	{
 		LOG("Invalid transform");
@@ -275,7 +276,7 @@ void UFPCombat::UpdateTransforms(float aDT)
 
 	// Right hand transform, lerp between animation and sword trans
 	const auto rTrans =
-		LerpTrans(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
+		LerpTransWeight(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
 
 	// Sword left hand transform 
 	auto leftTarget = myTrans;
@@ -286,7 +287,7 @@ void UFPCombat::UpdateTransforms(float aDT)
 
 	// Left hand transform, lerp between animation and sword trans
 	const auto lTrans =
-		LerpTrans(animator.GetLeft(), leftTarget, myLocationWeight * myLeftWeight, myRotationWeight * myLeftWeight);
+		LerpTransWeight(animator.GetLeft(), leftTarget, myLocationWeight * myLeftWeight, myRotationWeight * myLeftWeight);
 
 	if (!rTrans.IsValid())
 	{
@@ -320,20 +321,6 @@ void UFPCombat::UpdateTransforms(float aDT)
 ASword* UFPCombat::GetSword() const
 {
 	return mySword;
-}
-
-FTransform UFPCombat::LerpTrans(const FTransform& aFirst, const FTransform& aSecond, float aLocationWeight, float aRotationWeight)
-{
-	const FVector location = FMath::Lerp(aFirst.GetLocation(), aSecond.GetLocation(), aLocationWeight);
-	const FQuat rotation = FQuat::Slerp(aFirst.GetRotation(), aSecond.GetRotation(), aRotationWeight).GetNormalized();
-	return FTransform(rotation, location);
-}
-
-FTransform UFPCombat::DTLerpTrans(const FTransform& aFirst, const FTransform& aSecond, float aDT, float aSmoothing)
-{
-	const auto location = FMath::VInterpTo(aFirst.GetLocation(), aSecond.GetLocation(), aDT, aSmoothing);
-	const auto rotation = FMath::QInterpTo(aFirst.GetRotation(), aSecond.GetRotation(), aDT, aSmoothing);
-	return FTransform(rotation, location);
 }
 
 void UFPCombat::HitCheckpoint(AActor* aCheckpoint) const

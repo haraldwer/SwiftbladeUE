@@ -2,7 +2,7 @@
 
 #include "Components/StaticMeshComponent.h"
 #include "Project/Enemies/Enemy.h"
-#include "Project/Enemies/EnemyBehaviour.h"
+#include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 
 UEnemyBaseState::UEnemyBaseState()
 {

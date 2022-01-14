@@ -2,6 +2,7 @@
 
 #include "Project/Enemies/EnemyManager.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Project/ObjectAnimator.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Utility/MainSingelton.h"
 #include "States/EnemyStateIdle.h"
@@ -21,32 +22,45 @@ void UEnemyBehaviour::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (myCurrentState)
-		myCurrentState->Update(DeltaTime);
-	else
+	if (!myCurrentState)
 		SetState(UEnemyStateIdle::StaticClass());
+	
+	if (myCurrentState)
+	{
+		myCurrentState->Update(DeltaTime);
+		UpdateAnimations(myCurrentState, DeltaTime);
+	}	
 }
 
 void UEnemyBehaviour::SetState(const TSubclassOf<UEnemyBaseState>& aClass)
 {
 	UEnemyBaseState* state = Cast<UEnemyBaseState>(GetOwner()->GetComponentByClass(aClass));
 	CHECK_RETURN_LOG(!state, "Invalid state");
+	CHECK_RETURN_LOG(myCurrentState == state, "Already in state");
+	
 	myCurrentState = state;
+	
+	auto& animation = myCurrentState->GetAnimation();
+	animation.Reset();
+
+	myOnBehaviourStateChanged.Broadcast(myCurrentState);
 }
 
 bool UEnemyBehaviour::CanDamageTarget() const
 {
-	if (!myCurrentTarget)
+	if (!myCurrentTarget.IsValid())
 		return false;
-	auto self = Cast<AEnemy>(GetOwner());
-	CHECK_ASSERT(!self, "Invalid self");
-	return self->IsActorInDamageHitbox(myCurrentTarget);
+	const auto self = Cast<AEnemy>(GetOwner());
+	CHECK_RETURN_LOG(!self, "Invalid self", false);
+	return self->IsActorInDamageHitbox(myCurrentTarget.Get());
 }
 
 AActor* UEnemyBehaviour::FindTarget()
 {
-	const FVector location = GetOwner()->GetActorLocation();
-	const FVector forward = GetOwner()->GetActorForwardVector();
+	const auto owner = GetOwner();
+	CHECK_RETURN_LOG(!owner, "Invalid owner", nullptr);
+	const FVector location = owner->GetActorLocation();
+	const FVector forward = owner->GetActorForwardVector();
 
 	AFPCharacter* player = UMainSingelton::GetLocalPlayer();
 	if (player)
@@ -69,19 +83,23 @@ AActor* UEnemyBehaviour::FindTarget()
 
 bool UEnemyBehaviour::CheckTargetVisibility()
 {
-	if (!myCurrentTarget)
+	if (!myCurrentTarget.IsValid())
 		return false;
-	const FVector location = GetOwner()->GetActorLocation();
-	const FVector forward = GetOwner()->GetActorForwardVector();
+	const auto owner = GetOwner();
+	CHECK_RETURN_LOG(!owner, "Invalid owner", false);
+	const FVector location = owner->GetActorLocation();
+	const FVector forward = owner->GetActorForwardVector();
 	return CanTarget(myCurrentTarget, location, forward);
 }
 
 bool UEnemyBehaviour::CanAttackTarget() const
 {
-	if (!myCurrentTarget)
+	if (!myCurrentTarget.IsValid())
 		return false;
-	const FVector location = GetOwner()->GetActorLocation();
-	const FVector forward = GetOwner()->GetActorForwardVector();
+	const auto owner = GetOwner();
+	CHECK_RETURN_LOG(!owner, "Invalid owner", false);
+	const FVector location = owner->GetActorLocation();
+	const FVector forward = owner->GetActorForwardVector();
 	const auto pos = myCurrentTarget->GetActorLocation();
 	const auto diff = pos - location;
 	const auto dist = diff.Size();
@@ -96,10 +114,12 @@ bool UEnemyBehaviour::CanAttackTarget() const
 
 void UEnemyBehaviour::MoveTowards(AActor* aTarget, const float aMovementSpeed, const float aForwardWeight, const float aDT) const
 {
+	CHECK_RETURN_LOG(!aTarget, "Target nullptr");
+	
 	const auto self = Cast<AEnemy>(GetOwner());
 	CHECK_RETURN_LOG(!self, "Unable to get self");
 	
-	const auto target = GetTarget();
+	const auto target = aTarget;
 	const auto targetLocation = target->GetActorLocation();
 	
 	const auto location = self->GetActorLocation();
@@ -112,10 +132,12 @@ void UEnemyBehaviour::MoveTowards(AActor* aTarget, const float aMovementSpeed, c
 
 void UEnemyBehaviour::RotateTowards(AActor* aTarget, const float aRotationSpeed, const float aDT) const
 {
+	CHECK_RETURN_LOG(!aTarget, "Target nullptr");
+	
 	const auto self = Cast<AEnemy>(GetOwner());
 	CHECK_RETURN_LOG(!self, "Unable to get self");
 	
-	const auto target = GetTarget();
+	const auto target = aTarget;
 	const auto targetLocation = target->GetActorLocation();
 	
 	const auto rotation = self->GetActorRotation();
@@ -126,8 +148,9 @@ void UEnemyBehaviour::RotateTowards(AActor* aTarget, const float aRotationSpeed,
 	self->SetActorRotation(resultingRotation);
 }
 
-bool UEnemyBehaviour::CanTarget(AActor* anActor, const FVector& aLocation, const FVector& aForward)
+bool UEnemyBehaviour::CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVector& aLocation, const FVector& aForward)
 {
+	CHECK_RETURN_LOG(!anActor.IsValid(), "Invalid actor", false);
 	const auto pos = anActor->GetActorLocation();
 	const auto diff = pos - aLocation;
 	const auto dist = diff.Size();
@@ -142,3 +165,23 @@ bool UEnemyBehaviour::CanTarget(AActor* anActor, const FVector& aLocation, const
 	return true;
 }
 
+
+void UEnemyBehaviour::UpdateAnimations(UEnemyBaseState* aState, float aDT)
+{
+	CHECK_RETURN_LOG(!aState, "Invalid state");
+	
+	auto& animation = aState->GetAnimation();
+	
+	TArray<FObjectAnimatorKey> someKeys;
+	FString anEventName;
+	if (animation.Update(aDT, someKeys, anEventName))
+	{
+		const auto self = Cast<AEnemy>(GetOwner());
+		CHECK_RETURN_LOG(!self, "Invalid self");
+		const auto animator = self->GetObjectAnimator();
+		CHECK_RETURN_LOG(!animator, "Invalid object animator");
+		animator->SetKeys(someKeys);
+		if (!anEventName.IsEmpty())
+			myOnAnimationEvent.Broadcast(anEventName);
+	}
+}
