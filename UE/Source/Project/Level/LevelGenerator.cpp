@@ -1,6 +1,7 @@
 #include "LevelGenerator.h"
 
 #include "LevelEndLocation.h"
+#include "LevelGeneratedObject.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,7 +14,7 @@ ALevelGenerator::ALevelGenerator()
 void ALevelGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	GenerateLevels();
+	GenerateLevels(10);
 }
 
 void ALevelGenerator::Tick(float DeltaTime)
@@ -33,9 +34,11 @@ void ALevelGenerator::LevelLoaded()
 	myStaticInvalid = true;
 }
 
-void ALevelGenerator::GenerateLevels()
+void ALevelGenerator::GenerateLevels(int aSeed)
 {
 	LOG("Generating levels");
+	
+	FMath::RandInit(aSeed);
 
 	TArray<FString> easy = GetLevelPool("Easy", myNumbEasyLevels);
 	TArray<FString> arena = GetLevelPool("Arena", myNumbArenas);
@@ -100,6 +103,8 @@ void ALevelGenerator::MoveLevels()
 		if (!loadedLevel)
 			continue;
 
+		GenerateObjects(loadedLevel);
+		
 		const int index = FindLevelIndex(loadedLevel);
 		if (index == -1)
 			continue;
@@ -110,6 +115,35 @@ void ALevelGenerator::MoveLevels()
 		else
 			LOG("Missing end location for level");
 	}
+}
+
+void ALevelGenerator::GenerateObjects(const ULevel* aLevel)
+{
+	for (auto& actor : aLevel->Actors)
+	{
+		const auto spawner = Cast<ALevelGeneratedObject>(actor);
+		if (!spawner)
+			continue;
+		GenerateObject(spawner);
+	}
+}
+
+void ALevelGenerator::GenerateObject(const ALevelGeneratedObject* aSpawner)
+{
+	const auto data = aSpawner->GetData();
+	CHECK_RETURN_LOG(data.myTypes.Num(), "LevelGeneratedObject has no types");
+	TArray<EGeneratedObstacleType> typeArr;
+	for (auto& it : data.myTypes)
+		typeArr.Add(it);
+	const auto typeEnum = typeArr[FMath::RandRange(0, data.myTypes.Num())];
+	const auto arr = myPlaceableActors.Find(typeEnum);
+	CHECK_RETURN_LOG(arr, "No array for spawner type");
+	const auto num = arr->myArr.Num();
+	CHECK_RETURN_LOG(num, "No actors in array");
+	const auto index = FMath::RandRange(0, num);
+	const auto type = arr->myArr[index];
+	const auto actor = GetWorld()->SpawnActor(type.Get());
+	actor->SetActorTransform(aSpawner->GetTransform());
 }
 
 void ALevelGenerator::EnableOverlapEvents() const

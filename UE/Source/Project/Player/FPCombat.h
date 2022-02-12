@@ -2,15 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "FPComponentBase.h"
+#include "Curves/CurveFloat.h"
 #include "FPCombat.generated.h"
 
 UENUM(BlueprintType)
 enum class EFPCombatState : uint8 {
-	NO_SWORD	UMETA(DisplayName = "NO_SWORD"),
-	IDLE		UMETA(DisplayName = "IDLE"),
-	READY		UMETA(DisplayName = "READY"),
-	STRIKE		UMETA(DisplayName = "STRIKE"),
-	DEFLECT 	UMETA(DisplayName = "DEFLECT")
+	NO_SWORD,
+	IDLE,
+	STRIKE,	
+	BLOCK
 };
 
 USTRUCT()
@@ -19,13 +19,10 @@ struct FSwordAnimationData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly)
-	FTransform myReadyTransform;
+	FTransform myStart;
 
 	UPROPERTY(EditDefaultsOnly)
-	FTransform myStrikeTransform;
-	
-	UPROPERTY(EditDefaultsOnly)
-	FTransform myDeflectTransform;
+	FTransform myEnd;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -49,9 +46,10 @@ public:
 	bool GetHasSword() const;
 	
 	void Strike();
+	void Block();
+	void Interact();
 
-	void UpdateStrike();
-	void UpdateSword(float aDT);
+	void Update(float aDT);
 
 	void SetTransforms();
 	void UpdateTransforms(float aDT);
@@ -59,9 +57,14 @@ public:
 	class ASword* GetSword() const;
 
 private:
+
+	void DoStrike();
+	void DoBlock();
+	void DoInteract();
 	
 	void HitCheckpoint(AActor* aCheckpoint) const;
 	void HitEnemy(AActor* anEnemy);
+	void SelectAnim(int aNum);
 	
 protected:
 	
@@ -69,26 +72,44 @@ protected:
 	class ASword* mySword;
 
 	UPROPERTY(EditDefaultsOnly)
-	float mySmoothing = 10.0f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float myReadyDuration = 0.5f;
+	float mySmoothing = 30.0f;
 	
 	UPROPERTY(EditDefaultsOnly)
 	FTransform myIdleSwordTransform;
-	
-	UPROPERTY(EditDefaultsOnly)
-	TArray<FSwordAnimationData> myAnimations;
 
 	UPROPERTY(EditDefaultsOnly)
-	int32 myDefaultAnimIndex = -1;
+	float myInteractDuration = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FSwordAnimationData> myStrikeAnimations;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FSwordAnimationData> myBlockAnimations;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myStrikeDuration = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myDeflectDuration = 0.5f;
-	
+	float myPerformStrikeDuration = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* myStrikeAnimationCurve;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* myStrikeAnimationWeightCurve;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myBlockDuration = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myPerformBlockDuration = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* myBlockAnimationCurve;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* myBlockAnimationWeightCurve;
+
 private:
 
 	bool myUseBothHands = false;
@@ -105,9 +126,11 @@ private:
 	FTransform myTargetTrans;
 	FTransform myTrans;
 	
-	float myStrikeTime = 9999.0f;
+	float myTimer = 9999.0f;
 	int32 myAnimIndex = 0;
+	int32 myPreviousAnimIndex = -1;
 
 	EFPCombatState myState = EFPCombatState::NO_SWORD;
 	
 };
+

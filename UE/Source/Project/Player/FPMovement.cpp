@@ -1,5 +1,6 @@
 #include "FPMovement.h"
 #include "FPCharacter.h"
+#include "FPCombat.h"
 #include "Actors/Sword.h"
 #include "Animation/FPAnimator.h"
 #include "Camera/CameraComponent.h"
@@ -139,6 +140,7 @@ void UFPMovement::Dash()
 
 void UFPMovement::Grapple()
 {
+	CHECK_RETURN(!GetCombat().GetHasSword());
 	CHECK_RETURN(myGrappleTimer < myGrappleCooldown);
 	
 	TArray<AActor*> actors;

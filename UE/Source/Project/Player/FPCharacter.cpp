@@ -135,8 +135,10 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	InputComponent->BindAction("Grapple", IE_Pressed, myFPMovement, &UFPMovement::Grapple);
 
 	CHECK_RETURN_LOG(!myFPCombat, "Combat not set");
-	
+
+	InputComponent->BindAction("Interact", IE_Pressed, myFPCombat, &UFPCombat::Interact);
 	InputComponent->BindAction("Strike", IE_Pressed, myFPCombat, &UFPCombat::Strike);
+	InputComponent->BindAction("Block", IE_Pressed, myFPCombat, &UFPCombat::Block);
 }
 
 void AFPCharacter::MoveHorizontal(const float aValue)
@@ -249,7 +251,7 @@ AEffect* AFPCharacter::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTran
 {
 	const auto bp = aBP.Get();
 	CHECK_RETURN_LOG(!bp, "Effect BP not set", nullptr);
-	AActor* actor = GetWorld()->SpawnActor(aBP.Get());
+	AActor* actor = GetWorld()->SpawnActor(bp);
 	CHECK_RETURN_LOG(!actor, "Failed to create effect", nullptr);
 	AEffect* effect = Cast<AEffect>(actor);
 	CHECK_RETURN_LOG(!effect, "Effect not of type AEffect", nullptr)

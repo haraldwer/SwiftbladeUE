@@ -29,7 +29,7 @@ public:
 	virtual ~USettingsUtility() override = default;
 
 	UFUNCTION(BlueprintCallable, Category="Settings utility functions")
-	static int32 GetGameResolution() { return 200; }
+	static int32 GetGameResolution() { return 256; }
 
 	UFUNCTION(BlueprintCallable, Category="Settings utility functions")
 	static void SetResolutionScale(int32 aResolution);

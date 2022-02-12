@@ -31,16 +31,16 @@ public:
 	void RemoveEnemy(const AEnemy* anEnemy);
 	
 protected:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	EEnemySpawnReason mySpawnReason;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<AEnemy>> myEnemiesToSpawn;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	AActor* myLinkedCollider;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditAnywhere)
 	AEnemySpawner* myLinkedSpawner;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -56,6 +56,7 @@ private:
 	UFUNCTION()
 	void SpawnerFinished(AEnemySpawner* aSpawner);
 	AEnemy* SpawnEnemy(const TSubclassOf<AEnemy>& aClass);
-	
+
+	UPROPERTY()
 	TSet<AEnemy*> mySpawnedEnemies;
 };

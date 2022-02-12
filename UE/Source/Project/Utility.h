@@ -18,7 +18,7 @@ if (condition) { return __VA_ARGS__; }
 if (condition) { LOG(text); return __VA_ARGS__; }
 
 #define CHECK_BREAK(condition) \
-if (condition) { LOG(); break; }
+if (condition) { break; }
 
 #define CHECK_BREAK_LOG(condition, text) \
 if (condition) { LOG(text); break; }

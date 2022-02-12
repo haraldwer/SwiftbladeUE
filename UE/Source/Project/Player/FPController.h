@@ -27,7 +27,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Respawn();
 
-	void SetCheckpoint(AActor* aActor);
+	void SetCheckpoint(class ACheckpoint* aCheckpoint);
 
 	void SetEnablePawnControls(bool aEnabled);
 
@@ -44,9 +44,10 @@ private:
 	virtual void SetupInputComponent() override;
 	
 	void PausePressed();
-	
-	FVector myCheckpointLocation;
+
+	UPROPERTY()
+	class ACheckpoint* myLatestCheckpoint;
 	FVector myStartLocation;
-	bool myHasCheckpoint = true;
+	FVector myCheckpointOffset;
 	int myRespawnCount = 0;
 };

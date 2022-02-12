@@ -33,8 +33,7 @@ void UFPCombat::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	UpdateStrike();
-	UpdateSword(DeltaTime);
+	Update(DeltaTime);
 	UpdateTransforms(DeltaTime);
 }
 
@@ -55,61 +54,42 @@ bool UFPCombat::GetHasSword() const
 void UFPCombat::Strike()
 {
 	LOG("Strike pressed");
-	
-	myStrikeTime = 0.0f;
-	if (mySword)
-		myState = EFPCombatState::READY;
-		
-	myAnimIndex = myDefaultAnimIndex != -1 ?
-			myDefaultAnimIndex : FMath::RandRange(0, myAnimations.Num() - 1);
-	
+	CHECK_RETURN_LOG(myTimer < myStrikeDuration, "Already in strike");
+
 	if(!mySword)
 	{
-		TArray<AActor*> actors;
-		GetCapsule().GetOverlappingActors(actors, ASword::StaticClass());
-		for (const auto& it : actors)
-		{
-			mySword = Cast<ASword>(it);
-			break;
-		}
+		myState = EFPCombatState::NO_SWORD;
+		DoInteract();
+		return;
 	}
+
+	DoStrike();
+	
+	myTimer = 0.0f;
+	myState = EFPCombatState::STRIKE;
+	SelectAnim(myStrikeAnimations.Num());
 }
 
-void UFPCombat::UpdateStrike()
+void UFPCombat::Block()
 {
-	CHECK_RETURN(myState != EFPCombatState::READY);
-	CHECK_RETURN(!mySword);
-	
-	EFPCombatState newState = EFPCombatState::READY; 
-	
-	// Checkpoints
-	for (const auto& c : mySword->GetOverlaps(ACheckpoint::StaticClass()))
-	{
-		HitCheckpoint(c);
-		newState = EFPCombatState::DEFLECT;
-		break;
-	}
+	CHECK_RETURN_LOG(myTimer < myBlockDuration, "Already in block");
 
-	// Enemies
-	for (const auto& e : mySword->GetOverlaps(AEnemy::StaticClass()))
-	{
-		HitEnemy(e);
-		newState = EFPCombatState::STRIKE;
-		break;
-	}
-
-	if(newState != myState)
-	{
-		UpdateSword(0.0f);
-		SetTransforms();
-		myStrikeTime = 0.0f;
-		myState = newState;
-	}
+	DoBlock();
+	
+	myTimer = 0.0f;
+	myState = EFPCombatState::BLOCK;	
+	SelectAnim(myBlockAnimations.Num());
 }
 
-void UFPCombat::UpdateSword(float aDT)
+void UFPCombat::Interact()
+{
+	if (GetHasSword())
+		DoInteract();
+}
+
+void UFPCombat::Update(float aDT)
 {	
-	myStrikeTime += aDT;
+	myTimer += aDT;
 	
 	if (!mySword)
 		myState = EFPCombatState::NO_SWORD;
@@ -117,34 +97,36 @@ void UFPCombat::UpdateSword(float aDT)
 	switch (myState)
 	{
 	case EFPCombatState::NO_SWORD:
-		if (myStrikeTime < 0.2f)
 		{
-			// Grip sword with right hand
-			if (mySword)
+			if (myTimer < 0.2f)
 			{
-				myTargetTrans = FTransform(
-					GetActorTransform().InverseTransformPosition(
-						mySword->GetActorLocation()));
-				UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::INTRO);
+				// Grip sword with right hand
+				if (mySword)
+				{
+					myTargetTrans = FTransform(
+						GetActorTransform().InverseTransformPosition(
+							mySword->GetActorLocation()));
+					UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::INTRO);
+				}
+				else
+				{
+					myTargetTrans = FTransform();
+					myTargetTrans.SetLocation(FVector(50, 20, 30));
+					myTargetTrans.SetRotation(FQuat::MakeFromEuler(FVector(-10, 40, 0)));
+				}
+				myUseBothHands = false;
+				myUseWeight = true;
+				myTargetLocationWeight = 1.0f;
+				myTargetRotationWeight = 1.0f;
 			}
 			else
 			{
-				myTargetTrans = FTransform();
-				myTargetTrans.SetLocation(FVector(50, 20, 30));
-				myTargetTrans.SetRotation(FQuat::MakeFromEuler(FVector(-10, 40, 0)));
+				myUseWeight = false;
+				if (mySword)
+					PickupSword();
 			}
-			myUseBothHands = false;
-			myUseWeight = true;
-			myTargetLocationWeight = 1.0f;
-			myTargetRotationWeight = 1.0f;
+			break;
 		}
-		else
-		{
-			myUseWeight = false;
-			if (mySword)
-				PickupSword();
-		}
-		break;
 		
 	default:
 	case EFPCombatState::IDLE:
@@ -154,52 +136,52 @@ void UFPCombat::UpdateSword(float aDT)
 			myTargetLocationWeight = 0.1f;
 			myTargetRotationWeight = 0.8f;
 			myTargetTrans = myIdleSwordTransform;
-			break;
-		}
-		
-	case EFPCombatState::READY:
-		{
-			if (!myAnimations.IsValidIndex(myAnimIndex))
-				break;
-			myUseWeight = true;
-			myUseBothHands = true;
-			myTargetLocationWeight = 1.0f;
-			myTargetRotationWeight = 1.0f;
-			myTargetTrans = myAnimations[myAnimIndex].myReadyTransform;
-
-			if (myStrikeTime > myReadyDuration)
-				myState = EFPCombatState::IDLE;
+			
 			break;
 		}
 		
 	case EFPCombatState::STRIKE:
 		{
-			if (!myAnimations.IsValidIndex(myAnimIndex))
-				break;
+			DoStrike();
+			CHECK_BREAK(!myStrikeAnimations.IsValidIndex(myAnimIndex));
+			CHECK_BREAK(!myStrikeAnimationCurve || !myStrikeAnimationWeightCurve)
 			myUseWeight = true;
 			myUseBothHands = true;
-			const float part = (myStrikeTime / myStrikeDuration);
-			const float weight = 1.0f - part * part; 
-			myTargetLocationWeight = weight;
-			myTargetRotationWeight = weight;
-			myTargetTrans = myAnimations[myAnimIndex].myStrikeTransform;
-			if (myStrikeTime > myStrikeDuration)
+			const float part = (myTimer / myStrikeDuration);
+			const float animationValue = myStrikeAnimationCurve->GetFloatValue(part);
+			const float weightValue = myStrikeAnimationWeightCurve->GetFloatValue(part);
+			myTargetLocationWeight = weightValue;
+			myTargetRotationWeight = weightValue;
+			const auto& animation = myStrikeAnimations[myAnimIndex];
+			myTargetTrans = LerpTransWeight(
+				animation.myStart,
+				animation.myEnd,
+				animationValue,
+				animationValue);
+			if (myTimer > myStrikeDuration)
 				myState = EFPCombatState::IDLE;
 			break;
 		}
 		
-	case EFPCombatState::DEFLECT:
+	case EFPCombatState::BLOCK:
 		{
-			if (!myAnimations.IsValidIndex(myAnimIndex))
-				break;
+			DoBlock();
+			CHECK_BREAK(!myBlockAnimations.IsValidIndex(myAnimIndex));
+			CHECK_BREAK(!myBlockAnimationCurve || !myBlockAnimationWeightCurve)
 			myUseWeight = true;
 			myUseBothHands = true;
-			const float part = (myStrikeTime / myDeflectDuration);
-			const float weight = 1.0f - part * part;
-			myTargetLocationWeight = weight;
-			myTargetRotationWeight = weight;
-			myTargetTrans = myAnimations[myAnimIndex].myDeflectTransform;
-			if (myStrikeTime > myDeflectDuration)
+			const float part = (myTimer / myBlockDuration);
+			const float animationValue = myBlockAnimationCurve->GetFloatValue(part);
+			const float weightValue = myBlockAnimationWeightCurve->GetFloatValue(part);
+			myTargetLocationWeight = weightValue;
+			myTargetRotationWeight = weightValue;
+			const auto& animation = myBlockAnimations[myAnimIndex];
+			myTargetTrans = LerpTransWeight(
+				animation.myStart,
+				animation.myEnd,
+				animationValue,
+				animationValue);
+			if (myTimer > myBlockDuration)
 				myState = EFPCombatState::IDLE;
 			break;
 		}
@@ -216,11 +198,8 @@ void UFPCombat::SetTransforms()
 	if (!right || !left)
 		return;
 
-	const float locationWeight = FMath::Max(myTargetLocationWeight, animator.GetSwordPart()) * myUseWeight;
-	const float rotationWeight = FMath::Max(myTargetRotationWeight, animator.GetSwordPart()) * myUseWeight;
-
-	myLocationWeight = locationWeight;
-	myRotationWeight = rotationWeight;
+	myLocationWeight = FMath::Max(myTargetLocationWeight, animator.GetSwordPart()) * myUseWeight;
+	myRotationWeight = FMath::Max(myTargetRotationWeight, animator.GetSwordPart()) * myUseWeight;
 	myTrans = myTargetTrans;
 	
 	const auto rTrans =
@@ -323,9 +302,49 @@ ASword* UFPCombat::GetSword() const
 	return mySword;
 }
 
+void UFPCombat::DoStrike()
+{
+	CHECK_RETURN(myTimer > myPerformStrikeDuration);
+
+	// Checkpoints
+	for (const auto& c : mySword->GetOverlaps(ACheckpoint::StaticClass()))
+	{
+		HitCheckpoint(c);
+		break;
+	}
+
+	// Enemies
+	for (const auto& e : mySword->GetOverlaps(AEnemy::StaticClass()))
+	{
+		HitEnemy(e);
+		break;
+	}
+}
+
+void UFPCombat::DoBlock()
+{
+	CHECK_RETURN(myTimer > myPerformBlockDuration);
+	
+}
+
+void UFPCombat::DoInteract()
+{
+	CHECK_RETURN_LOG(myTimer < myInteractDuration, "Already in interact"); 
+	myTimer = 0.0f;
+	TArray<AActor*> actors;
+	GetCapsule().GetOverlappingActors(actors, ASword::StaticClass());
+	for (const auto& it : actors)
+	{
+		mySword = Cast<ASword>(it);
+		break;
+	}
+}
+
 void UFPCombat::HitCheckpoint(AActor* aCheckpoint) const
 {
-	GetController().SetCheckpoint(aCheckpoint);
+	const auto checkpoint = Cast<ACheckpoint>(aCheckpoint);
+	CHECK_RETURN_LOG(!checkpoint, "Not a checkpoint")
+	GetController().SetCheckpoint(checkpoint);
 }
 
 void UFPCombat::HitEnemy(AActor* anEnemy)
@@ -338,4 +357,16 @@ void UFPCombat::HitEnemy(AActor* anEnemy)
 		&GetController(),
 		sword,
 		UDamageType::StaticClass());
+}
+
+inline void UFPCombat::SelectAnim(const int aNum)
+{
+	myAnimIndex = FMath::RandRange(0, aNum - 1);
+	if (myAnimIndex == myPreviousAnimIndex)
+	{
+		myAnimIndex++;
+		if (myAnimIndex == aNum)
+			myAnimIndex = 0;
+	}
+	myPreviousAnimIndex = myAnimIndex;
 }

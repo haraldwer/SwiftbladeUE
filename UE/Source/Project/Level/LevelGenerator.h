@@ -6,6 +6,17 @@
 #include "GameFramework/Actor.h"
 #include "LevelGenerator.generated.h"
 
+enum class EGeneratedObstacleType : uint8;
+
+USTRUCT()
+struct FRandomObjectContainer
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<TSubclassOf<AActor>> myArr;
+};
+
 UCLASS()
 class PROJECT_API ALevelGenerator : public AActor
 {
@@ -15,26 +26,36 @@ public:
 	ALevelGenerator();
 
 protected:
+	
 	virtual void BeginPlay() override;
 
-public:	
+public:
+	
 	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int myNumbEasyLevels = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int myNumbMediumLevels = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int myNumbHardLevels = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int myNumbArenas = 0;
 
 	UFUNCTION(BlueprintCallable, Category = Game)
 	void LevelLoaded();
 	
+protected:
+	
+	UPROPERTY(EditDefaultsOnly)
+	int myNumbEasyLevels = 0;
+	UPROPERTY(EditDefaultsOnly)
+	int myNumbMediumLevels = 0;
+	UPROPERTY(EditDefaultsOnly)
+	int myNumbHardLevels = 0;
+	UPROPERTY(EditDefaultsOnly)
+	int myNumbArenas = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	TMap<EGeneratedObstacleType, FRandomObjectContainer> myPlaceableActors;
+	
 private:
-	void GenerateLevels();
+	
+	void GenerateLevels(int aSeed);
 	void MoveLevels();
+	void GenerateObjects(const ULevel* aLevel);
+	void GenerateObject(const class ALevelGeneratedObject* aSpawner);
 	void EnableOverlapEvents() const;
 	int FindLevelIndex(const ULevel* aLevel);
 	static TArray<FString> GetLevelPool(FString aType, int aNumb);

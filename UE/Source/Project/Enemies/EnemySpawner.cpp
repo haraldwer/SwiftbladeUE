@@ -32,7 +32,9 @@ void AEnemySpawner::BeginPlay()
 void AEnemySpawner::EndPlay(const EEndPlayReason::Type aEndPlayReason)
 {
 	Super::EndPlay(aEndPlayReason);
-	UMainSingelton::GetEnemyManager().RemoveSpawner(this);
+	if (aEndPlayReason != EEndPlayReason::EndPlayInEditor &&
+		aEndPlayReason != EEndPlayReason::Quit)
+		UMainSingelton::GetEnemyManager().RemoveSpawner(this);
 }
 
 void AEnemySpawner::SpawnerFinished(AEnemySpawner* aSpawner)

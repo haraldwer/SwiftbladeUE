@@ -10,4 +10,7 @@ class PROJECT_API ACheckpoint : public AActor
 	GENERATED_BODY()
 public:	
 	ACheckpoint();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnActivated();
 };

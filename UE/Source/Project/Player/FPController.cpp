@@ -2,6 +2,7 @@
 #include "FPController.h"
 
 #include "FPCharacter.h"
+#include "Project/Gameplay/Checkpoint.h"
 #include "Project/Utility/MainSingelton.h"
 #include "Project/UI/Menus/MenuManager.h"
 #include "Project/UI/Prompts/PromptManager.h"
@@ -23,11 +24,11 @@ void AFPController::CharacterCreated(AFPCharacter* aCharacter)
 
 void AFPController::CharacterKilled()
 {
-	if (myHasCheckpoint)
+	if (myLatestCheckpoint)
     {
     	myRespawnCount++;
     	if (myRespawnCount > myRespawns)
-    		myHasCheckpoint = false;
+    		myLatestCheckpoint = nullptr;
     }
 
 	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::DEATH);
@@ -52,20 +53,21 @@ void AFPController::Respawn()
 	CHECK_RETURN_LOG(!character, "Character nullptr");
 	auto location = 
 		character->SetActorLocation(
-			myHasCheckpoint ?
-				myCheckpointLocation : myStartLocation);
+			myLatestCheckpoint ?
+				myLatestCheckpoint->GetActorLocation() + myCheckpointOffset : myStartLocation);
 
 	Possess(character);
 }
 
-void AFPController::SetCheckpoint(AActor* aActor)
+void AFPController::SetCheckpoint(ACheckpoint* aCheckpoint)
 {
+	CHECK_RETURN_LOG(myLatestCheckpoint == aCheckpoint, "Checkpoint already set");
 	const auto character = GetCharacter();
 	CHECK_RETURN_LOG(!character, "Character nullptr");
 	LOG("Checkpoint set"); 
-	myHasCheckpoint = true;
 	myRespawnCount = 0;
-	myCheckpointLocation = character->GetActorLocation();
+	myLatestCheckpoint = aCheckpoint;
+	myLatestCheckpoint->OnActivated();
 }
 
 void AFPController::SetEnablePawnControls(const bool aEnabled)
