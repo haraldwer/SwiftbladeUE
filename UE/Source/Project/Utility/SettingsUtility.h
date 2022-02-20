@@ -10,13 +10,15 @@ enum class ERenderFeature : uint8
 {
 	LUMEN,
 	FOG,
+	TONEMAPPER_GRAIN,
 	COUNT
 };
 
 const FString RenderFeatureCommands[]
 {
 	FString("r.Lumen.DiffuseIndirect.Allow"),
-	FString("r.VolumetricFog")
+	FString("r.VolumetricFog"),
+	FString("r.Tonemapper.GrainQuantization")
 };
 
 UCLASS()

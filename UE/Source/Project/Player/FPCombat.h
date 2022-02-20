@@ -110,6 +110,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UCurveFloat* myBlockAnimationWeightCurve;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AEffect> myHitEffectBP;
+
 private:
 
 	bool myUseBothHands = false;

@@ -345,6 +345,10 @@ void UFPCombat::HitCheckpoint(AActor* aCheckpoint) const
 	const auto checkpoint = Cast<ACheckpoint>(aCheckpoint);
 	CHECK_RETURN_LOG(!checkpoint, "Not a checkpoint")
 	GetController().SetCheckpoint(checkpoint);
+	
+	FTransform trans = mySword->GetActorTransform();
+	trans.SetLocation(trans.GetLocation() + mySword->GetActorForwardVector() * 100);
+	CreateEffect(myHitEffectBP, trans); 
 }
 
 void UFPCombat::HitEnemy(AActor* anEnemy)
@@ -357,6 +361,10 @@ void UFPCombat::HitEnemy(AActor* anEnemy)
 		&GetController(),
 		sword,
 		UDamageType::StaticClass());
+
+	FTransform trans = mySword->GetActorTransform();
+	trans.SetLocation(trans.GetLocation() + mySword->GetActorForwardVector() * 100);
+	CreateEffect(myHitEffectBP, trans); 
 }
 
 inline void UFPCombat::SelectAnim(const int aNum)

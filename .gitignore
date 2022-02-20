@@ -1,5 +1,11 @@
 # Visual Studio 2015 user specific files
 UE/.vs/
+UE/Project.sln.DotSettings.user
+
+# VS Code user specific files
+UE/.vscode/
+UE/.ignore
+UE/Project.code-workspace
 
 # Rider user specific files
 UE/.idea/
