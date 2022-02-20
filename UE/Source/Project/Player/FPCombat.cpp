@@ -68,6 +68,10 @@ void UFPCombat::Strike()
 	myTimer = 0.0f;
 	myState = EFPCombatState::STRIKE;
 	SelectAnim(myStrikeAnimations.Num());
+
+	FTransform trans = mySword->GetActorTransform();
+	trans.SetLocation(trans.GetLocation() + mySword->GetActorForwardVector() * 100);
+	CreateEffect(myHitEffectBP, trans); 
 }
 
 void UFPCombat::Block()
