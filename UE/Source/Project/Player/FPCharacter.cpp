@@ -39,6 +39,9 @@ AFPCharacter::AFPCharacter()
 	myFPCombat = CreateDefaultSubobject<UFPCombat>("FPCombat");
 	CHECK_ASSERT(!myFPCombat, "Failed to create combat component");
 
+	myFPMagic = CreateDefaultSubobject<UFPMagic>("FPMagic");
+	CHECK_ASSERT(!myFPMagic, "Failed to create magic component");
+
 	if(const auto capsule = GetCapsuleComponent())
 	{
 		myWallDetection = CreateDefaultSubobject<UCapsuleComponent>("WallDetection");
@@ -204,6 +207,11 @@ UFPMovement* AFPCharacter::GetMovement() const
 UFPCombat* AFPCharacter::GetCombat() const
 {
 	return myFPCombat;
+}
+
+UFPMagic* AFPCharacter::GetMagic() const
+{
+	return myFPMagic;
 }
 
 UCapsuleComponent* AFPCharacter::GetWallDetection() const

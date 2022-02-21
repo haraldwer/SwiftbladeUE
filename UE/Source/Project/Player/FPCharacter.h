@@ -38,6 +38,7 @@ public:
 	class UFPAnimator* GetAnimator() const;
 	class UFPMovement* GetMovement() const;
 	class UFPCombat* GetCombat() const;
+	class UFPMagic* GetMagic() const;
 	class UCapsuleComponent* GetWallDetection() const;
 
 	class AHand* GetRightHand() const;
@@ -69,6 +70,8 @@ protected:
 	class UFPAnimator* myFPAnimator;
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	class UFPCombat* myFPCombat;
+	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	class UFPMagic* myFPMagic;
 
 	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
 	UCapsuleComponent* myWallDetection;

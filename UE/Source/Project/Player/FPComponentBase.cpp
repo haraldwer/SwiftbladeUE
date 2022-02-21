@@ -70,6 +70,13 @@ UFPCombat& UFPComponentBase::GetCombat() const
 	return *ptr;
 }
 
+UFPMagic& UFPComponentBase::GetMagic() const
+{
+	const auto ptr = GetCharacter().GetMagic();
+	CHECK_ASSERT(!ptr, "Magic nullptr");
+	return *ptr;
+}
+
 AEffect* UFPComponentBase::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const
 {
 	return GetCharacter().CreateEffect(aBP, aTransform);

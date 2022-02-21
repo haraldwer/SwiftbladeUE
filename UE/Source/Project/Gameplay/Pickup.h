@@ -11,11 +11,5 @@ class PROJECT_API APickup : public AActor
 	
 public:	
 	APickup();
-
-protected:
 	virtual void BeginPlay() override;
-
-public:	
-	virtual void Tick(float DeltaTime) override;
-
 };

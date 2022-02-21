@@ -96,7 +96,8 @@ void UFPMovement::Jump()
 {
 	auto& movement = GetCharacterMovement();
 	const bool onGround = myIsWallRunning || movement.IsWalking() || myCoyoteTimer < myCoyoteTime;
-	if(onGround || myAirJumpCount < myNumAirJumps)
+	const bool hasExtraJumps = (myAirJumpCount < myNumAirJumps) && HasMagic();
+	if(onGround || hasExtraJumps)
 	{
 		LOG("Jump");
 		FVector direction = FVector(0, 0, 1);
@@ -115,6 +116,7 @@ void UFPMovement::Jump()
 void UFPMovement::Dash()
 {
 	CHECK_RETURN(myHasDashed);
+	CHECK_RETURN_LOG(!HasMagic(), "No magic");
 
 	StopSlide();
 	
@@ -142,6 +144,7 @@ void UFPMovement::Grapple()
 {
 	CHECK_RETURN(!GetCombat().GetHasSword());
 	CHECK_RETURN(myGrappleTimer < myGrappleCooldown);
+	CHECK_RETURN_LOG(!HasMagic(), "No magic");
 	
 	TArray<AActor*> actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGrapplePoint::StaticClass(), actors);
@@ -189,12 +192,7 @@ void UFPMovement::StartWallrun(const FVector& aNormal)
 {
 	CHECK_RETURN(myHasHitHead);
 	CHECK_RETURN(aNormal.Size() < 0.5f);
-
-	if (!IsTouchingStickySurface())
-	{
-		LOG("Not touching sticy wall");
-		return;
-	}
+	CHECK_RETURN_LOG(!HasMagic(), "No magic");
 	
 	if (abs(aNormal.Z) > 0.5f)
 	{
@@ -297,10 +295,21 @@ void UFPMovement::Wallrun(const float aDT)
 			StopWallrun();
 		}
 
-		if (!IsTouchingStickySurface())
+		if (!HasMagic())
 		{
-			LOG("Overlaps empty");
+			LOG("No magic");
 			StopWallrun();
+		}
+
+		if (const auto capsule = GetCharacter().GetWallDetection())
+		{
+			auto overlapInfo = capsule->GetOverlapInfos();
+			for (auto& it : overlapInfo)
+			{
+				LOG("Not touching wall");
+				StopWallrun();
+				break;
+			}
 		}
 	}
 	else if (movement.IsWalking() || myCoyoteTimer > myCoyoteTime)
@@ -310,17 +319,10 @@ void UFPMovement::Wallrun(const float aDT)
 	}
 }
 
-bool UFPMovement::IsTouchingStickySurface() const
+bool UFPMovement::HasMagic() const
 {
-	const auto capsule = GetCharacter().GetWallDetection();
-	if (capsule)
-	{
-		auto overlapInfo = capsule->GetOverlapInfos();
-		for (auto& it : overlapInfo)
-			if(it.OverlapInfo.GetActor()->IsA(AStickySurface::StaticClass()))
-				return true;
-	}
-	return false;
+	// TODO: Rename function to CanUseAbilities()
+	return GetMagic().HasMagic();
 }
 
 void UFPMovement::UpdateCrouch(const float aDT)
@@ -384,12 +386,12 @@ void UFPMovement::StartCrouch(const bool aForceCrouch)
 	CHECK_RETURN(character.bIsCrouched)
 	LOG("Start crouch");
 	character.Crouch();
-	//auto& animator = GetAnimator();
-	//animator.MoveLeft(FVector(0, 0, 50));
-	//animator.MoveRight(FVector(0, 0, 50));
-	const auto vel = movement.GetLastUpdateVelocity(); 
-	if (vel.Size2D() > movement.MaxWalkSpeedCrouched)
-		StartSlide(vel);
+	if (HasMagic())
+	{
+		const auto vel = movement.GetLastUpdateVelocity(); 
+		if (vel.Size2D() > movement.MaxWalkSpeedCrouched)
+			StartSlide(vel);
+	}
 }
 
 void UFPMovement::StopCrouch() const

@@ -34,7 +34,7 @@ public:
 	void StartWallrun(const FVector& aNormal);
 	void StopWallrun();
 	void Wallrun(float aDT);
-	bool IsTouchingStickySurface() const;
+	bool HasMagic() const;
 
 	void UpdateCrouch(float aDT);
 	void UpdateDash(float aDT);
