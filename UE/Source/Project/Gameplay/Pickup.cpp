@@ -12,8 +12,8 @@ void APickup::BeginPlay()
 	Super::BeginPlay();
 
 	auto localPlayer = UMainSingelton::GetLocalPlayer();
-	CHECK_RETURN_LOG(localPlayer, "No local player");
+	CHECK_RETURN_LOG(!localPlayer, "No local player");
 	auto magic = localPlayer->GetMagic();
-	CHECK_RETURN_LOG(magic, "No magic component");
+	CHECK_RETURN_LOG(!magic, "No magic component");
 	magic->AddPickup(this);
 }
