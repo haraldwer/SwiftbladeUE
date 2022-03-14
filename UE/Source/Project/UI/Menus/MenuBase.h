@@ -24,6 +24,7 @@ class PROJECT_API UMenuBase : public UWidgetBase
 	GENERATED_BODY()
 	
 public:
+	
 	virtual ~UMenuBase() override = default;
 	void Init(EMenuType aMenuType);
 
@@ -43,15 +44,17 @@ public:
 	
 protected:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	FMenuInputMode myInputMode;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	int myZOrder = 0;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	bool myExclusive = false;
 	
 private:
+	
+	UPROPERTY(EditDefaultsOnly)
 	EMenuType myMenuType = EMenuType::UNKNOWN;
 };

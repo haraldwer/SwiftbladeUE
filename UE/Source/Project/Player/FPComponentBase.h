@@ -10,19 +10,21 @@ class PROJECT_API UFPComponentBase : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
+	
 	UFPComponentBase();
-
+	
+	// Getters for common stuff
 	class AFPController& GetController() const;
 	class AFPCharacter& GetCharacter() const;
 	FTransform GetActorTransform() const;
 	class UCapsuleComponent& GetCapsule() const;
 	class UCharacterMovementComponent& GetCharacterMovement() const;
 	class UCameraComponent& GetCamera() const;
+	class UFPCamera& GetFPCamera() const;
 	class UFPAnimator& GetAnimator() const;
-	class UFPMovement& GetMovement() const;
+	class UFPMovementStateMachine& GetMovement() const;
 	class UFPCombat& GetCombat() const;
-	class UFPMagic& GetMagic() const;
 
+	// Interface for creating player-related effects
 	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform) const;
 };

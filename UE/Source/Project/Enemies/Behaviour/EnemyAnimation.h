@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Project/ObjectAnimatorKey.h"
+#include "Project/Utility/Tools/Animation/ObjectAnimatorKey.h"
 #include "EnemyAnimation.generated.h"
 
 // Note:

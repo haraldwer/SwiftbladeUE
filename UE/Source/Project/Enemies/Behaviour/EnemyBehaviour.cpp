@@ -2,9 +2,9 @@
 
 #include "Project/Enemies/EnemyManager.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Project/ObjectAnimator.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Utility/MainSingelton.h"
+#include "Project/Utility/Tools/Animation/ObjectAnimator.h"
 #include "States/EnemyStateIdle.h"
 
 UEnemyBehaviour::UEnemyBehaviour()

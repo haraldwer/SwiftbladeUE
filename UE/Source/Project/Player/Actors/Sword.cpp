@@ -25,6 +25,7 @@ TArray<AActor*> ASword::GetOverlaps(UClass* aClass)
 
 void ASword::SetPlayer(AFPCharacter* aPlayer)
 {
+	AttachToActor(aPlayer, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	myPlayer = aPlayer;
 }
 

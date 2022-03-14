@@ -16,6 +16,7 @@ void APromptManager::BeginPlay()
 
 UPromptBase* APromptManager::CreatePrompt(const EPromptType aPrompt)
 {
+	CHECK_RETURN_LOG(aPrompt == EPromptType::UNKNOWN, "Unknown prompt type", nullptr);
 	CHECK_RETURN_LOG(IsPromptOpen(aPrompt), "Prompt already open", nullptr);
 	const auto instance = GetPromptInstance(aPrompt);
 	CHECK_RETURN_LOG(!instance, "Could not create or find prompt instance", nullptr);
@@ -31,7 +32,9 @@ void APromptManager::DestroyPrompt(const EPromptType aPrompt)
 		const auto prompt = myOpenPrompts[i];
 		CHECK_CONTINUE(prompt->GetPromptType() != aPrompt);
 		prompt->OnDestroy();
+		prompt->RemoveFromViewport();
 		prompt->RemoveFromParent();
+		prompt->Destroy();
 		myOpenPrompts.RemoveAt(i);
 	}
 }

@@ -12,6 +12,7 @@ class PROJECT_API UCustomGameInstance : public UGameInstance
 	friend class UMainSingelton;
 	
 public:
+	
 	virtual ~UCustomGameInstance() override = default;
 	TSubclassOf<class AMenuManager> GetMenuManagerBP() const { return myMenuManagerBlueprint; }
 	TSubclassOf<class APromptManager> GetPromptManagerBP() const { return myPromptManagerBlueprint; }

@@ -7,10 +7,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/LineBatchComponent.h"
-#include "Project/Utility.h"
+#include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCombat.h"
-#include "Project/Player/FPMovement.h"
 #include "Project/Player/Actors/Interaction.h"
+#include "Project/Player/Movement/FPMovementStateMachine.h"
+#include "Project/Player/Movement/States/FPMovementStateWallrun.h"
 
 UFPAnimator::UFPAnimator()
 {
@@ -46,10 +47,10 @@ void UFPAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	myRealHeadPosition = FMath::FInterpTo(myRealHeadPosition, myHeadPosition, DeltaTime, mySmoothing);
 	myRealHeadRotation = FMath::FInterpTo(myRealHeadRotation, myHeadRotation, DeltaTime, mySmoothing);
 
-	auto& camera = GetCamera();
-	camera.AddAdditiveOffset(FTransform(
+	auto& camera = GetFPCamera();
+	camera.SetOffset(FTransform(
 		FQuat(FVector(1, 0, 0), myRealHeadRotation), // Rotation
-			FVector(0, 0, myRealHeadPosition)), 0); // Position
+			FVector(0, 0, myRealHeadPosition))); // Position
 
 	myRealRight.SetRotation(
 		FMath::QInterpTo(
@@ -154,7 +155,7 @@ void UFPAnimator::Idle(float aDT)
 	
 	myRight.SetRotation(FQuat::MakeFromEuler(myDefaultHandRotation + rot));
 	myLeft.SetRotation(FQuat::MakeFromEuler((myDefaultHandRotation + rot) * FVector(-1, 1, -1)));
-	
+
 	mySwordPart = 0.5f;
 }
 
@@ -207,9 +208,11 @@ void UFPAnimator::WallRunning(float aDT)
 	const auto& character = GetCharacter();
 	const auto& camera = GetCamera();
 	const auto& movement = GetMovement();
+	const auto wallrunning = movement.GetState<UFPMovementStateWallrun>();
+	CHECK_RETURN(wallrunning);
 	
 	myTimer += aDT * mySpeed;
-	const auto wallNormal = movement.GetWallNormal();
+	const auto wallNormal = wallrunning->GetWallNormal();
 	const float rightDot = FVector::DotProduct(wallNormal, character.GetActorRightVector());
 	const float forwardDot = FVector::DotProduct(wallNormal, camera.GetForwardVector());
 	const float tiltOff = -rightDot * myWallrunTilt;

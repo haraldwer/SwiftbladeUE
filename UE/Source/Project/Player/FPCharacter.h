@@ -13,48 +13,44 @@ class PROJECT_API AFPCharacter : public ACharacter
 public:
 	
 	AFPCharacter();
-
-protected:
-	
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
-
-public:
-
-	class AFPController* GetFPController() const;
-	
 	virtual void TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// Input
-	void MoveHorizontal(float aValue);
-	void MoveVertical(float aValue);
-	void LookHorizontal(float aValue);
-	void LookVertical(float aValue);
-
-	virtual void Landed(const FHitResult& aHit) override;
-
-	class UCameraComponent* GetCamera() const;
-	class UFPAnimator* GetAnimator() const;
-	class UFPMovement* GetMovement() const;
-	class UFPCombat* GetCombat() const;
-	class UFPMagic* GetMagic() const;
-	class UCapsuleComponent* GetWallDetection() const;
-
-	class AHand* GetRightHand() const;
-	class AHand* GetLeftHand() const;
+	// Input getters
+	float GetSensitivity() const						{ return mySensitivity; }
 	
+	// Getters
+	class AFPController* GetFPController() const;
+	class UFPCamera* GetFPCamera() const				{ return myFPCamera; }
+	class UCameraComponent* GetCamera() const			{ return myCamera; }
+	class UFPAnimator* GetAnimator() const				{ return myFPAnimator; }
+	class UFPMovementStateMachine* GetMovement() const	{ return myFPMovement; }
+	class UFPCombat* GetCombat() const					{ return myFPCombat; }
+	class UCapsuleComponent* GetWallDetection() const	{ return myWallDetection; }
+
+	class AHand* GetRightHand() const					{ return myRightHand; }
+	class AHand* GetLeftHand() const					{ return myLeftHand; }
+
+	// Crouch size
 	void SetHalfHeight();
 	void SetFullHeight();
 
-	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform);
+	// Effect interface
+	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform) const;
 
+	// Gameplay
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Die(const FString& anObjectName);
-	
+	void OnRespawned();
+
 private:
+
+	// Collision callbacks
+	virtual void Landed(const FHitResult& aHit) override;
 	
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
@@ -65,13 +61,13 @@ protected:
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UCameraComponent* myCamera;
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	class UFPMovement* myFPMovement;
+	UFPCamera* myFPCamera;
+	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	class UFPMovementStateMachine* myFPMovement;
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	class UFPAnimator* myFPAnimator;
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	class UFPCombat* myFPCombat;
-	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	class UFPMagic* myFPMagic;
 
 	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
 	UCapsuleComponent* myWallDetection;

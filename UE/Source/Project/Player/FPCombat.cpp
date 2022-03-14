@@ -9,8 +9,6 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
-#include "Project/CustomGameMode.h"
-#include "Project/Utility.h"
 #include "Project/Enemies/Enemy.h"
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/UI/Prompts/PromptManager.h"
@@ -26,7 +24,6 @@ UFPCombat::UFPCombat()
 void UFPCombat::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void UFPCombat::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -42,7 +39,14 @@ void UFPCombat::PickupSword()
 	CHECK_RETURN_LOG(!mySword, "Sword ptr not set");
 	LOG("PickupSword");
 	mySword->SetPlayer(&GetCharacter());
-	mySword->AttachToActor(GetOwner(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+	myState = EFPCombatState::IDLE;
+}
+
+void UFPCombat::ReturnSword()
+{
+	CHECK_RETURN_LOG(!mySword, "No sword to return");
+	mySword->Return();
+	mySword = nullptr;
 	myState = EFPCombatState::IDLE;
 }
 
@@ -68,10 +72,6 @@ void UFPCombat::Strike()
 	myTimer = 0.0f;
 	myState = EFPCombatState::STRIKE;
 	SelectAnim(myStrikeAnimations.Num());
-
-	FTransform trans = mySword->GetActorTransform();
-	trans.SetLocation(trans.GetLocation() + mySword->GetActorForwardVector() * 100);
-	CreateEffect(myHitEffectBP, trans); 
 }
 
 void UFPCombat::Block()

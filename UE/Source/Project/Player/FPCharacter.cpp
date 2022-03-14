@@ -1,9 +1,10 @@
 
 #include "FPCharacter.h"
 
+#include "FPCamera.h"
 #include "FPCombat.h"
 #include "FPController.h"
-#include "FPMovement.h"
+#include "Movement/FPMovementStateMachine.h"
 #include "Actors/Hand.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
@@ -14,23 +15,27 @@
 #include "Animation/FPAnimator.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
-#include "Project/Effect.h"
-#include "Project/Utility.h"
+#include "Project/Utility/Tools/Effect.h"
+#include "Project/Utility/Utility.h"
 
 AFPCharacter::AFPCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	const auto movement = GetCharacterMovement();
-	if(movement)
+	if(const auto movement = GetCharacterMovement())
 		movement->NavAgentProps.bCanCrouch = true;
+
+	// Setup components
 	
 	myCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCamera");
 	CHECK_ASSERT(!myCamera, "Failed to create camera component");
 	myCamera->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
 	myCamera->bUsePawnControlRotation = true;
-		
-	myFPMovement = CreateDefaultSubobject<UFPMovement>("FPMovement");
+
+	myFPCamera = CreateDefaultSubobject<UFPCamera>("FPCamera");
+	CHECK_ASSERT(!myFPCamera, "Failed to create FPCamera component");
+	
+	myFPMovement = CreateDefaultSubobject<UFPMovementStateMachine>("FPMovementStateMachine");
 	CHECK_ASSERT(!myFPMovement, "Failed to create movement component");
 	
 	myFPAnimator = CreateDefaultSubobject<UFPAnimator>("FPAnimator");
@@ -38,9 +43,6 @@ AFPCharacter::AFPCharacter()
 	
 	myFPCombat = CreateDefaultSubobject<UFPCombat>("FPCombat");
 	CHECK_ASSERT(!myFPCombat, "Failed to create combat component");
-
-	myFPMagic = CreateDefaultSubobject<UFPMagic>("FPMagic");
-	CHECK_ASSERT(!myFPMagic, "Failed to create magic component");
 
 	if(const auto capsule = GetCapsuleComponent())
 	{
@@ -58,14 +60,15 @@ void AFPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const auto capsule = GetCapsuleComponent();
-	if(capsule)
+	// Add collider callbacks
+	if(const auto capsule = GetCapsuleComponent())
 	{
 		capsule->OnComponentHit.RemoveDynamic(this, &AFPCharacter::OnHit);
 		capsule->OnComponentHit.AddDynamic(this, &AFPCharacter::OnHit);
 		myFullHeight = capsule->GetUnscaledCapsuleHalfHeight();
 	}
 
+	// Setup hands
 	if (myHandBP)
 	{
 		if(!myRightHand)
@@ -86,8 +89,7 @@ void AFPCharacter::BeginPlay()
 		}		
 	}
 
-	const auto controller = GetFPController();
-	if (controller)
+	if (const auto controller = GetFPController())
 		controller->CharacterCreated(this);
 }
 
@@ -95,26 +97,22 @@ void AFPCharacter::BeginDestroy()
 {
 	Super::BeginDestroy();
 
-	const auto capsule = GetCapsuleComponent();
-	if(capsule)
+	// Remove collision callbacks
+	if(const auto capsule = GetCapsuleComponent())
 		capsule->OnComponentHit.RemoveDynamic(this, &AFPCharacter::OnHit);
-	
+
+	// Destroy hands
 	if(myRightHand)
 		myRightHand->Destroy();
 	if(myLeftHand)
 		myLeftHand->Destroy();
 }
 
-AFPController* AFPCharacter::GetFPController() const
-{
-	return Cast<AFPController>(GetController());
-}
-
 void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunction& ThisTickFunction)
 {
 	Super::TickActor(DeltaTime, Tick, ThisTickFunction);
-
-	myCamera->ClearAdditiveOffset();
+	if (myFPCamera)
+		myFPCamera->BeginTick(DeltaTime);
 }
 
 void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -123,110 +121,27 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	
 	LOG("Binding input");
 	
-	InputComponent->BindAxis("MoveHorizontal", this, &AFPCharacter::MoveHorizontal);
-	InputComponent->BindAxis("MoveVertical", this, &AFPCharacter::MoveVertical);
-	InputComponent->BindAxis("LookHorizontal", this, &AFPCharacter::LookHorizontal);
-	InputComponent->BindAxis("LookVertical", this, &AFPCharacter::LookVertical);
-	
-	CHECK_RETURN_LOG(!myFPMovement, "Movement not set");
-	
-	InputComponent->BindAction("Jump", IE_Pressed, myFPMovement, &UFPMovement::PressJump);
-	InputComponent->BindAction("Jump", IE_Released, myFPMovement, &UFPMovement::ReleaseJump);
-	InputComponent->BindAction("Crouch", IE_Pressed, myFPMovement, &UFPMovement::PressCrouch);
-	InputComponent->BindAction("Crouch", IE_Released, myFPMovement, &UFPMovement::ReleaseCrouch);
-	InputComponent->BindAction("Dash", IE_Pressed, myFPMovement, &UFPMovement::Dash);
-	InputComponent->BindAction("Grapple", IE_Pressed, myFPMovement, &UFPMovement::Grapple);
+	InputComponent->BindAxis("MoveHorizontal", myFPMovement, &UFPMovementStateMachine::MoveHorizontal);
+	InputComponent->BindAxis("MoveVertical", myFPMovement, &UFPMovementStateMachine::MoveVertical);
+	InputComponent->BindAxis("LookHorizontal", myFPMovement, &UFPMovementStateMachine::LookHorizontal);
+	InputComponent->BindAxis("LookVertical", myFPMovement, &UFPMovementStateMachine::LookVertical);
+	InputComponent->BindAction("Jump", IE_Pressed, myFPMovement, &UFPMovementStateMachine::JumpPressed);
+	InputComponent->BindAction("Jump", IE_Released, myFPMovement, &UFPMovementStateMachine::JumpReleased);
+	InputComponent->BindAction("Crouch", IE_Pressed, myFPMovement, &UFPMovementStateMachine::CrouchPressed);
+	InputComponent->BindAction("Crouch", IE_Released, myFPMovement, &UFPMovementStateMachine::CrouchReleased);
+	InputComponent->BindAction("Dash", IE_Pressed, myFPMovement, &UFPMovementStateMachine::Dash);
+	InputComponent->BindAction("Grapple", IE_Pressed, myFPMovement, &UFPMovementStateMachine::Grapple);
 
 	CHECK_RETURN_LOG(!myFPCombat, "Combat not set");
 
 	InputComponent->BindAction("Interact", IE_Pressed, myFPCombat, &UFPCombat::Interact);
 	InputComponent->BindAction("Strike", IE_Pressed, myFPCombat, &UFPCombat::Strike);
-	InputComponent->BindAction("Block", IE_Pressed, myFPCombat, &UFPCombat::Block);
+	InputComponent->BindAction("Block", IE_Pressed, myFPCombat, &UFPCombat::Block); 
 }
 
-void AFPCharacter::MoveHorizontal(const float aValue)
+AFPController* AFPCharacter::GetFPController() const
 {
-	AddMovementInput(FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y), aValue);
-}
-
-void AFPCharacter::MoveVertical(const float aValue)
-{
-	auto rot = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
-	rot.Z = 0.0f;
-	rot.Normalize();
-	AddMovementInput(rot, aValue);
-}
-
-void AFPCharacter::LookHorizontal(const float aValue)
-{
-	AddControllerYawInput(aValue * mySensitivity);
-}
-
-void AFPCharacter::LookVertical(const float aValue)
-{
-	AddControllerPitchInput(aValue * mySensitivity * -1.0f);
-}
-
-void AFPCharacter::Landed(const FHitResult& aHit)
-{
-	Super::Landed(aHit);
-	if(myFPMovement)
-		myFPMovement->Landed(aHit);
-}
-
-void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
-                         FVector NormalImpulse, const FHitResult& Hit)
-{
-	const auto c = GetMovementComponent();
-	if (c && myFPMovement && c->IsFalling())
-		myFPMovement->StartWallrun(Hit.ImpactNormal);
-}
-
-void AFPCharacter::Die(const FString& anObjectName)
-{
-	const auto controller = GetFPController();
-	CHECK_RETURN_LOG(!controller, "Controller nullptr");
-	controller->CharacterKilled();
-}
-
-UCameraComponent* AFPCharacter::GetCamera() const
-{
-	return myCamera;
-}
-
-UFPAnimator* AFPCharacter::GetAnimator() const
-{
-	return myFPAnimator;
-}
-
-UFPMovement* AFPCharacter::GetMovement() const
-{
-	return myFPMovement;
-}
-
-UFPCombat* AFPCharacter::GetCombat() const
-{
-	return myFPCombat;
-}
-
-UFPMagic* AFPCharacter::GetMagic() const
-{
-	return myFPMagic;
-}
-
-UCapsuleComponent* AFPCharacter::GetWallDetection() const
-{
-	return myWallDetection;
-}
-
-AHand* AFPCharacter::GetRightHand() const
-{
-	return myLeftHand;
-}
-
-AHand* AFPCharacter::GetLeftHand() const
-{
-	return myRightHand;
+	return Cast<AFPController>(GetController());
 }
 
 void AFPCharacter::SetHalfHeight()
@@ -255,7 +170,7 @@ void AFPCharacter::SetFullHeight()
 	SetActorLocation(l);
 }
 
-AEffect* AFPCharacter::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform)
+AEffect* AFPCharacter::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const
 {
 	const auto bp = aBP.Get();
 	CHECK_RETURN_LOG(!bp, "Effect BP not set", nullptr);
@@ -272,4 +187,33 @@ float AFPCharacter::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageE
 {
 	LOG("Took damage"); 
 	return Super::TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser);
+}
+
+void AFPCharacter::Die(const FString& anObjectName)
+{
+	if (const auto combat = GetCombat())
+		combat->ReturnSword();
+	
+	const auto controller = GetFPController();
+	CHECK_RETURN_LOG(!controller, "Controller nullptr");
+	controller->CharacterKilled();
+}
+
+void AFPCharacter::OnRespawned()
+{
+	LOG("OnRespawned");
+}
+
+void AFPCharacter::Landed(const FHitResult& aHit)
+{
+	Super::Landed(aHit);
+	if (myFPMovement)
+		myFPMovement->OnLanded();
+}
+
+void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+						 FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (myFPMovement)
+		myFPMovement->OnHit(Hit);
 }

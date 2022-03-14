@@ -20,7 +20,7 @@ public:
 	virtual float TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) override;
 	void Die();
 
-	bool IsActorInDamageHitbox(AActor* anActor);
+	bool IsActorInDamageHitbox(AActor* anActor) const;
 
 	class UObjectAnimator* GetObjectAnimator() const { return myObjectAnimator; }
 	

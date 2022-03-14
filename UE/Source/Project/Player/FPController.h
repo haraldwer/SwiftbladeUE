@@ -23,7 +23,7 @@ public:
 	
 	void CharacterCreated(AFPCharacter* aCharacter);
 	void CharacterKilled();
-
+	
 	UFUNCTION(BlueprintCallable)
 	void Respawn();
 

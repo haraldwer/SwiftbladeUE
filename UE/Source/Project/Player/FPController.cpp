@@ -33,30 +33,29 @@ void AFPController::CharacterKilled()
 
 	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::DEATH);
 
-	UnPossess();
-	
 	const auto character = GetFPCharacter();
-	CHECK_RETURN_LOG(!character, "Character nullptr");
-	character->Destroy();
-
+	character->DisableInput(this);
+	
 	LOG("Character killed");
 }
 
 void AFPController::Respawn()
 {
-	CHECK_RETURN_LOG(GetFPCharacter(), "Character already exists, cannot respawn");
-	
-	// Create character actor
-	AActor* actor = GetWorld()->SpawnActor(myCharacterBlueprint.Get());
-	CHECK_RETURN_LOG(!actor, "Actor nullptr");
-	AFPCharacter* character = Cast<AFPCharacter>(actor);
-	CHECK_RETURN_LOG(!character, "Character nullptr");
+	const auto oldCharacter = GetFPCharacter();
+
+	const auto newCharacter = Cast<AFPCharacter>(GetWorld()->SpawnActor(myCharacterBlueprint.Get())); 
+	CHECK_RETURN_LOG(!newCharacter, "Character nullptr");
 	auto location = 
-		character->SetActorLocation(
+		newCharacter->SetActorLocation(
 			myLatestCheckpoint ?
 				myLatestCheckpoint->GetActorLocation() + myCheckpointOffset : myStartLocation);
 
-	Possess(character);
+	Possess(newCharacter);
+	newCharacter->OnRespawned();
+
+	CHECK_RETURN_LOG(!oldCharacter, "Old Character nullptr");
+	oldCharacter->Destroy();
+	LOG("Old Character destroyed");
 }
 
 void AFPController::SetCheckpoint(ACheckpoint* aCheckpoint)

@@ -1,6 +1,5 @@
 ﻿
 #include "FPComponentBase.h"
-#include "Project/Utility.h"
 #include "FPCharacter.h"
 #include "FPController.h"
 
@@ -12,7 +11,7 @@ UFPComponentBase::UFPComponentBase()
 AFPController& UFPComponentBase::GetController() const
 {
 	const auto ptr = Cast<AFPController>(GetCharacter().GetController());
-	CHECK_ASSERT(!ptr, "Controller nullptr")
+	CHECK_ASSERT(!ptr, "Controller nullptr");
 	return *ptr;
 }
 
@@ -49,6 +48,13 @@ UCameraComponent& UFPComponentBase::GetCamera() const
 	return *ptr;
 }
 
+UFPCamera& UFPComponentBase::GetFPCamera() const
+{
+	const auto ptr = GetCharacter().GetFPCamera();
+	CHECK_ASSERT(!ptr, "Camera nullptr");
+	return *ptr;
+}
+
 UFPAnimator& UFPComponentBase::GetAnimator() const
 {
 	const auto ptr = GetCharacter().GetAnimator();
@@ -56,7 +62,7 @@ UFPAnimator& UFPComponentBase::GetAnimator() const
     return *ptr;
 }
 
-UFPMovement& UFPComponentBase::GetMovement() const
+UFPMovementStateMachine& UFPComponentBase::GetMovement() const
 {
 	const auto ptr = GetCharacter().GetMovement();
 	CHECK_ASSERT(!ptr, "Movement nullptr");
@@ -67,13 +73,6 @@ UFPCombat& UFPComponentBase::GetCombat() const
 {
 	const auto ptr = GetCharacter().GetCombat();
 	CHECK_ASSERT(!ptr, "Combat nullptr");
-	return *ptr;
-}
-
-UFPMagic& UFPComponentBase::GetMagic() const
-{
-	const auto ptr = GetCharacter().GetMagic();
-	CHECK_ASSERT(!ptr, "Magic nullptr");
 	return *ptr;
 }
 

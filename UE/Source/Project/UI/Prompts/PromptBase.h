@@ -11,8 +11,8 @@ class PROJECT_API UPromptBase : public UWidgetBase
 	GENERATED_BODY()
 	
 public:
-	virtual ~UPromptBase() override = default;
 	
+	virtual ~UPromptBase() override = default;
 	void Init(EPromptType aPrompt);
 	
 	UFUNCTION(BlueprintImplementableEvent)
@@ -27,5 +27,7 @@ public:
 	EPromptType GetPromptType() const { return myPromptType; }
 	
 private:
+	
+	UPROPERTY(EditDefaultsOnly)
 	EPromptType myPromptType = EPromptType::UNKNOWN;
 };

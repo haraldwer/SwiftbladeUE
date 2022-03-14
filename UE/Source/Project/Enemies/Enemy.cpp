@@ -3,8 +3,8 @@
 #include "Behaviour/EnemyBehaviour.h"
 #include "EnemyManager.h"
 #include "Components/StaticMeshComponent.h"
-#include "Project/ObjectAnimator.h"
 #include "Project/Utility/MainSingelton.h"
+#include "Project/Utility/Tools/Animation/ObjectAnimator.h"
 
 AEnemy::AEnemy()
 {
@@ -54,7 +54,7 @@ void AEnemy::Die()
 	Destroy();
 }
 
-bool AEnemy::IsActorInDamageHitbox(AActor* anActor)
+bool AEnemy::IsActorInDamageHitbox(AActor* anActor) const
 {
 	if (!anActor)
 		return false;
