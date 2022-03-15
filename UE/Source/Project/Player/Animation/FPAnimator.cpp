@@ -8,9 +8,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/LineBatchComponent.h"
 #include "Project/Player/FPCamera.h"
-#include "Project/Player/FPCombat.h"
+#include "Project/Player/Combat/FPCombat.h"
 #include "Project/Player/Actors/Interaction.h"
-#include "Project/Player/Movement/FPMovementStateMachine.h"
+#include "Project/Player/Movement/FPMovement.h"
 #include "Project/Player/Movement/States/FPMovementStateWallrun.h"
 
 UFPAnimator::UFPAnimator()

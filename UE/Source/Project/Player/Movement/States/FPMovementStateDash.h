@@ -22,13 +22,13 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
-	float myDashVelocity = 1024.0f;
+	float myDashVelocity = 1500.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashVerticalMul = 0.25f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashDuration = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
-	float myDashFov = 1.0f;
+	float myDashFov = 5.0f;
 
 private:
 	FVector myDashDirection;

@@ -106,15 +106,15 @@ UClass* UFPMovementStateWallrun::OnLanded()
 
 UClass* UFPMovementStateWallrun::OnHit(const FHitResult& aHit)
 {
-	CHECK_RETURN(aHit.Normal.Size() < 0.5f, nullptr);
+	CHECK_RETURN(aHit.ImpactNormal.Size() < 0.5f, nullptr);
 	CHECK_RETURN_LOG(myHasHitHead, "Has hit head, blocking", nullptr);
-	myWallNormal = aHit.Normal;
+	myWallNormal = aHit.ImpactNormal;
 
 	if (IsCurrentState())
 	{
-		if (abs(aHit.Normal.Z) > 0.5f)
+		if (abs(aHit.ImpactNormal.Z) > 0.5f)
 		{
-			LOG("Hit ceil or floor" + FString::SanitizeFloat(aHit.Normal.Z));
+			LOG("Hit ceil or floor" + FString::SanitizeFloat(aHit.ImpactNormal.Z));
 			myHasHitHead = true;
 			return UFPMovementStateInAir::StaticClass();
 		}

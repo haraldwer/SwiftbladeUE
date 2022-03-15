@@ -2,21 +2,21 @@
 #include "FPCharacter.h"
 
 #include "FPCamera.h"
-#include "FPCombat.h"
 #include "FPController.h"
-#include "Movement/FPMovementStateMachine.h"
 #include "Actors/Hand.h"
-#include "Camera/CameraComponent.h"
-#include "Components/SceneComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
-#include "GameFramework/GameModeBase.h"
 #include "Animation/FPAnimator.h"
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraComponent.h"
+#include "Combat/FPCombat.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SceneComponent.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
-#include "Project/Utility/Tools/Effect.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/PawnMovementComponent.h"
+#include "Movement/FPMovement.h"
 #include "Project/Utility/Utility.h"
+#include "Project/Utility/Tools/Effect.h"
 
 AFPCharacter::AFPCharacter()
 {
@@ -35,7 +35,7 @@ AFPCharacter::AFPCharacter()
 	myFPCamera = CreateDefaultSubobject<UFPCamera>("FPCamera");
 	CHECK_ASSERT(!myFPCamera, "Failed to create FPCamera component");
 	
-	myFPMovement = CreateDefaultSubobject<UFPMovementStateMachine>("FPMovementStateMachine");
+	myFPMovement = CreateDefaultSubobject<UFPMovement>("FPMovement");
 	CHECK_ASSERT(!myFPMovement, "Failed to create movement component");
 	
 	myFPAnimator = CreateDefaultSubobject<UFPAnimator>("FPAnimator");
@@ -121,16 +121,16 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	
 	LOG("Binding input");
 	
-	InputComponent->BindAxis("MoveHorizontal", myFPMovement, &UFPMovementStateMachine::MoveHorizontal);
-	InputComponent->BindAxis("MoveVertical", myFPMovement, &UFPMovementStateMachine::MoveVertical);
-	InputComponent->BindAxis("LookHorizontal", myFPMovement, &UFPMovementStateMachine::LookHorizontal);
-	InputComponent->BindAxis("LookVertical", myFPMovement, &UFPMovementStateMachine::LookVertical);
-	InputComponent->BindAction("Jump", IE_Pressed, myFPMovement, &UFPMovementStateMachine::JumpPressed);
-	InputComponent->BindAction("Jump", IE_Released, myFPMovement, &UFPMovementStateMachine::JumpReleased);
-	InputComponent->BindAction("Crouch", IE_Pressed, myFPMovement, &UFPMovementStateMachine::CrouchPressed);
-	InputComponent->BindAction("Crouch", IE_Released, myFPMovement, &UFPMovementStateMachine::CrouchReleased);
-	InputComponent->BindAction("Dash", IE_Pressed, myFPMovement, &UFPMovementStateMachine::Dash);
-	InputComponent->BindAction("Grapple", IE_Pressed, myFPMovement, &UFPMovementStateMachine::Grapple);
+	InputComponent->BindAxis("MoveHorizontal", myFPMovement, &UFPMovement::MoveHorizontal);
+	InputComponent->BindAxis("MoveVertical", myFPMovement, &UFPMovement::MoveVertical);
+	InputComponent->BindAxis("LookHorizontal", myFPMovement, &UFPMovement::LookHorizontal);
+	InputComponent->BindAxis("LookVertical", myFPMovement, &UFPMovement::LookVertical);
+	InputComponent->BindAction("Jump", IE_Pressed, myFPMovement, &UFPMovement::JumpPressed);
+	InputComponent->BindAction("Jump", IE_Released, myFPMovement, &UFPMovement::JumpReleased);
+	InputComponent->BindAction("Crouch", IE_Pressed, myFPMovement, &UFPMovement::CrouchPressed);
+	InputComponent->BindAction("Crouch", IE_Released, myFPMovement, &UFPMovement::CrouchReleased);
+	InputComponent->BindAction("Dash", IE_Pressed, myFPMovement, &UFPMovement::Dash);
+	InputComponent->BindAction("Grapple", IE_Pressed, myFPMovement, &UFPMovement::Grapple);
 
 	CHECK_RETURN_LOG(!myFPCombat, "Combat not set");
 

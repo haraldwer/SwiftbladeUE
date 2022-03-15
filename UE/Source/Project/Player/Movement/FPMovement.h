@@ -3,16 +3,15 @@
 #include "CoreMinimal.h"
 #include "FPMovementInputAction.h"
 #include "Project/Utility/Tools/StateMachine/StateMachine.h"
-#include "FPMovementStateMachine.generated.h"
+#include "FPMovement.generated.h"
 
-
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_API UFPMovementStateMachine : public UStateMachine
+UCLASS(ClassGroup=(Custom))
+class PROJECT_API UFPMovement : public UStateMachine
 {
 	GENERATED_BODY()
 
 public:
-	virtual ~UFPMovementStateMachine() override = default;
+	virtual ~UFPMovement() override = default;
 	virtual UClass* GetDefaultStateType() override;
 
 	void MoveHorizontal(const float aValue) 	{ Input(EFPMovementInputAction::MOVE_HORIZONTAL, aValue, false); }

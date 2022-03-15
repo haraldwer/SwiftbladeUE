@@ -18,15 +18,15 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
-	float myDist = 2048.0f;
+	float myDist = 1500.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myDot = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myCooldown = 1.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
-	float myReleaseDist = 100.0f;
+	float myReleaseDist = 500.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
-	float myReleaseTime = 0.1f;
+	float myReleaseTime = 0.4f;
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myFreezeTime = 0.15f;
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float mySpeedMulHorizontal = 0.9f;
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
-	float mySpeedMulVertical = 1.7f;
+	float mySpeedMulVertical = 1.3f;
 	
 private:
 	FVector myTargetLocation;

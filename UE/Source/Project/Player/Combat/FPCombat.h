@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPComponentBase.h"
 #include "Curves/CurveFloat.h"
+#include "Project/Player/FPComponentBase.h"
 #include "FPCombat.generated.h"
 
 UENUM(BlueprintType)

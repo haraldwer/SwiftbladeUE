@@ -36,7 +36,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myOverrideGravityScale = 1.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
-	float myWallrunGravity = 0.2f;
+	float myWallrunGravity = 0.05f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "WallClimb")
 	float myWallClimbDot = 0.8f;

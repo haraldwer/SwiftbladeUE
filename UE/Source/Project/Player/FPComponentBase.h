@@ -22,7 +22,7 @@ public:
 	class UCameraComponent& GetCamera() const;
 	class UFPCamera& GetFPCamera() const;
 	class UFPAnimator& GetAnimator() const;
-	class UFPMovementStateMachine& GetMovement() const;
+	class UFPMovement& GetMovement() const;
 	class UFPCombat& GetCombat() const;
 
 	// Interface for creating player-related effects

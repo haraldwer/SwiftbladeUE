@@ -5,7 +5,7 @@
 #include "Components/SceneComponent.h"
 #include "StateMachine.generated.h"
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Custom))
 class PROJECT_API UStateMachine : public USceneComponent
 {
 	GENERATED_BODY()

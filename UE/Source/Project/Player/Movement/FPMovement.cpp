@@ -1,13 +1,13 @@
-﻿#include "FPMovementStateMachine.h"
+﻿#include "FPMovement.h"
 
 #include "States/FPMovementStateIdle.h"
 
-UClass* UFPMovementStateMachine::GetDefaultStateType()
+UClass* UFPMovement::GetDefaultStateType()
 {
 	return UFPMovementStateIdle::StaticClass();
 }
 
-void UFPMovementStateMachine::Input(const EFPMovementInputAction& anAction, const float aValue, const bool aAll)
+void UFPMovement::Input(const EFPMovementInputAction& anAction, const float aValue, const bool aAll)
 {
 	UStateBase* nextState = nullptr;
 	if (aAll)
@@ -29,7 +29,7 @@ void UFPMovementStateMachine::Input(const EFPMovementInputAction& anAction, cons
 		SetState(nextState);
 }
 
-void UFPMovementStateMachine::OnLanded()
+void UFPMovement::OnLanded()
 {
 	UStateBase* nextState = nullptr;
 	for (auto& it : myStates)
@@ -41,7 +41,7 @@ void UFPMovementStateMachine::OnLanded()
 		SetState(nextState);
 }
 
-void UFPMovementStateMachine::OnHit(const FHitResult& aHit)
+void UFPMovement::OnHit(const FHitResult& aHit)
 {
 	UStateBase* nextState = nullptr;
 	for (auto& it : myStates)

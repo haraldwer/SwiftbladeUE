@@ -110,7 +110,7 @@ UFPAnimator& UFPMovementStateBase::GetAnimator() const
 	return *ptr;
 }
 
-UFPMovementStateMachine& UFPMovementStateBase::GetMovement() const
+UFPMovement& UFPMovementStateBase::GetMovement() const
 {
 	const auto ptr = GetCharacter().GetMovement();
 	CHECK_ASSERT(!ptr, "Movement nullptr");
