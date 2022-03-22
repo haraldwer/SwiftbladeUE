@@ -40,7 +40,6 @@ UClass* UFPMovementStateWallrun::Update(float aDT)
 			LOG("No forward input when climbing");
 			return UFPMovementStateInAir::StaticClass();
 		}
-		LOG("Climbing");
 	}
 	else
 	{
@@ -98,7 +97,6 @@ void UFPMovementStateWallrun::Exit()
 
 UClass* UFPMovementStateWallrun::OnLanded()
 {
-	LOG("No longer hit head");
 	myHasHitHead = false;
 	CHECK_RETURN(!IsCurrentState(), nullptr);
 	return UFPMovementStateRun::StaticClass();

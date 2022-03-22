@@ -3,5 +3,4 @@
 ALevelGeneratedObject::ALevelGeneratedObject()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	
 }

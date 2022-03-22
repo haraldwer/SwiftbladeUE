@@ -18,6 +18,7 @@ private:
 	void CreateMenuManager();
 	void CreatePromptManager();
 	void CreateEnemyManager();
+	void CreateLevelGenerator();
 	
 	UPROPERTY();
 	class AMenuManager* myMenuManager;
@@ -25,5 +26,7 @@ private:
 	class APromptManager* myPromptManager;
 	UPROPERTY();
 	class AEnemyManager* myEnemyManager;
+	UPROPERTY();
+	class ALevelGenerator* myLevelGenerator;
 	
 };

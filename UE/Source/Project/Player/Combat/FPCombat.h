@@ -26,7 +26,7 @@ struct FSwordAnimationData
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_API UFPCombat : public UFPComponentBase
+class PROJECT_API UFPCombat : public UFPActorComponentBase
 {
 	GENERATED_BODY()
 

@@ -5,7 +5,7 @@
 #include "FPAnimator.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_API UFPAnimator : public UFPComponentBase
+class PROJECT_API UFPAnimator : public UFPActorComponentBase
 {
 	GENERATED_BODY()
 
@@ -52,7 +52,7 @@ private:
 	void Falling(float aDT);
 
 	void Interact(float aDT);
-	bool InteractHand(FTransform& aHandTrans, const FVector& aStart, const FVector& anEnd, const FVector& aHandRotation) const;
+	bool InteractHand(FTransform& aHandTrans, const FVector& aStart, const FVector& anEnd, const FVector& aHandRotation, bool aOverrideRotation = false) const;
 	
 	void Jump(float aDT);
 	void Dash(float aDT);

@@ -20,7 +20,7 @@ public:
 	// Override with default state
 	virtual UClass* GetDefaultStateType();
 
-	void SetState(UStateBase* aState);
+	virtual bool SetState(UStateBase* aState);
 	UStateBase* GetCurrentState() const { return myState.Get(); };
 
 	template <class T>

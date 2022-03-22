@@ -14,7 +14,8 @@ ALevelGenerator::ALevelGenerator()
 void ALevelGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	GenerateLevels(10);
+	GenerateLevelOrder(10);
+	LevelLoaded();
 }
 
 void ALevelGenerator::Tick(float DeltaTime)
@@ -23,9 +24,10 @@ void ALevelGenerator::Tick(float DeltaTime)
 
 	if(myStaticInvalid)
 	{
-		MoveLevels();
+		SetupLevels();
 		EnableOverlapEvents();
 		myStaticInvalid = false;
+		SetActorTickEnabled(false);
 	}
 }
 
@@ -33,9 +35,10 @@ void ALevelGenerator::LevelLoaded()
 {
 	LOG("Level loaded");
 	myStaticInvalid = true;
+	SetActorTickEnabled(true);
 }
 
-void ALevelGenerator::GenerateLevels(int aSeed)
+void ALevelGenerator::GenerateLevelOrder(int aSeed)
 {
 	LOG("Generating levels");
 	
@@ -48,13 +51,14 @@ void ALevelGenerator::GenerateLevels(int aSeed)
 	total.Add(GetLevelPool("Medium", myNumbMediumLevels));
 	total.Add(GetLevelPool("Hard", myNumbHardLevels));
 
-	myLoadedLevels.Empty();
+	myLevels.Reset();
+	myLevels.Add("Start"); // Start of game
+	
 	TArray<FString> pool = easy;
-
 	while (pool.Num() != 0)
 	{
 		const int index = FMath::RandRange(0, pool.Num() - 1);
-		myLoadedLevels.Add(pool[index]);
+		myLevels.Add(pool[index]);
 
 		bool found = false;
 		for (auto& list : total)
@@ -72,13 +76,53 @@ void ALevelGenerator::GenerateLevels(int aSeed)
 			pool.RemoveAt(index);
 	}
 
+	myLevels.Add("End"); // End of game
+
 	if (arena.Num() > 0)
 	{
-		const int arenaStep = myLoadedLevels.Num() / arena.Num();
+		myArenaIndices.Reset();
+		const int arenaStep = myLevels.Num() / arena.Num();
 		for (int i = 0; i < arena.Num(); i++)
-			myLoadedLevels.Insert(arena[i], FMath::Clamp(arenaStep * (i + 1) + i, 1, arena.Num()));
+		{
+			const int32 index = FMath::Clamp(arenaStep * (i + 1), 1, myLevels.Num() - 1);
+			myLevels.Insert("Section_Start", index);
+			myLevels.Insert(arena[i], index);
+			myLevels.Insert("Section_End", index);
+			myArenaIndices.Add(index + 1);		
+		}
 	}
+}
 
+void ALevelGenerator::LoadSection(const int anArenaIndex)
+{
+	CHECK_RETURN_LOG(anArenaIndex < 0, "Arena index out of range");
+
+	// If out of range, choose last index as end
+	const int32 endIndex = anArenaIndex < myArenaIndices.Num() ? myArenaIndices[anArenaIndex] : myLevels.Num();
+	CHECK_RETURN_LOG(endIndex < 0 || endIndex > myLevels.Num(), "Level index out of range");
+
+	// If first arena, choose zero as start 
+	const int32 startIndex = anArenaIndex > 0 ? myArenaIndices[anArenaIndex - 1] + 1 : 0;
+	CHECK_RETURN_LOG(startIndex < 0 || startIndex > myLevels.Num(), "Level index out of range");
+	
+	// Load all levels before arena index
+	TArray<FString> levelsToLoad;
+	for (int32 i = startIndex; i < endIndex; i++)
+		levelsToLoad.Add(myLevels[i]);
+	
+	LoadLevels(levelsToLoad);
+}
+
+void ALevelGenerator::LoadArena(const int anArenaIndex)
+{
+	CHECK_RETURN_LOG(anArenaIndex < 0 || anArenaIndex >= myArenaIndices.Num(), "Arena index out of range");
+	const int32 index = myArenaIndices[anArenaIndex];
+	CHECK_RETURN_LOG(index < 0 || index >= myLevels.Num(), "Level index out of range");
+	LoadLevels({myLevels[index]});
+}
+
+void ALevelGenerator::LoadLevels(TArray<FString> someLevelsToLoad)
+{
 	int uuid = 0;
 	FLatentActionInfo loadInfo;
 	loadInfo.CallbackTarget = this;
@@ -86,40 +130,85 @@ void ALevelGenerator::GenerateLevels(int aSeed)
 	loadInfo.Linkage = 0;
 	for (auto& it : myLoadedLevels)
 	{
+		if (const auto ptr = it.myPtr.Get())
+			ptr->ApplyWorldOffset(it.myOffset * -1.0f, false);
+
+		if (const auto streamingLevel = UGameplayStatics::GetStreamingLevel(this, *it.myName))
+		{
+			streamingLevel->SetShouldBeLoaded(false);
+			streamingLevel->SetShouldBeVisible(false);
+		}
+		
+		uuid++;
+		loadInfo.UUID = uuid;
+		UGameplayStatics::UnloadStreamLevel(this, *it.myName, loadInfo, true);
+		LOG("Unload level " + it.myName);
+	}
+
+	myLoadedLevels.Reset();
+	
+	for (auto& it : someLevelsToLoad)
+	{
+		const int index = FindLevelIndex(it);
+		CHECK_CONTINUE_LOG(index == -1, "Invalid index");
 		uuid++;
 		loadInfo.UUID = uuid;
 		UGameplayStatics::LoadStreamLevel(this, *it, true, true, loadInfo);
+
+		if (const auto streamingLevel = UGameplayStatics::GetStreamingLevel(this, *it))
+		{
+			streamingLevel->SetShouldBeLoaded(true);
+			streamingLevel->SetShouldBeVisible(true);
+		}
+		
+		myLoadedLevels.Add(LoadedLevelData{FVector(), it, nullptr, index});
 	}
 }
 
-void ALevelGenerator::MoveLevels()
+void ALevelGenerator::SetupLevels()
 {
-	LOG("Moving levels");
-
-	FVector previousPosition = FVector(0, 0, 0);
+	LOG("Setting up levels");
+	
 	const auto& streamingLevels = GetWorld()->GetStreamingLevels();
 	for(auto& level : streamingLevels)
 	{
+		CHECK_CONTINUE(!level->ShouldBeLoaded());
+		CHECK_CONTINUE_LOG(!level->IsLevelLoaded(), "Level has not finished loading yet");
 		const auto loadedLevel = level->GetLoadedLevel();
-		if (!loadedLevel)
-			continue;
-
-		GenerateObjects(loadedLevel);
-		
+		CHECK_CONTINUE(!loadedLevel);
 		const int index = FindLevelIndex(loadedLevel);
-		if (index == -1)
-			continue;
-		loadedLevel->ApplyWorldOffset(previousPosition, false);
-		AActor** end = loadedLevel->Actors.FindByPredicate([](AActor* actor) { return actor->IsA(ALevelEndLocation::StaticClass()); });
+		CHECK_CONTINUE(index == -1);
+		LoadedLevelData* data = myLoadedLevels.FindByPredicate([&](const LoadedLevelData& someData)
+		{
+			return someData.myIndex == index;
+		});
+		CHECK_CONTINUE_LOG(!data, "Invalid streaming level");
+		data->myPtr = loadedLevel;
+	}
+
+	// Sort by index
+	myLoadedLevels.Sort([](const LoadedLevelData& aFirst, const LoadedLevelData& aSecond){ return aFirst.myIndex < aSecond.myIndex; });
+
+	FVector previousPosition = FVector(0, 0, 0);
+	for (auto& level : myLoadedLevels)
+	{
+		const auto ptr = level.myPtr.Get();
+		CHECK_RETURN(!ptr);
+		GenerateObjects(ptr);
+		ptr->ApplyWorldOffset(previousPosition, false);
+		LOG("Apply offset: " + level.myName + " " + FString::SanitizeFloat(previousPosition.X) + " Previous offset: " + FString::SanitizeFloat(level.myOffset.X));
+		level.myOffset = previousPosition;
+		AActor** end = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ALevelEndLocation::StaticClass()); });
 		if (end && *end)
 			previousPosition = (*end)->GetActorLocation();
-		else
-			LOG("Missing end location for level");
+		else LOG("Missing end location for level " + level.myName);
 	}
 }
 
 void ALevelGenerator::GenerateObjects(const ULevel* aLevel)
 {
+	CHECK_RETURN(!aLevel);
+	
 	for (auto& actor : aLevel->Actors)
 	{
 		const auto spawner = Cast<ALevelGeneratedObject>(actor);
@@ -165,13 +254,15 @@ void ALevelGenerator::EnableOverlapEvents() const
 
 int ALevelGenerator::FindLevelIndex(const ULevel* aLevel)
 {
-	const auto name = aLevel->GetOuter()->GetName();
-	int j = 0;
-	for (auto& it : myLoadedLevels)
+	return FindLevelIndex(aLevel->GetOuter()->GetName());
+}
+
+int ALevelGenerator::FindLevelIndex(const FString& aName)
+{
+	for (int32 i = 0; i < myLevels.Num(); i++)
 	{
-		if (it == name)
-			return j;
-		j++;
+		if (myLevels[i] == aName)
+			return i;
 	}
 	return -1; 
 }

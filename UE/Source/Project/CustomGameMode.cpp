@@ -2,6 +2,7 @@
 
 #include "CustomGameInstance.h"
 #include "Enemies/EnemyManager.h"
+#include "Level/LevelGenerator.h"
 #include "UI/Menus/MenuManager.h"
 #include "UI/Prompts/PromptManager.h"
 #include "Utility/MainSingelton.h"
@@ -15,6 +16,7 @@ void ACustomGameMode::InitGameState()
 		CreateMenuManager();
 		CreatePromptManager();
 		CreateEnemyManager();
+		CreateLevelGenerator(); 
 	}
 }
 
@@ -49,4 +51,15 @@ void ACustomGameMode::CreateEnemyManager()
 	CHECK_RETURN_LOG(!enemyActor, "PromptActor nullptr");
 	myEnemyManager = Cast<AEnemyManager>(enemyActor);
 	CHECK_RETURN_LOG(!enemyActor, "EnemyActor not of type AEnemyManager");
+}
+
+void ACustomGameMode::CreateLevelGenerator()
+{
+	const auto& instance = UMainSingelton::GetGameInstance();
+	const auto world = GetWorld();
+	CHECK_RETURN_LOG(!world, "World nullptr");
+	const auto levelGenerator = world->SpawnActor(instance.GetLevelGeneratorBP().Get());
+	CHECK_RETURN_LOG(!levelGenerator, "PromptActor nullptr");
+	myLevelGenerator = Cast<ALevelGenerator>(levelGenerator);
+	CHECK_RETURN_LOG(!levelGenerator, "LevelGenerator not of type ALevelGenerator");
 }

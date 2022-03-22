@@ -340,8 +340,14 @@ void UFPAnimator::Interact(float aDT)
 		if (!Raycast(result, start, end))
 		{
 			// Raycast straight down if climbing
-			InteractHand(myRight, FVector(30, 0,75), FVector(30, 0, -100), FVector(-90, 90, 0));
-			InteractHand(myLeft, FVector(30, 0,75), FVector(30, 0, -100), FVector(90, 90, 0));
+			InteractHand(myRight,
+				FVector(30, 0,75),
+				FVector(30, 0, -100),
+				character.GetActorRotation().Euler(), true);
+			InteractHand(myLeft,
+				FVector(30, 0,75),
+				FVector(30, 0, -100),
+				character.GetActorRotation().Euler(), true);
 		}
 		return;		
 	}
@@ -379,7 +385,7 @@ void UFPAnimator::Interact(float aDT)
 
 }
 
-bool UFPAnimator::InteractHand(FTransform& aHandTrans, const FVector& aStart, const FVector& anEnd, const FVector& aHandRotation) const
+bool UFPAnimator::InteractHand(FTransform& aHandTrans, const FVector& aStart, const FVector& anEnd, const FVector& aHandRotation, bool aOverrideRotation) const
 {
 	auto& character = GetCharacter();
 	auto actorTrans = GetActorTransform();
@@ -392,8 +398,15 @@ bool UFPAnimator::InteractHand(FTransform& aHandTrans, const FVector& aStart, co
 	if (Raycast(result, start, end))
 	{
 		aHandTrans.SetLocation(actorTrans.InverseTransformPosition(result.Location));
-		auto rotation = actorTrans.InverseTransformRotation((result.Normal * -1.0f).Rotation().Quaternion());
-		aHandTrans.SetRotation(FQuat::MakeFromEuler(rotation.Euler() + aHandRotation));
+		if (!aOverrideRotation)
+		{
+			auto rotation = actorTrans.InverseTransformRotation((result.Normal * -1.0f).Rotation().Quaternion());
+			aHandTrans.SetRotation(FQuat::MakeFromEuler(rotation.Euler() + aHandRotation));
+		}
+		else
+		{
+			aHandTrans.SetRotation(actorTrans.InverseTransformRotation(FQuat::MakeFromEuler(aHandRotation)));
+		}
 		return true;
 	}
 	return false;

@@ -27,6 +27,7 @@ void ASword::SetPlayer(AFPCharacter* aPlayer)
 {
 	AttachToActor(aPlayer, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	myPlayer = aPlayer;
+	
 }
 
 void ASword::Return()

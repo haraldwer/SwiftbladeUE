@@ -13,6 +13,7 @@ class PROJECT_API UFPMovement : public UStateMachine
 public:
 	virtual ~UFPMovement() override = default;
 	virtual UClass* GetDefaultStateType() override;
+	virtual bool SetState(UStateBase* aState) override;
 
 	void MoveHorizontal(const float aValue) 	{ Input(EFPMovementInputAction::MOVE_HORIZONTAL, aValue, false); }
 	void MoveVertical(const float aValue) 		{ Input(EFPMovementInputAction::MOVE_VERTICAL, aValue, false); }

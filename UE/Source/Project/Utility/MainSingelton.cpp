@@ -5,6 +5,7 @@
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
 #include "Project/CustomGameMode.h"
+#include "Project/Level/LevelGenerator.h"
 
 AMenuManager* UMainSingelton::GetMenuMangerPtr()
 {
@@ -40,6 +41,18 @@ AEnemyManager* UMainSingelton::GetEnemyManagerPtr()
 AEnemyManager& UMainSingelton::GetEnemyManager()
 {
 	return *GetEnemyManagerPtr();
+}
+
+ALevelGenerator* UMainSingelton::GetLevelGeneratorPtr()
+{
+	const auto& gameMode = GetGameMode();
+	CHECK_ASSERT(!gameMode.myLevelGenerator, "LevelGenerator nullptr");
+	return gameMode.myLevelGenerator;
+}
+
+ALevelGenerator& UMainSingelton::GetLevelGenerator()
+{
+	return *GetLevelGeneratorPtr();
 }
 
 AFPController* UMainSingelton::GetLocalController()

@@ -77,15 +77,16 @@ UClass* UStateMachine::GetDefaultStateType()
 	return UStateBase::StaticClass();
 }
 
-void UStateMachine::SetState(UStateBase* aState)
+bool UStateMachine::SetState(UStateBase* aState)
 {
-	CHECK_RETURN(!aState);
+	CHECK_RETURN(!aState, false);
 	const auto currentState = myState.Get();
-	CHECK_RETURN(aState == currentState);
+	CHECK_RETURN(aState == currentState, false);
 	if (currentState)
 		currentState->Exit();
 	myState = aState;
 	aState->Enter();
+	return true;
 }
 
 UStateBase* UStateMachine::GetState(UClass* aType)

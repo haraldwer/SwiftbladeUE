@@ -27,7 +27,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Respawn();
 
-	void SetCheckpoint(class ACheckpoint* aCheckpoint);
+	void EnterSection() const;
+	void EnterArena() const;
+
+	bool SetCheckpoint(class ACheckpoint* aCheckpoint);
 
 	void SetEnablePawnControls(bool aEnabled);
 
@@ -45,9 +48,8 @@ private:
 	
 	void PausePressed();
 
-	UPROPERTY()
-	class ACheckpoint* myLatestCheckpoint;
+	TWeakObjectPtr<ACheckpoint> myCheckpoint;
+	int32 myArenaIndex = 0;
 	FVector myStartLocation;
-	FVector myCheckpointOffset;
 	int myRespawnCount = 0;
 };

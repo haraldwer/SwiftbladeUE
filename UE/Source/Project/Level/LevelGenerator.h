@@ -24,17 +24,14 @@ class PROJECT_API ALevelGenerator : public AActor
 	
 public:	
 	ALevelGenerator();
-
-protected:
-	
 	virtual void BeginPlay() override;
-
-public:
-	
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = Game)
 	void LevelLoaded();
+
+	void LoadSection(int anArenaIndex);
+	void LoadArena(int anArenaIndex);
 	
 protected:
 	
@@ -52,14 +49,31 @@ protected:
 	
 private:
 	
-	void GenerateLevels(int aSeed);
-	void MoveLevels();
+	void GenerateLevelOrder(int aSeed);
+	void LoadLevels(TArray<FString> someLevelsToLoad);
+
+	// On levels loaded 
+	void SetupLevels();
 	void GenerateObjects(const ULevel* aLevel);
 	void GenerateObject(const class ALevelGeneratedObject* aSpawner);
 	void EnableOverlapEvents() const;
+	
 	int FindLevelIndex(const ULevel* aLevel);
+	int FindLevelIndex(const FString& aLevelName);
 	static TArray<FString> GetLevelPool(FString aType, int aNumb);
 
-	TArray<FString> myLoadedLevels;
+	TArray<FString> myLevels;
+	TArray<int32> myArenaIndices;
+
+	struct LoadedLevelData
+	{
+		FVector myOffset;
+		FString myName;
+		TWeakObjectPtr<ULevel> myPtr;
+		int32 myIndex;
+	};
+	
+	TArray<LoadedLevelData> myLoadedLevels;
 	bool myStaticInvalid = false;
+	
 };

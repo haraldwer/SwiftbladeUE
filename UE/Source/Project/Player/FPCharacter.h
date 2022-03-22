@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Project/Gameplay/Door.h"
 
 #include "FPCharacter.generated.h"
 
@@ -46,6 +47,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Die(const FString& anObjectName);
 	void OnRespawned();
+	
+	void DoorOpened(ADoor* aDoor);
+	void OnEnterArena();
 
 private:
 

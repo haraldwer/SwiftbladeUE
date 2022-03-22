@@ -17,7 +17,8 @@ public:
 	TSubclassOf<class AMenuManager> GetMenuManagerBP() const { return myMenuManagerBlueprint; }
 	TSubclassOf<class APromptManager> GetPromptManagerBP() const { return myPromptManagerBlueprint; }
 	TSubclassOf<class AEnemyManager> GetEnemyManagerBP() const { return myEnemyManagerBlueprint; }
-	
+	TSubclassOf<class ALevelGenerator> GetLevelGeneratorBP() const { return myLevelGeneratorBlueprint; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="UI")
 	TSubclassOf<class AMenuManager> myMenuManagerBlueprint;
@@ -25,4 +26,6 @@ protected:
 	TSubclassOf<class APromptManager> myPromptManagerBlueprint;
 	UPROPERTY(EditDefaultsOnly, Category="UI")
 	TSubclassOf<class AEnemyManager> myEnemyManagerBlueprint;
+	UPROPERTY(EditDefaultsOnly, Category="UI")
+	TSubclassOf<class ALevelGenerator> myLevelGeneratorBlueprint;
 };

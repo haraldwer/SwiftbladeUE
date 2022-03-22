@@ -348,11 +348,12 @@ void UFPCombat::HitCheckpoint(AActor* aCheckpoint) const
 {
 	const auto checkpoint = Cast<ACheckpoint>(aCheckpoint);
 	CHECK_RETURN_LOG(!checkpoint, "Not a checkpoint")
-	GetController().SetCheckpoint(checkpoint);
-	
-	FTransform trans = mySword->GetActorTransform();
-	trans.SetLocation(trans.GetLocation() + mySword->GetActorForwardVector() * 100);
-	CreateEffect(myHitEffectBP, trans); 
+	if (GetController().SetCheckpoint(checkpoint))
+	{
+		FTransform trans = mySword->GetActorTransform();
+		trans.SetLocation(trans.GetLocation() + mySword->GetActorForwardVector() * 100);
+		CreateEffect(myHitEffectBP, trans);		
+	}
 }
 
 void UFPCombat::HitEnemy(AActor* anEnemy)

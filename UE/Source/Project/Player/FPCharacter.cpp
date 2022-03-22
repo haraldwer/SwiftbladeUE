@@ -15,6 +15,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Movement/FPMovement.h"
+#include "Project/Gameplay/Door.h"
 #include "Project/Utility/Utility.h"
 #include "Project/Utility/Tools/Effect.h"
 
@@ -204,6 +205,19 @@ void AFPCharacter::OnRespawned()
 	LOG("OnRespawned");
 }
 
+void AFPCharacter::DoorOpened(ADoor* aDoor)
+{
+	// Arena door
+	auto controller = GetFPController();
+	CHECK_RETURN_LOG(!controller, "No controller");
+	controller->EnterArena();
+}
+
+void AFPCharacter::OnEnterArena()
+{
+	LOG("Entered arena");
+}
+
 void AFPCharacter::Landed(const FHitResult& aHit)
 {
 	Super::Landed(aHit);
@@ -216,4 +230,7 @@ void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 {
 	if (myFPMovement)
 		myFPMovement->OnHit(Hit);
+
+	if (auto door = Cast<ADoor>(OtherActor))
+		door->Open(this);
 }
