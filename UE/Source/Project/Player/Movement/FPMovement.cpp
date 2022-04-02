@@ -11,14 +11,14 @@ UClass* UFPMovement::GetDefaultStateType()
 
 bool UFPMovement::SetState(UStateBase* aState)
 {
-	CHECK_RETURN(!Super::SetState(aState));
+	CHECK_RETURN(!Super::SetState(aState), false);
 
 	// Update animator
 	auto* state = Cast<UFPMovementStateBase>(aState);
-	CHECK_RETURN(!state);
+	CHECK_RETURN(!state, true);
 	const auto animation = state->GetAnimation();
 	const auto animationClass = animation->GetClass();
-	CHECK_RETURN(!animationClass);
+	CHECK_RETURN(!animationClass, true);
 	UFPAnimatorNew* animator = nullptr;
 	if (animator)
 		animator->TryOverrideState(animationClass);

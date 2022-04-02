@@ -6,10 +6,10 @@
 #include "Actors/Hand.h"
 #include "Animation/FPAnimator.h"
 #include "Blueprint/UserWidget.h"
-#include "Camera/CameraComponent.h"
 #include "Combat/FPCombat.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameModeBase.h"
@@ -17,6 +17,7 @@
 #include "Movement/FPMovement.h"
 #include "Project/Gameplay/Door.h"
 #include "Project/Utility/Utility.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 #include "Project/Utility/Tools/Effect.h"
 
 AFPCharacter::AFPCharacter()
@@ -28,11 +29,11 @@ AFPCharacter::AFPCharacter()
 
 	// Setup components
 	
-	myCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCamera");
+	myCamera = CreateDefaultSubobject<UCustomCamera>("FirstPersonCamera");
 	CHECK_ASSERT(!myCamera, "Failed to create camera component");
 	myCamera->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
 	myCamera->bUsePawnControlRotation = true;
-
+	
 	myFPCamera = CreateDefaultSubobject<UFPCamera>("FPCamera");
 	CHECK_ASSERT(!myFPCamera, "Failed to create FPCamera component");
 	

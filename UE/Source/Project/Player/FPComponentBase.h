@@ -20,7 +20,7 @@ public:
 	FTransform GetActorTransform() const;
 	class UCapsuleComponent& GetCapsule() const;
 	class UCharacterMovementComponent& GetCharacterMovement() const;
-	class UCameraComponent& GetCamera() const;
+	class UCustomCamera& GetCamera() const;
 	class UFPCamera& GetFPCamera() const;
 	class UFPAnimator& GetAnimator() const;
 	class UFPMovement& GetMovement() const;

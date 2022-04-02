@@ -4,14 +4,13 @@
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Hand.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/LineBatchComponent.h"
 #include "Project/Player/FPCamera.h"
-#include "Project/Player/Combat/FPCombat.h"
 #include "Project/Player/Actors/Interaction.h"
 #include "Project/Player/Movement/FPMovement.h"
 #include "Project/Player/Movement/States/FPMovementStateWallrun.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 
 UFPAnimator::UFPAnimator()
 {

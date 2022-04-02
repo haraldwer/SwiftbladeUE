@@ -14,4 +14,7 @@ public:
 	virtual ~UWidgetBase() override = default;
 	
 	virtual void NativeConstruct() override;
+
+	void AddToScreen(int32 aZOrder);
+	void RemoveFromScreen();
 };

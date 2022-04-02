@@ -41,7 +41,7 @@ UCharacterMovementComponent& UFPActorComponentBase::GetCharacterMovement() const
 	return *ptr;
 }
 
-UCameraComponent& UFPActorComponentBase::GetCamera() const
+UCustomCamera& UFPActorComponentBase::GetCamera() const
 {
 	const auto ptr = GetCharacter().GetCamera();
 	CHECK_ASSERT(!ptr, "Camera nullptr");

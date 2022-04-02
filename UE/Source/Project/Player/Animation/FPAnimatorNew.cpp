@@ -16,6 +16,6 @@ void UFPAnimatorNew::TryOverrideState(UClass* aStateType)
 	CHECK_RETURN(!state);
 	const auto currentState = GetCurrentState();
 	// Will still set state if equal priority!
-	CHECK_RETURN(currentState && currentState->Priority() > state->Priority()) 
+	CHECK_RETURN(currentState && currentState->Priority() > state->Priority()); 
 	SetState(state);
 }

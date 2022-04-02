@@ -24,10 +24,10 @@ public:
 	
 	// Getters
 	class AFPController* GetFPController() const;
+	class UCustomCamera* GetCamera() const				{ return myCamera; }
 	class UFPCamera* GetFPCamera() const				{ return myFPCamera; }
-	class UCameraComponent* GetCamera() const			{ return myCamera; }
 	class UFPAnimator* GetAnimator() const				{ return myFPAnimator; }
-	class UFPMovement* GetMovement() const	{ return myFPMovement; }
+	class UFPMovement* GetMovement() const				{ return myFPMovement; }
 	class UFPCombat* GetCombat() const					{ return myFPCombat; }
 	class UCapsuleComponent* GetWallDetection() const	{ return myWallDetection; }
 
@@ -63,15 +63,15 @@ protected:
 
 	// Components
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	UCameraComponent* myCamera;
+	UCustomCamera* myCamera;
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UFPCamera* myFPCamera;
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	class UFPMovement* myFPMovement;
+	UFPMovement* myFPMovement;
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	class UFPAnimator* myFPAnimator;
+	UFPAnimator* myFPAnimator;
 	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	class UFPCombat* myFPCombat;
+	UFPCombat* myFPCombat;
 
 	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
 	UCapsuleComponent* myWallDetection;
