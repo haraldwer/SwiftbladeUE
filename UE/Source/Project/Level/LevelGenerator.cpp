@@ -14,8 +14,6 @@ ALevelGenerator::ALevelGenerator()
 void ALevelGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	GenerateLevelOrder(10);
-	LevelLoaded();
 }
 
 void ALevelGenerator::Tick(float DeltaTime)
@@ -38,7 +36,7 @@ void ALevelGenerator::LevelLoaded()
 	SetActorTickEnabled(true);
 }
 
-void ALevelGenerator::GenerateLevelOrder(int aSeed)
+void ALevelGenerator::GenerateLevelOrder(const int aSeed)
 {
 	LOG("Generating levels");
 	
@@ -123,30 +121,13 @@ void ALevelGenerator::LoadArena(const int anArenaIndex)
 
 void ALevelGenerator::LoadLevels(TArray<FString> someLevelsToLoad)
 {
+	myLoadedLevels.Reset();
+	
 	int uuid = 0;
 	FLatentActionInfo loadInfo;
 	loadInfo.CallbackTarget = this;
 	loadInfo.ExecutionFunction = "LevelLoaded";
 	loadInfo.Linkage = 0;
-	for (auto& it : myLoadedLevels)
-	{
-		if (const auto ptr = it.myPtr.Get())
-			ptr->ApplyWorldOffset(it.myOffset * -1.0f, false);
-
-		if (const auto streamingLevel = UGameplayStatics::GetStreamingLevel(this, *it.myName))
-		{
-			streamingLevel->SetShouldBeLoaded(false);
-			streamingLevel->SetShouldBeVisible(false);
-		}
-		
-		uuid++;
-		loadInfo.UUID = uuid;
-		UGameplayStatics::UnloadStreamLevel(this, *it.myName, loadInfo, true);
-		LOG("Unload level " + it.myName);
-	}
-
-	myLoadedLevels.Reset();
-	
 	for (auto& it : someLevelsToLoad)
 	{
 		const int index = FindLevelIndex(it);

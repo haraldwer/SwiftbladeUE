@@ -50,6 +50,28 @@ void UFPCombat::ReturnSword()
 	myState = EFPCombatState::IDLE;
 }
 
+void UFPCombat::SetHasSword(const bool aValue)
+{
+	if (!aValue)
+	{
+		ReturnSword();
+		return;
+	}
+
+	for (TObjectIterator<ASword> itr; itr; ++itr)
+	{
+		const auto ptr = *itr;
+		CHECK_CONTINUE(!ptr);
+		CHECK_CONTINUE(ptr->GetWorld() != GetWorld());
+		mySword = ptr;
+		mySword->SetPlayer(&GetCharacter());
+		myState = EFPCombatState::IDLE;
+		return;
+	}
+
+	LOG("No sword in world"); 
+}
+
 bool UFPCombat::GetHasSword() const
 {
 	return myState != EFPCombatState::NO_SWORD;

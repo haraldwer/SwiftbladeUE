@@ -2,6 +2,7 @@
 #include "../Utility.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Project/UI/Widgets/CustomWidgetComponent.h"
 #include "Project/UI/Widgets/WidgetBase.h"
 
 UCustomCamera::UCustomCamera()
@@ -11,13 +12,18 @@ UCustomCamera::UCustomCamera()
 	myWidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>("WidgetInteraction");
 	CHECK_ASSERT(!myWidgetInteractionComponent, "Failed to create widget interaction");
 	myWidgetInteractionComponent->SetupAttachment(this);
+	myWidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::Mouse;
+	myWidgetInteractionComponent->bShowDebug = true;
 
 	for (int i = 0; i < 3; i++)
 	{
-		auto comp = CreateDefaultSubobject<UWidgetComponent>(*(FString("WidgetComponent") + FString::FromInt(i)));
+		auto comp = CreateDefaultSubobject<UCustomWidgetComponent>(*(FString("WidgetComponent") + FString::FromInt(i)));
 		CHECK_CONTINUE_LOG(!comp, "Unable to create widget component")
 		comp->SetupAttachment(this);
 		comp->SetActive(false);
+		comp->SetReceiveHardwareInput(true);
+		comp->SetTickMode(ETickMode::Automatic);
+		comp->SetWindowVisibility(EWindowVisibility::Visible);
 		myWidgetComponents.Add(comp);
 		myUnusedComponents.Add(comp);
 	}
@@ -36,6 +42,7 @@ void UCustomCamera::BeginPlay()
 
 void UCustomCamera::AddWidget(UWidgetBase* aWidget, const int32 aZOrder)
 {
+	CHECK_RETURN_LOG(!aWidget, "Invalid ptr");
 	const auto find = myWidgets.FindByPredicate([&](const FWidgetEntry& anEntry)
 	{
 		return anEntry.myWidget.Get() == aWidget;
@@ -47,11 +54,12 @@ void UCustomCamera::AddWidget(UWidgetBase* aWidget, const int32 aZOrder)
 	comp->SetInitialLayerZOrder(aZOrder);
 	comp->SetWidgetClass(aWidget->GetClass());
 	comp->SetWidget(aWidget);
+	comp->SetRelativeTransform(myWidgetTransform);
 }
 
 void UCustomCamera::RemoveWidget(UWidgetBase* aWidget)
 {
-	CHECK_RETURN(!aWidget);
+	CHECK_RETURN_LOG(!aWidget, "Invalid ptr");
 	for (int i = 0; i < myWidgets.Num(); i++)
 	{
 		auto& widget = myWidgets[i];
@@ -65,7 +73,7 @@ void UCustomCamera::RemoveWidget(UWidgetBase* aWidget)
 	LOG("Widget does not exist on camera");
 }
 
-UWidgetComponent* UCustomCamera::GetWidgetComponent()
+UCustomWidgetComponent* UCustomCamera::GetWidgetComponent()
 {
 	CHECK_RETURN_LOG(myUnusedComponents.Num() <= 0, "No unused components", nullptr);
 	const auto comp = myUnusedComponents.Last();
@@ -74,13 +82,14 @@ UWidgetComponent* UCustomCamera::GetWidgetComponent()
 	return comp;
 }
 
-void UCustomCamera::ReturnWidgetComponent(UWidgetComponent* aComp)
+void UCustomCamera::ReturnWidgetComponent(UCustomWidgetComponent* aComp)
 {
 	CHECK_RETURN_LOG(!aComp, "Tried to return null comp");
 	CHECK_RETURN_LOG(myUnusedComponents.Contains(aComp), "Component already returned")
 	aComp->SetWidgetClass(nullptr);
 	aComp->SetWidget(nullptr);
 	aComp->SetActive(false);
+	aComp->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
 	aComp->SetInitialLayerZOrder(0);
 	myUnusedComponents.Add(aComp);
 }

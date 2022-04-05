@@ -44,6 +44,7 @@ public:
 	
 	void PickupSword();
 	void ReturnSword();
+	void SetHasSword(bool aValue);
 	bool GetHasSword() const;
 	
 	void Strike();

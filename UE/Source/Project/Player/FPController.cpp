@@ -2,7 +2,8 @@
 #include "FPController.h"
 
 #include "FPCharacter.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "Combat/FPCombat.h"
+#include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/Utility/MainSingelton.h"
 #include "Project/UI/Menus/MenuManager.h"
@@ -11,6 +12,7 @@
 void AFPController::BeginPlay()
 {
 	Super::BeginPlay();
+	LoadState(); 
 }
 
 AFPCharacter* AFPController::GetFPCharacter() const
@@ -18,20 +20,39 @@ AFPCharacter* AFPController::GetFPCharacter() const
 	return Cast<AFPCharacter>(GetPawn());
 }
 
-void AFPController::CharacterCreated(AFPCharacter* aCharacter)
+void AFPController::OnStateLoaded(const FFPControllerState aState)
 {
-	myStartLocation = aCharacter->GetActorLocation();
-	LOG("Pos: " + FString::SanitizeFloat(myStartLocation.X) + " " + FString::SanitizeFloat(myStartLocation.Y) + " " + FString::SanitizeFloat(myStartLocation.Z));
-	EnterSection();
+	myState = aState;
+		
+	// Load level
+	auto& levelGen = UMainSingelton::GetLevelGenerator();
+	levelGen.GenerateLevelOrder(myState.mySeed);
+	myState.myInArena ?
+		levelGen.LoadArena(myState.myArenaIndex) :
+		levelGen.LoadSection(myState.myArenaIndex);
+
+	if (myState.myHasSword)
+		if (const auto character = GetFPCharacter())
+			if (const auto combat = character->GetCombat())
+				combat->SetHasSword(true);
+}
+
+FFPControllerState AFPController::GetState() const
+{
+	FFPControllerState state = myState;
+	if (const auto character = GetFPCharacter())
+		if (const auto combat = character->GetCombat())
+			state.myHasSword = combat->GetHasSword();
+	return state; 
 }
 
 void AFPController::CharacterKilled()
 {
-	if (myArenaIndex)
+	if (myState.myArenaIndex)
     {
-    	myRespawnCount++;
-    	if (myRespawnCount > myRespawns)
-    		myArenaIndex = 0;
+    	myState.myRespawnCount++;
+    	if (myState.myRespawnCount > myRespawns)
+    		myState.myArenaIndex = 0;
     }
 
 	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::DEATH);
@@ -44,60 +65,44 @@ void AFPController::CharacterKilled()
 
 void AFPController::Respawn()
 {
-	const auto oldCharacter = GetFPCharacter();
-	const auto newCharacter = Cast<AFPCharacter>(GetWorld()->SpawnActor(myCharacterBlueprint.Get())); 
-	CHECK_RETURN_LOG(!newCharacter, "Character nullptr");
-	Possess(newCharacter);
-	CHECK_RETURN_LOG(GetPawn() != newCharacter, "Failed to possess new character");
-	newCharacter->OnRespawned();
-	CHECK_RETURN_LOG(!oldCharacter, "Old Character nullptr");
-	oldCharacter->Destroy();
-	LOG("Old Character destroyed");
-	
-	EnterSection();
+	LOG("Respawn");
+	myState.myInArena ?
+		EnterArena() : EnterSection();
 }
 
-void AFPController::EnterSection() const
+void AFPController::EnterSection()
 {
-	auto& levelGen = UMainSingelton::GetLevelGenerator();
-	levelGen.LoadSection(myArenaIndex);
-	if (const auto character = GetFPCharacter())
-		character->SetActorLocation(myStartLocation);
+	myState.myInArena = false;
+	SaveState();
+	UGameplayStatics::OpenLevel(GetWorld(), "Base");
 }
 
-void AFPController::EnterArena() const
+void AFPController::EnterArena()
 {
-	auto& levelGen = UMainSingelton::GetLevelGenerator();
-	levelGen.LoadArena(myArenaIndex);
-	if (const auto character = GetFPCharacter())
-	{
-		character->SetActorLocation(myStartLocation);
-		if (const auto movement = character->GetMovementComponent())
-			movement->Velocity = FVector();
-		character->OnEnterArena();
-	}
+	myState.myInArena = true;
+	SaveState();
+	UGameplayStatics::OpenLevel(GetWorld(), "Base");
 }
 
 bool AFPController::SetCheckpoint(ACheckpoint* aCheckpoint)
 {
 	CHECK_RETURN_LOG(myCheckpoint == aCheckpoint, "Checkpoint already set", false);
 	LOG("Checkpoint set"); 
-	myRespawnCount = 0;
+	myState.myRespawnCount = 0;
+	myState.myArenaIndex++;
 	myCheckpoint = aCheckpoint;
 	myCheckpoint->OnActivated();
-	myArenaIndex++;
-	auto& levelGen = UMainSingelton::GetLevelGenerator();
-	levelGen.LoadSection(myArenaIndex);
+	EnterSection();
 	return true;
 }
 
 void AFPController::SetEnablePawnControls(const bool aEnabled)
 {
-	const auto character = GetCharacter();
+	const auto character = GetFPCharacter();
 	CHECK_RETURN_LOG(!character, "Character nullptr");
-	aEnabled && character ?
-		AttachToPawn(character) :
-		DetachFromPawn();
+	aEnabled ?		
+		character->EnableInput(this) :
+		character->DisableInput(this);
 }
 
 void AFPController::SetupInputComponent()

@@ -30,6 +30,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Game)
 	void LevelLoaded();
 
+	void GenerateLevelOrder(int aSeed);
 	void LoadSection(int anArenaIndex);
 	void LoadArena(int anArenaIndex);
 	
@@ -49,7 +50,6 @@ protected:
 	
 private:
 	
-	void GenerateLevelOrder(int aSeed);
 	void LoadLevels(TArray<FString> someLevelsToLoad);
 
 	// On levels loaded 

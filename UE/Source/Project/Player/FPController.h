@@ -4,6 +4,24 @@
 #include "GameFramework/PlayerController.h"
 #include "FPController.generated.h"
 
+USTRUCT(BlueprintType)
+struct FFPControllerState
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 myArenaIndex = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool myInArena = false; 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 myRespawnCount = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 mySeed = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool myHasSword = false;
+	
+};
+
 UCLASS()
 class PROJECT_API AFPController : public APlayerController
 {
@@ -12,28 +30,45 @@ class PROJECT_API AFPController : public APlayerController
 public:
 	
 	virtual ~AFPController() override = default;
-
-protected:
-	
 	virtual void BeginPlay() override;
 
-public:
-
+	UFUNCTION(BlueprintCallable)
 	class AFPCharacter* GetFPCharacter() const;
+
+	// -- State -- //
 	
-	void CharacterCreated(AFPCharacter* aCharacter);
+	UFUNCTION(BlueprintImplementableEvent)
+	void LoadState();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void SaveState();
+
+	UFUNCTION(BlueprintCallable)
+	void OnStateLoaded(FFPControllerState aState);
+
+	UFUNCTION(BlueprintCallable)
+	FFPControllerState GetState() const;
+	
+	// -- End state -- // 
+
+	// Called when character dies
 	void CharacterKilled();
-	
+
+	// Called when it's time to respawn
 	UFUNCTION(BlueprintCallable)
 	void Respawn();
 
-	void EnterSection() const;
-	void EnterArena() const;
+	// Enter the next section. Will reload level.
+	void EnterSection();
+	// Enter the next arena. Will reload level.
+	void EnterArena();
 
+	// Called when checkpoint is set
 	bool SetCheckpoint(class ACheckpoint* aCheckpoint);
 
+	// UI helper function
 	void SetEnablePawnControls(bool aEnabled);
-
+	
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
@@ -45,11 +80,8 @@ protected:
 private:
 	
 	virtual void SetupInputComponent() override;
-	
 	void PausePressed();
 
 	TWeakObjectPtr<ACheckpoint> myCheckpoint;
-	int32 myArenaIndex = 0;
-	FVector myStartLocation;
-	int myRespawnCount = 0;
+	FFPControllerState myState; 
 };

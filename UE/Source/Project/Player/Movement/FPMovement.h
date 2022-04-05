@@ -12,6 +12,7 @@ class PROJECT_API UFPMovement : public UStateMachine
 
 public:
 	virtual ~UFPMovement() override = default;
+	
 	virtual UClass* GetDefaultStateType() override;
 	virtual bool SetState(UStateBase* aState) override;
 

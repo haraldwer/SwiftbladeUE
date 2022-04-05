@@ -17,7 +17,7 @@ bool UFPMovement::SetState(UStateBase* aState)
 	auto* state = Cast<UFPMovementStateBase>(aState);
 	CHECK_RETURN(!state, true);
 	const auto animation = state->GetAnimation();
-	const auto animationClass = animation->GetClass();
+	const auto animationClass = animation.Get();
 	CHECK_RETURN(!animationClass, true);
 	UFPAnimatorNew* animator = nullptr;
 	if (animator)

@@ -12,7 +12,7 @@ struct FWidgetEntry
 	GENERATED_BODY()
 	
 	TWeakObjectPtr<UWidgetBase> myWidget;
-	TWeakObjectPtr<class UWidgetComponent> myComponent;
+	TWeakObjectPtr<class UCustomWidgetComponent> myComponent;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -31,19 +31,19 @@ public:
 	
 protected:
 	
-	UWidgetComponent* GetWidgetComponent();
-	void ReturnWidgetComponent(UWidgetComponent* aComp);
+	UCustomWidgetComponent* GetWidgetComponent();
+	void ReturnWidgetComponent(UCustomWidgetComponent* aComp);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UWidgetInteractionComponent* myWidgetInteractionComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	TArray<UWidgetComponent*> myWidgetComponents;
+	TArray<UCustomWidgetComponent*> myWidgetComponents;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	FTransform myWidgetTransform;
 
 private:
 	TArray<FWidgetEntry> myWidgets;
-	TArray<UWidgetComponent*> myUnusedComponents;
+	TArray<UCustomWidgetComponent*> myUnusedComponents;
 };

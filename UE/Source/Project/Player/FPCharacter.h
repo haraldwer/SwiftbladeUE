@@ -46,10 +46,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Die(const FString& anObjectName);
-	void OnRespawned();
 	
-	void DoorOpened(ADoor* aDoor);
-	void OnEnterArena();
+	void DoorOpened(ADoor* aDoor) const;
 
 private:
 
@@ -62,26 +60,26 @@ private:
 protected:
 
 	// Components
-	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UCustomCamera* myCamera;
-	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UFPCamera* myFPCamera;
-	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UFPMovement* myFPMovement;
-	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UFPAnimator* myFPAnimator;
-	UPROPERTY(Instanced, EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UFPCombat* myFPCombat;
 
-	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	UPROPERTY(EditDefaultsOnly, Category="Components")
 	UCapsuleComponent* myWallDetection;
 	
 	// Hands
 	UPROPERTY(EditDefaultsOnly, Category = "Hands")
 	TSubclassOf<AActor> myHandBP;
-	UPROPERTY(Instanced)
+	UPROPERTY(Transient)
 	class AHand* myLeftHand;
-	UPROPERTY(Instanced)
+	UPROPERTY(Transient)
 	class AHand* myRightHand;
 	
 	// Gameplay

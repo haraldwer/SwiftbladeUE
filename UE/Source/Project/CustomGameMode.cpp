@@ -22,24 +22,38 @@ void ACustomGameMode::InitGameState()
 
 void ACustomGameMode::CreateMenuManager()
 {
-	const auto& instance = UMainSingelton::GetGameInstance();
+	auto& instance = UMainSingelton::GetGameInstance();
+	//if (const auto persistentPtr = instance.GetPersistentObject<AMenuManager>())
+	//{
+	//	myMenuManager = persistentPtr;
+	//	return;
+	//}
+	
 	const auto world = GetWorld();
 	CHECK_RETURN_LOG(!world, "World nullptr");
 	const auto menuActor = world->SpawnActor(instance.GetMenuManagerBP().Get());
 	CHECK_RETURN_LOG(!menuActor, "MenuActor nullptr");
 	myMenuManager = Cast<AMenuManager>(menuActor);
 	CHECK_RETURN_LOG(!menuActor, "MenuActor not of type AMenuManager");
+	//instance.AddPersistentObject(menuActor);
 }
 
 void ACustomGameMode::CreatePromptManager()
 {
-	const auto& instance = UMainSingelton::GetGameInstance();
+	auto& instance = UMainSingelton::GetGameInstance();
+	//if (const auto persistentPtr = instance.GetPersistentObject<APromptManager>())
+	//{
+	//	myPromptManager = persistentPtr;
+	//	return;
+	//}
+	
 	const auto world = GetWorld();
 	CHECK_RETURN_LOG(!world, "World nullptr");
 	const auto promptActor = world->SpawnActor(instance.GetPromptManagerBP().Get());
 	CHECK_RETURN_LOG(!promptActor, "PromptActor nullptr");
 	myPromptManager = Cast<APromptManager>(promptActor);
 	CHECK_RETURN_LOG(!promptActor, "PromptActor not of type APromptManager");
+	//instance.AddPersistentObject(promptActor);
 }
 
 void ACustomGameMode::CreateEnemyManager()

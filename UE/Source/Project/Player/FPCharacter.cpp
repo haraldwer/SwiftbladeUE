@@ -90,9 +90,6 @@ void AFPCharacter::BeginPlay()
 			myLeftHand->SetActorRelativeScale3D(FVector(1, -1, 1));
 		}		
 	}
-
-	if (const auto controller = GetFPController())
-		controller->CharacterCreated(this);
 }
 
 void AFPCharacter::BeginDestroy()
@@ -201,22 +198,12 @@ void AFPCharacter::Die(const FString& anObjectName)
 	controller->CharacterKilled();
 }
 
-void AFPCharacter::OnRespawned()
-{
-	LOG("OnRespawned");
-}
-
-void AFPCharacter::DoorOpened(ADoor* aDoor)
+void AFPCharacter::DoorOpened(ADoor* aDoor) const
 {
 	// Arena door
-	auto controller = GetFPController();
+	const auto controller = GetFPController();
 	CHECK_RETURN_LOG(!controller, "No controller");
 	controller->EnterArena();
-}
-
-void AFPCharacter::OnEnterArena()
-{
-	LOG("Entered arena");
 }
 
 void AFPCharacter::Landed(const FHitResult& aHit)

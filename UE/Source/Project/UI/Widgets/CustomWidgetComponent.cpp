@@ -1,0 +1,2 @@
+﻿#include "CustomWidgetComponent.h"
+
