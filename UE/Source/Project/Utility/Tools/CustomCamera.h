@@ -21,28 +21,17 @@ class PROJECT_API UCustomCamera : public UCameraComponent
 	GENERATED_BODY()
 
 public:
-	UCustomCamera();
 	virtual void BeginPlay() override;
 	
-	class UWidgetInteractionComponent* GetWidgetInteraction() const	{ return myWidgetInteractionComponent; }
-
 	void AddWidget(UWidgetBase* aWidget, int32 aZOrder);
-	void RemoveWidget(UWidgetBase* aWidget);
+	void RemoveWidget(const UWidgetBase* aWidget);
 	
 protected:
+	void RefreshComponents();
 	
 	UCustomWidgetComponent* GetWidgetComponent();
 	void ReturnWidgetComponent(UCustomWidgetComponent* aComp);
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	UWidgetInteractionComponent* myWidgetInteractionComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	TArray<UCustomWidgetComponent*> myWidgetComponents;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	FTransform myWidgetTransform;
-
 private:
 	TArray<FWidgetEntry> myWidgets;
 	TArray<UCustomWidgetComponent*> myUnusedComponents;

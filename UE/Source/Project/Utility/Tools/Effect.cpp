@@ -16,7 +16,8 @@ void AEffect::StartParticleCounter()
 {
 	myTotalParticles = 0;
 	myParticlesFinished = 0;
-	TArray<UActorComponent*> comps = GetComponentsByClass(UNiagaraComponent::StaticClass());
+	TArray<UNiagaraComponent*> comps;
+	GetComponents<UNiagaraComponent>(comps);
 	for (const auto comp : comps)
 	{
 		const auto ps = Cast<UNiagaraComponent>(comp);

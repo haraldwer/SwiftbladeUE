@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FMenuInputMode GetInputMode() const { return myInputMode; }
 	UFUNCTION(BlueprintCallable)
-	int GetZOrder() const { return myZOrder; }
+	virtual int GetZOrder() const override { return myZOrder; }
 	UFUNCTION(BlueprintCallable)
 	bool GetIsExclusive() const { return myExclusive; }
 	

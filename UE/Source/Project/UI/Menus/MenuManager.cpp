@@ -23,7 +23,7 @@ void AMenuManager::OpenMenu(const EMenuType aMenu)
 	const auto menuBase = GetMenuInstance(aMenu);
 	CHECK_RETURN_LOG(!menuBase, "Menu instance nullptr");
 	myMenuStack.Add(menuBase);
-	menuBase->AddToScreen(menuBase->GetZOrder());
+	menuBase->AddToCamera();
 	SetInputMode(menuBase->GetInputMode());
 	UpdateExclusiveVisibility();
 	menuBase->OnOpen();
@@ -34,7 +34,7 @@ void AMenuManager::CloseMenu(const EMenuType aMenu)
 	const auto menu = GetMenu(aMenu);
 	CHECK_RETURN_LOG(!menu, "Menu already closed");
 	menu->OnClose();
-	menu->RemoveFromScreen();
+	menu->RemoveFromCamera();
 	myMenuStack.Remove(menu);
 	if (myMenuStack.Num() > 0)
 		SetInputMode(myMenuStack.Top()->GetInputMode());

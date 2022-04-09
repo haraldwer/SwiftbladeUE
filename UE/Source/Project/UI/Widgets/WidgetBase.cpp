@@ -9,20 +9,21 @@ void UWidgetBase::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void UWidgetBase::AddToScreen(const int32 aZOrder)
+void UWidgetBase::AddToCamera()
 {
 	const auto character = UMainSingelton::GetLocalPlayer();
 	const auto camera = character ? character->GetCamera() : nullptr;
+	const int zOrder = GetZOrder();
 	if (!camera)
 	{
-		AddToViewport(aZOrder);
+		AddToViewport(zOrder);
 		LOG("Failed to add widget to in-game view");
 		return;
 	}
-	camera->AddWidget(this, aZOrder);
+	camera->AddWidget(this, zOrder);
 }
 
-void UWidgetBase::RemoveFromScreen()
+void UWidgetBase::RemoveFromCamera()
 {
 	const auto character = UMainSingelton::GetLocalPlayer();
 	const auto camera = character ? character->GetCamera() : nullptr;

@@ -12,9 +12,10 @@ class PROJECT_API UWidgetBase : public UUserWidget
 public:
 
 	virtual ~UWidgetBase() override = default;
-	
 	virtual void NativeConstruct() override;
-
-	void AddToScreen(int32 aZOrder);
-	void RemoveFromScreen();
+	
+	virtual int GetZOrder() const { return 0; }
+	
+	void AddToCamera();
+	void RemoveFromCamera();
 };
