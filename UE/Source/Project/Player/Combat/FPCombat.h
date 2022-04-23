@@ -52,9 +52,6 @@ public:
 	void Interact();
 
 	void Update(float aDT);
-
-	void SetTransforms();
-	void UpdateTransforms(float aDT);
 	
 	class ASword* GetSword() const;
 
@@ -81,6 +78,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	float myInteractDuration = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AEffect> myHitEffectBP;
 
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FSwordAnimationData> myStrikeAnimations;
@@ -112,30 +112,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UCurveFloat* myBlockAnimationWeightCurve;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AEffect> myHitEffectBP;
-
 private:
-
-	bool myUseBothHands = false;
-	bool myUseHandRot = true;
-	bool myUseWeight = false;
-	
-	float myTargetLocationWeight = 0.0f;
-	float myLocationWeight = 0.0f;
-	float myLeftWeight = 0.0f;
-
-	float myTargetRotationWeight = 0.0f;
-	float myRotationWeight = 0.0f;
-	
-	FTransform myTargetTrans;
-	FTransform myTrans;
 	
 	float myTimer = 9999.0f;
 	int32 myAnimIndex = 0;
 	int32 myPreviousAnimIndex = -1;
 
 	EFPCombatState myState = EFPCombatState::NO_SWORD;
-	
 };
 

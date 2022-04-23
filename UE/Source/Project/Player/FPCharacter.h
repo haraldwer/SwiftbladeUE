@@ -26,7 +26,7 @@ public:
 	class AFPController* GetFPController() const;
 	class UCustomCamera* GetCamera() const				{ return myCamera; }
 	class UFPCamera* GetFPCamera() const				{ return myFPCamera; }
-	class UFPAnimator* GetAnimator() const				{ return myFPAnimator; }
+	class UFPAnimatorNew* GetAnimator() const				{ return myFPAnimator; }
 	class UFPMovement* GetMovement() const				{ return myFPMovement; }
 	class UFPCombat* GetCombat() const					{ return myFPCombat; }
 	class UCapsuleComponent* GetWallDetection() const	{ return myWallDetection; }
@@ -67,7 +67,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UFPMovement* myFPMovement;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
-	UFPAnimator* myFPAnimator;
+	UFPAnimatorNew* myFPAnimator;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UFPCombat* myFPCombat;
 

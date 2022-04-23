@@ -2,10 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "FPAnimationStateBase.h"
-#include "FPAnimationStateIdle.generated.h"
+#include "FPAnimationStateRunning.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_API UFPAnimationStateIdle : public UFPAnimationStateBase
+class PROJECT_API UFPAnimationStateRunning : public UFPAnimationStateBase
 {
 	GENERATED_BODY()
 
@@ -20,10 +20,18 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myHandWobbleSpeed = 1.0f;
-	
+
 	UPROPERTY(EditDefaultsOnly)
-	float myCameraBobStrength = 3.0f;
-	
+	float myStepSize = 300.0f;
+
 	UPROPERTY(EditDefaultsOnly)
-	float myCameraBobSpeed = 4.0f;
+	float mySwingAmount = 300.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myHeadBobStrength = 5.0f;
+	UPROPERTY(EditDefaultsOnly)
+	float myHeadTiltAmount = 5.0f;
+
+private:
+	float myDist = 0.0f;
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HandStateEnum.h"
 #include "GameFramework/Actor.h"
 #include "Hand.generated.h"
 
@@ -11,5 +12,5 @@ class PROJECT_API AHand : public AActor
 	
 public:	
 	AHand();
-	void SetIsOpen(bool aIsOpen) const;
+	void SetHandState(EHandState aState) const;
 };

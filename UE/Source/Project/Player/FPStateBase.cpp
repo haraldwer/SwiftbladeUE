@@ -35,7 +35,7 @@ UCharacterMovementComponent& UFPStateBase::GetCharacterMovement() const
 	return *ptr;
 }
 
-UCameraComponent& UFPStateBase::GetCamera() const
+UCustomCamera& UFPStateBase::GetCamera() const
 {
 	const auto ptr = GetCharacter().GetCamera();
 	CHECK_ASSERT(!ptr, "Camera nullptr");
@@ -49,7 +49,7 @@ UFPCamera& UFPStateBase::GetFPCamera() const
 	return *ptr;
 }
 
-UFPAnimator& UFPStateBase::GetAnimator() const
+UFPAnimatorNew& UFPStateBase::GetAnimator() const
 {
 	const auto ptr = GetCharacter().GetAnimator();
 	CHECK_ASSERT(!ptr, "Animator nullptr");

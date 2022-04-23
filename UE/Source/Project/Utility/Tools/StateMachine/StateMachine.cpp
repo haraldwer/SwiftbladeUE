@@ -22,12 +22,9 @@ void UStateMachine::BeginPlay()
 		{
 			myStates.Add(state);
 			if (state->IsA(GetDefaultStateType()))
-				myState = state;
+				SetState(state);
 		}
 	}
-
-	if (const auto ptr = myState.Get())
-		ptr->Enter();
 
 	// Sort states by priority
 	myStates.Sort([](const TWeakObjectPtr<UStateBase>& aFirst, const TWeakObjectPtr<UStateBase>& aSecond) {
@@ -87,6 +84,16 @@ bool UStateMachine::SetState(UStateBase* aState)
 	myState = aState;
 	aState->Enter();
 	return true;
+}
+
+bool UStateMachine::TryOverrideState(UStateBase* aState)
+{
+	CHECK_RETURN(!aState, false);
+	const auto currentState = myState.Get();
+	CHECK_RETURN(aState == currentState, false);
+	// Will still set state if equal priority!
+	CHECK_RETURN(currentState && currentState->Priority() > aState->Priority(), false); 
+	return SetState(aState);
 }
 
 UStateBase* UStateMachine::GetState(UClass* aType)

@@ -10,8 +10,6 @@ void UFPMovementStateBase::Jump(FVector aDirection) const
 	auto& movement = GetCharacterMovement();
 	movement.Velocity.Z = 0;
 	movement.AddImpulse(aDirection * movement.JumpZVelocity, true);
-	auto& animator = GetAnimator(); 
-	animator.StartJump();
 }
 
 float UFPMovementStateBase::GetSensitivity() const

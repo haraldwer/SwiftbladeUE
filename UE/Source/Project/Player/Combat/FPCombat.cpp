@@ -31,7 +31,6 @@ void UFPCombat::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	Update(DeltaTime);
-	UpdateTransforms(DeltaTime);
 }
 
 void UFPCombat::PickupSword()
@@ -129,25 +128,12 @@ void UFPCombat::Update(float aDT)
 				// Grip sword with right hand
 				if (mySword)
 				{
-					myTargetTrans = FTransform(
-						GetActorTransform().InverseTransformPosition(
-							mySword->GetActorLocation()));
+					// Move hand towards sword position
 					UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::INTRO);
 				}
-				else
-				{
-					myTargetTrans = FTransform();
-					myTargetTrans.SetLocation(FVector(50, 20, 30));
-					myTargetTrans.SetRotation(FQuat::MakeFromEuler(FVector(-10, 40, 0)));
-				}
-				myUseBothHands = false;
-				myUseWeight = true;
-				myTargetLocationWeight = 1.0f;
-				myTargetRotationWeight = 1.0f;
 			}
 			else
 			{
-				myUseWeight = false;
 				if (mySword)
 					PickupSword();
 			}
@@ -157,33 +143,12 @@ void UFPCombat::Update(float aDT)
 	default:
 	case EFPCombatState::IDLE:
 		{
-			myUseWeight = true;
-			myUseBothHands = false;
-			myTargetLocationWeight = 0.1f;
-			myTargetRotationWeight = 0.8f;
-			myTargetTrans = myIdleSwordTransform;
-			
 			break;
 		}
 		
 	case EFPCombatState::STRIKE:
 		{
 			DoStrike();
-			CHECK_BREAK(!myStrikeAnimations.IsValidIndex(myAnimIndex));
-			CHECK_BREAK(!myStrikeAnimationCurve || !myStrikeAnimationWeightCurve)
-			myUseWeight = true;
-			myUseBothHands = true;
-			const float part = (myTimer / myStrikeDuration);
-			const float animationValue = myStrikeAnimationCurve->GetFloatValue(part);
-			const float weightValue = myStrikeAnimationWeightCurve->GetFloatValue(part);
-			myTargetLocationWeight = weightValue;
-			myTargetRotationWeight = weightValue;
-			const auto& animation = myStrikeAnimations[myAnimIndex];
-			myTargetTrans = LerpTransWeight(
-				animation.myStart,
-				animation.myEnd,
-				animationValue,
-				animationValue);
 			if (myTimer > myStrikeDuration)
 				myState = EFPCombatState::IDLE;
 			break;
@@ -192,135 +157,11 @@ void UFPCombat::Update(float aDT)
 	case EFPCombatState::BLOCK:
 		{
 			DoBlock();
-			CHECK_BREAK(!myBlockAnimations.IsValidIndex(myAnimIndex));
-			CHECK_BREAK(!myBlockAnimationCurve || !myBlockAnimationWeightCurve)
-			myUseWeight = true;
-			myUseBothHands = true;
-			const float part = (myTimer / myBlockDuration);
-			const float animationValue = myBlockAnimationCurve->GetFloatValue(part);
-			const float weightValue = myBlockAnimationWeightCurve->GetFloatValue(part);
-			myTargetLocationWeight = weightValue;
-			myTargetRotationWeight = weightValue;
-			const auto& animation = myBlockAnimations[myAnimIndex];
-			myTargetTrans = LerpTransWeight(
-				animation.myStart,
-				animation.myEnd,
-				animationValue,
-				animationValue);
 			if (myTimer > myBlockDuration)
 				myState = EFPCombatState::IDLE;
 			break;
 		}
 	}
-}
-
-void UFPCombat::SetTransforms()
-{
-	const auto& character = GetCharacter();
-	const auto& animator = GetAnimator();
-	
-	const auto right = character.GetRightHand();
-	const auto left = character.GetLeftHand();
-	if (!right || !left)
-		return;
-
-	myLocationWeight = FMath::Max(myTargetLocationWeight, animator.GetSwordPart()) * myUseWeight;
-	myRotationWeight = FMath::Max(myTargetRotationWeight, animator.GetSwordPart()) * myUseWeight;
-	myTrans = myTargetTrans;
-	
-	const auto rTrans =
-		LerpTransWeight(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
-	
-	const auto lTrans =
-		myUseBothHands ?
-			LerpTransWeight(animator.GetLeft(), myTrans, myLocationWeight, myRotationWeight) :
-			animator.GetLeft();
-	
-	right->SetActorRelativeTransform(rTrans);
-	left->SetActorRelativeTransform(lTrans);
-	
-	if(mySword && myState != EFPCombatState::NO_SWORD)
-		mySword->SetActorRelativeTransform(rTrans);
-	
-}
-
-void UFPCombat::UpdateTransforms(float aDT)
-{
-	const auto& character = GetCharacter();
-	const auto& animator = GetAnimator();
-	
-	const auto right = character.GetRightHand();
-	const auto left = character.GetLeftHand();
-	if (!right || !left)
-		return;
-
-	if (!myTargetTrans.IsValid() || myTargetTrans.GetLocation().Size() > 500.0f)
-	{
-		LOG("Invalid target transform");
-		return;
-	}
-	
-	const float locationWeight = FMath::Max(myTargetLocationWeight, animator.GetSwordPart()) * myUseWeight;
-	const float rotationWeight = FMath::Max(myTargetRotationWeight, animator.GetSwordPart()) * myUseWeight;
-
-	myLocationWeight = FMath::FInterpTo(myLocationWeight, locationWeight, aDT, mySmoothing);
-	myRotationWeight = FMath::FInterpTo(myRotationWeight, rotationWeight, aDT, mySmoothing);
-
-	// Sword transform
-	myTrans = LerpTransDelta(myTrans, myTargetTrans, aDT, mySmoothing);
-	if (!myTrans.IsValid() || myTrans.GetLocation().Size() > 500.0f)
-	{
-		LOG("Invalid transform");
-		return;
-	}
-
-	if (!animator.GetRight().IsValid())
-	{
-		LOG("Animator right invalid");
-	}
-
-	// Right hand transform, lerp between animation and sword trans
-	const auto rTrans =
-		LerpTransWeight(animator.GetRight(), myTrans, myLocationWeight, myRotationWeight);
-
-	// Sword left hand transform 
-	auto leftTarget = myTrans;
-	leftTarget.SetLocation(myTrans.TransformPosition(FVector(0, 0, 5)));
-
-	// Left hand weight, Use both hands?
-	myLeftWeight = FMath::FInterpTo(myLeftWeight, myUseBothHands, aDT, mySmoothing);
-
-	// Left hand transform, lerp between animation and sword trans
-	const auto lTrans =
-		LerpTransWeight(animator.GetLeft(), leftTarget, myLocationWeight * myLeftWeight, myRotationWeight * myLeftWeight);
-
-	if (!rTrans.IsValid())
-	{
-		LOG("Invalid right");
-		return;
-	}
-
-	if (rTrans.GetLocation().Size() > 500.0f)
-	{
-		LOG("Weird right position");
-		return;
-	}
-
-	if (!lTrans.IsValid() || lTrans.GetLocation().Size() > 500.0f)
-	{
-		LOG("Invalid left");
-		return;
-	}
-	
-	right->SetActorRelativeTransform(rTrans);
-	left->SetActorRelativeTransform(lTrans);
-	left->SetActorRelativeScale3D(FVector(1, -1, 1));
-	
-	right->SetIsOpen(!GetHasSword());
-	left->SetIsOpen(!GetHasSword() || !myUseBothHands);
-	
-	if(mySword && myState != EFPCombatState::NO_SWORD)
-		mySword->SetActorRelativeTransform(rTrans);
 }
 
 ASword* UFPCombat::GetSword() const

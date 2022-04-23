@@ -4,7 +4,7 @@
 #include "FPCamera.h"
 #include "FPController.h"
 #include "Actors/Hand.h"
-#include "Animation/FPAnimator.h"
+#include "Animation/FPAnimatorNew.h"
 #include "Blueprint/UserWidget.h"
 #include "Combat/FPCombat.h"
 #include "Components/CapsuleComponent.h"
@@ -40,7 +40,7 @@ AFPCharacter::AFPCharacter()
 	myFPMovement = CreateDefaultSubobject<UFPMovement>("FPMovement");
 	CHECK_ASSERT(!myFPMovement, "Failed to create movement component");
 	
-	myFPAnimator = CreateDefaultSubobject<UFPAnimator>("FPAnimator");
+	myFPAnimator = CreateDefaultSubobject<UFPAnimatorNew>("FPAnimator");
 	CHECK_ASSERT(!myFPAnimator, "Failed to create animator component");
 	
 	myFPCombat = CreateDefaultSubobject<UFPCombat>("FPCombat");

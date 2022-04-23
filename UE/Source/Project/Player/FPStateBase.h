@@ -16,9 +16,9 @@ public:
 	FTransform GetActorTransform() const;
 	class UCapsuleComponent& GetCapsule() const;
 	class UCharacterMovementComponent& GetCharacterMovement() const;
-	class UCameraComponent& GetCamera() const;
+	class UCustomCamera& GetCamera() const;
 	class UFPCamera& GetFPCamera() const;
-	class UFPAnimator& GetAnimator() const;
+	class UFPAnimatorNew& GetAnimator() const;
 	class UFPMovement& GetMovement() const;
 	class UFPCombat& GetCombat() const;
 	float GetTime() const { return GetWorld()->GetTimeSeconds(); }

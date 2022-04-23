@@ -30,7 +30,7 @@ protected:
 	float myMinRot = 0.5f;
 	
 private:
-	bool MoveObject(USceneComponent* anObject, USceneComponent* aTarget, float aSpeed, float aDT);
+	bool MoveObject(USceneComponent* anObject, USceneComponent* aTarget, float aSpeed, float aDT) const;
 	
 	UPROPERTY()
 	TWeakObjectPtr<USceneComponent> myObjectParent;

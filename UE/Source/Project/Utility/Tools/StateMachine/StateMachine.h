@@ -21,6 +21,7 @@ public:
 	virtual UClass* GetDefaultStateType();
 
 	virtual bool SetState(UStateBase* aState);
+	virtual bool TryOverrideState(UStateBase* aState);
 	UStateBase* GetCurrentState() const { return myState.Get(); };
 
 	template <class T>

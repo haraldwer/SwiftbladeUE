@@ -7,11 +7,10 @@ AHand::AHand()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AHand::SetIsOpen(bool aIsOpen) const
+void AHand::SetHandState(const EHandState aState) const
 {
 	TArray<UStaticMeshComponent*> meshes;
 	GetComponents<UStaticMeshComponent>(meshes);
-	CHECK_RETURN(meshes.Num() < 2);
-	meshes[0]->SetVisibility(aIsOpen);
-	meshes[1]->SetVisibility(!aIsOpen);
+	for (int32 i = 0; i < meshes.Num(); i++)
+		meshes[i]->SetVisibility(i == static_cast<int32>(aState));
 }

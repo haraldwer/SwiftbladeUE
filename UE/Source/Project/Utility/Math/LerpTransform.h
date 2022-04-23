@@ -1,15 +1,15 @@
 ﻿#pragma once
 
-inline FTransform LerpTransWeight(const FTransform& aFirst, const FTransform& aSecond, float aLocationWeight, float aRotationWeight)
+inline FTransform LerpTransWeight(const FTransform& aFirst, const FTransform& aSecond, const float aLocationWeight, const float aRotationWeight)
 {
 	const FVector location = FMath::Lerp(aFirst.GetLocation(), aSecond.GetLocation(), aLocationWeight);
 	const FQuat rotation = FQuat::Slerp(aFirst.GetRotation(), aSecond.GetRotation(), aRotationWeight).GetNormalized();
 	return FTransform(rotation, location);
 }
 
-inline FTransform LerpTransDelta(const FTransform& aFirst, const FTransform& aSecond, float aDT, float aSmoothing)
+inline FTransform LerpTransDelta(const FTransform& aCurrent, const FTransform& aTarget, const float aDT, const float aRotSmoothing, const float aPosSmoothing)
 {
-	const auto location = FMath::VInterpTo(aFirst.GetLocation(), aSecond.GetLocation(), aDT, aSmoothing);
-	const auto rotation = FMath::QInterpTo(aFirst.GetRotation(), aSecond.GetRotation(), aDT, aSmoothing);
+	const auto location = FMath::VInterpTo(aCurrent.GetLocation(), aTarget.GetLocation(), aDT, aPosSmoothing);
+	const auto rotation = FMath::QInterpTo(aCurrent.GetRotation(), aTarget.GetRotation(), aDT, aRotSmoothing);
 	return FTransform(rotation, location);
 }

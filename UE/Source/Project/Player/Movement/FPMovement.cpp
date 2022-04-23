@@ -1,5 +1,6 @@
 ﻿#include "FPMovement.h"
 
+#include "Project/Player/FPCharacter.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Player/Animation/States/FPAnimationStateBase.h"
 #include "States/FPMovementStateIdle.h"
@@ -11,18 +12,21 @@ UClass* UFPMovement::GetDefaultStateType()
 
 bool UFPMovement::SetState(UStateBase* aState)
 {
+	// Call base function
 	CHECK_RETURN(!Super::SetState(aState), false);
 
 	// Update animator
-	auto* state = Cast<UFPMovementStateBase>(aState);
+	const auto character = Cast<AFPCharacter>(GetOwner());
+	CHECK_RETURN_LOG(!character, "No character", true);
+	UFPAnimatorNew* animator = character->GetAnimator();
+	CHECK_RETURN_LOG(!animator, "No animator", true);
+	const auto* state = Cast<UFPMovementStateBase>(aState);
 	CHECK_RETURN(!state, true);
 	const auto animation = state->GetAnimation();
 	const auto animationClass = animation.Get();
-	CHECK_RETURN(!animationClass, true);
-	UFPAnimatorNew* animator = nullptr;
-	if (animator)
-		animator->TryOverrideState(animationClass);
-	// TODO: Replace animator here
+	CHECK_RETURN_LOG(!animationClass, "State is missing animation class", true);
+	animator->TryOverrideState(animator->GetState(animationClass));
+	
 	return true;
 }
 

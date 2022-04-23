@@ -1,12 +1,11 @@
 ﻿#include "FPMovementStateGrapple.h"
 
 #include "FPMovementStateInAir.h"
-#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/GrapplePoint.h"
 #include "Project/Player/FPCharacter.h"
-#include "Project/Player/Animation/FPAnimator.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 
 UClass* UFPMovementStateGrapple::Update(float aDT)
 {
@@ -81,8 +80,6 @@ void UFPMovementStateGrapple::Enter()
 		Jump(FVector(0.0f, 0.0f, 1.0f));
 
 	myStartVelocity = movement.GetLastUpdateVelocity();
-	
-	GetAnimator().StartGrapple();
 		
 	Super::Enter();
 }

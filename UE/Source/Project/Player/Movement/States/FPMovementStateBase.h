@@ -20,7 +20,7 @@ public:
 	virtual UClass* OnLanded() { return nullptr; }
 	virtual UClass* OnHit(const FHitResult& aHit) { return nullptr; }
 
-	TSubclassOf<UFPAnimationStateBase> GetAnimation() const { return myAnimation; }
+	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const { return myAnimation; }
 
 protected:
 
@@ -34,6 +34,6 @@ protected:
 	// Override for custom modification of input values
 	virtual float GetSensitivity() const;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UFPAnimationStateBase> myAnimation;
 };

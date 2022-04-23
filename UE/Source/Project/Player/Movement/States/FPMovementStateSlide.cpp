@@ -7,7 +7,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
-#include "Project/Player/Animation/FPAnimator.h"
 
 UClass* UFPMovementStateSlide::Update(float aDT)
 {
@@ -45,7 +44,6 @@ void UFPMovementStateSlide::Enter()
 	mySlideDirection = movement.GetLastUpdateVelocity();
 	mySlideDirection.Z = 0;
 	mySlideDirection.Normalize();
-	GetAnimator().SetState(UFPAnimator::State::IDLE);
 }
 
 void UFPMovementStateSlide::Exit()
@@ -53,7 +51,4 @@ void UFPMovementStateSlide::Exit()
 	Super::Exit();
 	auto& character = GetCharacter();
 	character.UnCrouch();
-	auto& animator = GetAnimator();
-	animator.MoveLeft(FVector(0, 0, -50));
-	animator.MoveRight(FVector(0, 0, -50));
 }

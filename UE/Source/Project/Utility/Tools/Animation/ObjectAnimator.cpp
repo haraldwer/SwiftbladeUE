@@ -68,7 +68,7 @@ void UObjectAnimator::SetKeys(const TArray<FObjectAnimatorKey>& someKeys)
 	myDone = false;
 }
 
-bool UObjectAnimator::MoveObject(USceneComponent* anObject, USceneComponent* aTarget, float aSpeed, float aDT)
+bool UObjectAnimator::MoveObject(USceneComponent* anObject, USceneComponent* aTarget, const float aSpeed, const float aDT) const
 {
 	CHECK_RETURN_LOG(!anObject, "Invalid object", false);
 	CHECK_RETURN_LOG(!aTarget, "Invalid target", false);
@@ -84,7 +84,12 @@ bool UObjectAnimator::MoveObject(USceneComponent* anObject, USceneComponent* aTa
 		return true;
 	}
 	
-	const auto result = LerpTransDelta( objTrans, tarTrans, aDT, aSpeed);
+	const auto result = LerpTransDelta(
+		objTrans,
+		tarTrans,
+		aDT,
+		aSpeed,
+		aSpeed);
 	anObject->SetRelativeTransform(result);
 	return false;
 }

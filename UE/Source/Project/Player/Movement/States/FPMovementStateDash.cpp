@@ -2,10 +2,10 @@
 
 #include "FPMovementStateInAir.h"
 #include "FPMovementStateRun.h"
-#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 
 UClass* UFPMovementStateDash::Update(float aDT)
 {

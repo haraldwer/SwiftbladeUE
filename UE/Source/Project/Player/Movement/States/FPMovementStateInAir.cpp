@@ -3,13 +3,9 @@
 #include "FPMovementStateRun.h"
 #include "FPMovementStateWallrun.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Project/Player/Animation/FPAnimator.h"
 
 UClass* UFPMovementStateInAir::Update(float aDT)
 {
-	auto& animator = GetAnimator();
-	animator.SetState(UFPAnimator::State::FALLING);
-	
 	const auto& movement = GetCharacterMovement();
 	if (movement.IsWalking())
 		return UFPMovementStateRun::StaticClass();

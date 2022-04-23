@@ -3,12 +3,11 @@
 #include "FPMovementStateDash.h"
 #include "FPMovementStateInAir.h"
 #include "FPMovementStateRun.h"
-#include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Sword.h"
-#include "Project/Player/Animation/FPAnimator.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 
 void UFPMovementStateWallrun::Init()
 {
@@ -32,7 +31,6 @@ UClass* UFPMovementStateWallrun::Update(float aDT)
 	
 	if (lookForwardDot < -myWallClimbDot)
 	{
-		animator.SetState(UFPAnimator::State::WALL_CLIMBING);
 		movement.SetPlaneConstraintEnabled(false);
 		movement.Velocity = FVector(0, 0, myWallClimbSpeed);
 		if (character.GetInputAxisValue("MoveVertical") < 0.1f)
@@ -43,7 +41,6 @@ UClass* UFPMovementStateWallrun::Update(float aDT)
 	}
 	else
 	{
-		animator.SetState(UFPAnimator::State::WALL_RUNNING);
 		if (movement.Velocity.Z < 0.0f)
 		{
 			movement.Velocity.Z = 0.0f;

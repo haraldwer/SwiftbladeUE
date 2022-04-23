@@ -1,11 +1,19 @@
-﻿#include "FPAnimationStateIdle.h"
+﻿#include "FPAnimationStateRunning.h"
 
-UClass* UFPAnimationStateIdle::Update(float aDT)
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Project/Utility/Tools/CustomCamera.h"
+
+UClass* UFPAnimationStateRunning::Update(float aDT)
 {
 	Super::Update(aDT);
 
 	const auto defaultTrans = GetDefaultHandTransform();
 
+	// Calculate speed
+	const float speed = GetCharacterMovement().Velocity.Length() / myStepSize;
+	myDist += speed * aDT;
+	const float cos = FMath::Cos(myDist); 
+	
 	// Lerp to camera
 	const auto lerpTrans = LerpTransWeight(
 		defaultTrans,
@@ -17,8 +25,13 @@ UClass* UFPAnimationStateIdle::Update(float aDT)
 	hands.myLeft = FlipRightToLeft(hands.myRight);
 	hands.myRightHandState = GetSwordHandState();
 	hands.myLeftHandState = EHandState::OPEN;
-	hands.myPosInterpSpd = 5.0f;
-    hands.myRotInterpSpd = 5.0f;
+
+	// Swing arms
+	const FVector swingDirection = (GetCamera().GetForwardVector() + GetCamera().GetUpVector()).GetSafeNormal();
+	const FVector rightOffset = swingDirection * cos * mySwingAmount;
+	const FVector leftOffset = swingDirection * -cos * mySwingAmount;
+	hands.myRight.SetLocation(hands.myRight.GetLocation() + rightOffset);
+	hands.myLeft.SetLocation(hands.myLeft.GetLocation() + leftOffset);
 
 	// Find close collisions
 	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
@@ -42,9 +55,11 @@ UClass* UFPAnimationStateIdle::Update(float aDT)
 	
 	SetHands(hands);
 
+	// Camera
 	FFPAnimationCameraData camera;
-	camera.myHeight = FMath::Cos(GetStateTime() * myCameraBobSpeed) * myCameraBobStrength;
-	SetCamera(camera); 
+	camera.myHeight = FMath::Abs(cos) * myHeadBobStrength;
+	camera.myTilt = cos * myHeadTiltAmount;
+	SetCamera(camera);
 	
 	return nullptr;
 }

@@ -6,7 +6,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
-#include "Project/Player/Animation/FPAnimator.h"
 
 UClass* UFPMovementStateCrouch::Update(float aDT)
 {
@@ -58,10 +57,6 @@ void UFPMovementStateCrouch::Exit()
 	Super::Exit();
 	auto& character = GetCharacter();
 	character.UnCrouch();
-	auto& animator = GetAnimator();
-	animator.MoveLeft(FVector(0, 0, -50));
-	animator.MoveRight(FVector(0, 0, -50));
-	auto& fpCamera = GetFPCamera();
 }
 
 UClass* UFPMovementStateCrouch::CheckCrouch(const bool aLanded) const
