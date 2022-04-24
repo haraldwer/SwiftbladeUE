@@ -10,6 +10,7 @@ class PROJECT_API UFPMovementStateInAir : public UFPMovementStateBase
 	GENERATED_BODY()
 	
 public:
+	virtual void Init() override;
 	virtual UClass* Update(float aDT) override;
 
 	virtual UClass* Input(EFPMovementInputAction anAction, float aValue) override;

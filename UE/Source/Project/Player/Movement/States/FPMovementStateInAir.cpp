@@ -5,6 +5,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/Animation/States/FPAnimationStateInAir.h"
 
+void UFPMovementStateInAir::Init()
+{
+	Super::Init();
+
+	// Prevent super jump on respawn
+	myJumpedSinceTouchedGround = true; 
+}
+
 UClass* UFPMovementStateInAir::Update(float aDT)
 {
 	const auto& movement = GetCharacterMovement();
@@ -34,16 +42,18 @@ UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aVal
 		const bool wallJump = wallrunState && wallrunState->GetCanWallJump(); 
 	
 		const bool onCoyoteGround = onGround ||
-			((time - myCoyoteTimeStamp < myCoyoteTime) && !myJumpedSinceTouchedGround) ;
+			((time - myCoyoteTimeStamp < myCoyoteTime) && !myJumpedSinceTouchedGround);
 
 		if (onCoyoteGround || wallJump || HasAirJumps())
 		{
 			const FVector direction =
-			wallrunState && wallJump ?
-				wallrunState->GetWalljumpDirection() :
-				FVector(0, 0, 1);
+				wallrunState && wallJump ?
+					wallrunState->GetWalljumpDirection() :
+					FVector(0, 0, 1);
 			Jump(direction);
 			myJumpedSinceTouchedGround = true;
+			if (wallJump && wallrunState)
+				wallrunState->OnWallJump();
 			if (!onCoyoteGround && !wallJump)
 				myAirJumpCount++;
 			return StaticClass();

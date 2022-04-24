@@ -96,6 +96,8 @@ void UFPMovementStateWallrun::Enter()
 	Super::Enter();
 	UpdateWallNormal();
 	myWallrunTimestamp = GetTime();
+	myHasWallJumped = false;
+	LOG("Has Walljumped false");
 	if (const auto dashState = GetState<UFPMovementStateDash>())
 		dashState->Reset();
 }
@@ -141,15 +143,25 @@ UClass* UFPMovementStateWallrun::OnHit(const FHitResult& aHit)
 
 bool UFPMovementStateWallrun::GetCanWallJump() const
 {
-	return GetCurrentState() == this ||
-		(GetTime() - myWallrunTimestamp < myWallrunJumpCoyoteTime); 
+	return !myHasWallJumped &&
+		(GetCurrentState() == this ||
+		(GetTime() - myWallrunTimestamp < myWallrunJumpCoyoteTime)); 
 }
 
 FVector UFPMovementStateWallrun::GetWalljumpDirection() const
 {
 	const auto normal2D = myWallNormal.GetSafeNormal2D();
-	return FVector(0, 0, 1) + normal2D * myWallrunJumpMul * 
-		(1 - FMath::Abs(FVector::DotProduct(normal2D, GetCamera().GetForwardVector())));
+	const float wallForwardDot = FVector::DotProduct(normal2D, GetCamera().GetForwardVector());
+	LOG("Forward dot" + FString::SanitizeFloat(wallForwardDot));
+	const float wallNormalPart = FMath::Lerp(1.0f, FMath::Abs(wallForwardDot), myWallrunJumpForwardPart);
+	LOG("Normal part" + FString::SanitizeFloat(wallForwardDot));
+	return FVector(0, 0, 1) + normal2D * myWallrunJumpMul * wallNormalPart;
+}
+
+void UFPMovementStateWallrun::OnWallJump()
+{
+	LOG("Has Walljumped true")
+	myHasWallJumped = true;
 }
 
 TSubclassOf<UFPAnimationStateBase> UFPMovementStateWallrun::GetAnimation() const

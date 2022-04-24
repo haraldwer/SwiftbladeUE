@@ -21,6 +21,7 @@ public:
 	
 	bool GetCanWallJump() const;
 	FVector GetWalljumpDirection() const;
+	void OnWallJump();
 
 	FVector GetWallNormal() const { return myWallNormal; }
 
@@ -35,6 +36,8 @@ protected:
 	float myWallrunMinVelocity = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myWallrunJumpMul = 1.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
+	float myWallrunJumpForwardPart = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myWallrunJumpCoyoteTime = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
@@ -54,6 +57,7 @@ private:
 	bool GetIsOverlapping() const;
 	
 	FVector myWallNormal;
+	bool myHasWallJumped = false;
 	float myWallrunTimestamp = 0.0f;
 	bool myHasHitHead = false;
 };
