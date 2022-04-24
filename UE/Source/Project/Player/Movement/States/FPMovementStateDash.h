@@ -20,7 +20,12 @@ public:
 
 	void Reset();
 
+	virtual bool RequiresMagic() const override { return true; }
+	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;
+	virtual int32 Priority() const override { return 6; }
+
 protected:
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashVelocity = 1500.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
@@ -31,6 +36,7 @@ protected:
 	float myDashFov = 5.0f;
 
 private:
+	
 	FVector myDashDirection;
 	bool myCanDash = true;
 	float myDashTimestamp = 0.0f;

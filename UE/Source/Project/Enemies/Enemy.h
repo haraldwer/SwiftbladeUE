@@ -15,7 +15,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	void SetSpawner(class AEnemySpawner* aSpawner) { mySpawner = aSpawner; }
+	void SetSpawner(class AEnemySpawner* aSpawner);
 
 	virtual float TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) override;
 	void Die();
@@ -54,7 +54,6 @@ private:
 		aPtr->SetupAttachment(myBehaviour);
 		return true;
 	}
-	
-	UPROPERTY()
+
 	TWeakObjectPtr<AEnemySpawner> mySpawner; 
 };

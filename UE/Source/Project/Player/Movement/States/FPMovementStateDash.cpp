@@ -5,6 +5,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
+#include "Project/Player/Animation/States/FPAnimationStateDash.h"
+#include "Project/Player/Combat/FPCombat.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
 UClass* UFPMovementStateDash::Update(float aDT)
@@ -34,7 +36,7 @@ UClass* UFPMovementStateDash::Update(float aDT)
 UClass* UFPMovementStateDash::Input(EFPMovementInputAction anAction, float aValue)
 {
 	Super::Input(anAction, aValue);
-
+	
 	if (anAction == EFPMovementInputAction::DASH && myCanDash)
 		return StaticClass();
 	
@@ -75,4 +77,9 @@ UClass* UFPMovementStateDash::OnLanded()
 void UFPMovementStateDash::Reset()
 {
 	myCanDash = true; 
+}
+
+TSubclassOf<UFPAnimationStateBase> UFPMovementStateDash::GetAnimation() const
+{
+	return UFPAnimationStateDash::StaticClass();
 }

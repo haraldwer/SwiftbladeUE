@@ -19,6 +19,9 @@ public:
 	virtual void Enter() override;
 	virtual void Exit() override;
 
+	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;
+	virtual int32 Priority() const override { return 2; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Crouch")
 	float myCamHeightMul = 0.5f;

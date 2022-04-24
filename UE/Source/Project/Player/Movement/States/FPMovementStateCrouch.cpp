@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
+#include "Project/Player/Animation/States/FPAnimationStateIdle.h"
 
 UClass* UFPMovementStateCrouch::Update(float aDT)
 {
@@ -59,6 +60,11 @@ void UFPMovementStateCrouch::Exit()
 	character.UnCrouch();
 }
 
+TSubclassOf<UFPAnimationStateBase> UFPMovementStateCrouch::GetAnimation() const
+{
+	return UFPAnimationStateIdle::StaticClass();
+}
+
 UClass* UFPMovementStateCrouch::CheckCrouch(const bool aLanded) const
 {
 	if (IsCurrentState())
@@ -75,9 +81,12 @@ UClass* UFPMovementStateCrouch::CheckCrouch(const bool aLanded) const
 	if (character.bIsCrouched)
 		return nullptr;
 
-	// Slide? 
-	if (movement.GetLastUpdateVelocity().Size2D() > movement.MaxWalkSpeedCrouched)
-		return UFPMovementStateSlide::StaticClass();
+	if (HasMagic())
+	{
+		// Slide? 
+		if (movement.GetLastUpdateVelocity().Size2D() > movement.MaxWalkSpeedCrouched)
+			return UFPMovementStateSlide::StaticClass();
+	}
 	
 	return StaticClass();
 }

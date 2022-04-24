@@ -4,7 +4,7 @@
 #include "Project/Utility/Tools/StateMachine/StateBase.h"
 #include "FPStateBase.generated.h"
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Custom))
 class PROJECT_API UFPStateBase : public UStateBase
 {
 	GENERATED_BODY()
@@ -21,5 +21,8 @@ public:
 	class UFPAnimatorNew& GetAnimator() const;
 	class UFPMovement& GetMovement() const;
 	class UFPCombat& GetCombat() const;
+
+	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;
+	
 	float GetTime() const { return GetWorld()->GetTimeSeconds(); }
 };

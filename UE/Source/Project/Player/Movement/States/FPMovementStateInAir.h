@@ -18,6 +18,9 @@ public:
 	bool HasAirJumps() const;
 	void ResetJumps();
 
+	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;
+	virtual int32 Priority() const override { return 5; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "InAir")
 	float myCoyoteTime = 0.2f;
@@ -25,6 +28,7 @@ protected:
 	int myNumAirJumps = 1;
 	
 private:
+	bool myJumpedSinceTouchedGround = false;
 	float myCoyoteTimeStamp = 0.2f;
 	int myAirJumpCount = 1;
 	bool myJumpHeld = false;

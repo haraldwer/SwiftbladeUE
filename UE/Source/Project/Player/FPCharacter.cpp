@@ -206,6 +206,13 @@ void AFPCharacter::DoorOpened(ADoor* aDoor) const
 	controller->EnterArena();
 }
 
+bool AFPCharacter::HasMagic() const
+{
+	if (const auto combat = GetCombat())
+		return combat->HasSword();
+	return false;
+}
+
 void AFPCharacter::Landed(const FHitResult& aHit)
 {
 	Super::Landed(aHit);

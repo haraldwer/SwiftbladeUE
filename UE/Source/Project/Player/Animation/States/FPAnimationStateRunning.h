@@ -16,21 +16,21 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float myHandWobbleStrength = 2.0f;
+	float myStepSize = 65.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float mySwingAmount = 30.0f;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float myHandWobbleSpeed = 1.0f;
+	float mySwingHandRotateAmount = 60.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myStepSize = 300.0f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float mySwingAmount = 300.0f;
+	FVector mySwingVector = FVector(1.0f, 0.0f, 0.5f);
 
 	UPROPERTY(EditDefaultsOnly)
 	float myHeadBobStrength = 5.0f;
 	UPROPERTY(EditDefaultsOnly)
-	float myHeadTiltAmount = 5.0f;
+	float myHeadTiltAmount = 2.0f;
 
 private:
 	float myDist = 0.0f;

@@ -3,9 +3,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
-#include "Project/Player/Animation/FPAnimator.h"
 
-void UFPMovementStateBase::Jump(FVector aDirection) const
+void UFPMovementStateBase::Jump(const FVector aDirection) const
 {
 	auto& movement = GetCharacterMovement();
 	movement.Velocity.Z = 0;
@@ -17,7 +16,7 @@ float UFPMovementStateBase::GetSensitivity() const
 	return GetCharacter().GetSensitivity(); 
 }
 
-UClass* UFPMovementStateBase::Input(EFPMovementInputAction anAction, float aValue)
+UClass* UFPMovementStateBase::Input(const EFPMovementInputAction anAction, const float aValue)
 {
 	switch (anAction) {
 	case EFPMovementInputAction::MOVE_HORIZONTAL:	MoveHorizontal(aValue); break;
@@ -51,4 +50,9 @@ void UFPMovementStateBase::LookHorizontal(const float aValue) const
 void UFPMovementStateBase::LookVertical(const float aValue) const
 {
 	GetCharacter().AddControllerPitchInput(aValue * GetSensitivity() * -1.0f);
+}
+
+bool UFPMovementStateBase::HasMagic() const
+{
+	return GetCharacter().HasMagic();
 }

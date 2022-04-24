@@ -22,7 +22,7 @@ public:
 	virtual void Enter() {}
 	virtual void Exit() {}
 	
-	virtual int32 Priority() { return 0; }
+	virtual int32 Priority() const { return 0; }
 
 protected:
 	UStateBase* GetCurrentState() const;

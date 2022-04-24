@@ -13,7 +13,7 @@ struct FFPAnimationHandCollision
 
 	bool myHit = false;
 	UPROPERTY()
-	AActor* myHitActor;
+	AActor* myHitActor = nullptr;
 	FTransform myTransform;
 };
 
@@ -24,12 +24,12 @@ class PROJECT_API UFPAnimationStateBase : public UFPStateBase
 
 public:
 	
-	virtual void Enter() override;
 	virtual UClass* Update(float aDT) override;
 	
 protected:
 
 	float GetStateTime() const { return myTime; }
+	void ResetStateTime() { myTime = 0; }
 	
 	// Set / Get hand positions
 	
@@ -43,13 +43,15 @@ protected:
 	
 	// Helper functions
 
-	static FTransform DualWeild(const FTransform& aRightTransform);
 	static FTransform FlipRightToLeft(const FTransform& aRightTransform);
 	FTransform ToCameraSpace(const FTransform& aTransform) const;
-	EHandState GetSwordHandState() const;
 	FVector Get3DNoise(float aSpeed, float aStrength, float anOffset = 0.0f) const;
 	FFPAnimationHandCollision GetHandCollision(const FTransform& aHandTrans, float aRadius) const;
+
+	// Sword
 	
+	void OverrideSwordData(FFPAnimationHandPositions& someData, float aLocationWeight, float aRotationWeight) const;
+
 	// Properties
 	
 	FTransform GetDefaultHandTransform() const;

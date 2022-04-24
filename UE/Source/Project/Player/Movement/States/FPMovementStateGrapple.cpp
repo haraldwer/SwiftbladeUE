@@ -5,6 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/GrapplePoint.h"
 #include "Project/Player/FPCharacter.h"
+#include "Project/Player/Animation/FPAnimatorNew.h"
+#include "Project/Player/Animation/States/FPAnimationStateGrapple.h"
+#include "Project/Player/Animation/States/FPAnimationStateInAir.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
 UClass* UFPMovementStateGrapple::Update(float aDT)
@@ -12,7 +15,7 @@ UClass* UFPMovementStateGrapple::Update(float aDT)
 	const auto timer = GetTime() - myTimeStamp;
 	auto& movement = GetCharacterMovement();
 	
-	if (timer < myFreezeTime)
+	if (GetIsInFreeze())
 	{
 		const float part = 1.0f - timer / myFreezeTime;
 		movement.Velocity = myStartVelocity * part;
@@ -80,11 +83,28 @@ void UFPMovementStateGrapple::Enter()
 		Jump(FVector(0.0f, 0.0f, 1.0f));
 
 	myStartVelocity = movement.GetLastUpdateVelocity();
-		
+
+	auto& animator = GetAnimator();
+	animator.TryOverrideState(animator.GetState<UFPAnimationStateGrapple>());
+	
 	Super::Enter();
 }
 
 void UFPMovementStateGrapple::Exit()
 {
+	auto& animator = GetAnimator();
+	animator.TryOverrideState(animator.GetState<UFPAnimationStateInAir>());
+	
 	Super::Exit();
+}
+
+bool UFPMovementStateGrapple::GetIsInFreeze() const
+{
+	const auto timer = GetTime() - myTimeStamp;
+	return timer < myFreezeTime;
+}
+
+TSubclassOf<UFPAnimationStateBase> UFPMovementStateGrapple::GetAnimation() const
+{
+	return UFPAnimationStateGrapple::StaticClass();
 }

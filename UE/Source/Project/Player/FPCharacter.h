@@ -23,15 +23,24 @@ public:
 	float GetSensitivity() const						{ return mySensitivity; }
 	
 	// Getters
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class AFPController* GetFPController() const;
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class UCustomCamera* GetCamera() const				{ return myCamera; }
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class UFPCamera* GetFPCamera() const				{ return myFPCamera; }
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class UFPAnimatorNew* GetAnimator() const				{ return myFPAnimator; }
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class UFPMovement* GetMovement() const				{ return myFPMovement; }
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class UFPCombat* GetCombat() const					{ return myFPCombat; }
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class UCapsuleComponent* GetWallDetection() const	{ return myWallDetection; }
 
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class AHand* GetRightHand() const					{ return myRightHand; }
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	class AHand* GetLeftHand() const					{ return myLeftHand; }
 
 	// Crouch size
@@ -48,6 +57,9 @@ public:
 	void Die(const FString& anObjectName);
 	
 	void DoorOpened(ADoor* aDoor) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	bool HasMagic() const;
 
 private:
 

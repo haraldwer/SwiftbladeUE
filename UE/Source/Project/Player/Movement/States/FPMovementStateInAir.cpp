@@ -3,6 +3,7 @@
 #include "FPMovementStateRun.h"
 #include "FPMovementStateWallrun.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Project/Player/Animation/States/FPAnimationStateInAir.h"
 
 UClass* UFPMovementStateInAir::Update(float aDT)
 {
@@ -16,7 +17,7 @@ UClass* UFPMovementStateInAir::Update(float aDT)
 UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aValue)
 {
 	Super::Input(anAction, aValue);
-
+	
 	if (anAction == EFPMovementInputAction::JUMP_PRESSED)
 	{
 		myJumpHeld = true;
@@ -24,13 +25,16 @@ UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aVal
 		const auto& movement = GetCharacterMovement();
 		const bool onGround = movement.IsWalking();
 		if (onGround)
+		{
 			myCoyoteTimeStamp = time;
+			myJumpedSinceTouchedGround = false;
+		}
 
 		const auto wallrunState = Cast<UFPMovementStateWallrun>(GetState(UFPMovementStateWallrun::StaticClass()));
 		const bool wallJump = wallrunState && wallrunState->GetCanWallJump(); 
 	
-		const bool onCoyoteGround =
-			onGround || (time - myCoyoteTimeStamp < myCoyoteTime);
+		const bool onCoyoteGround = onGround ||
+			((time - myCoyoteTimeStamp < myCoyoteTime) && !myJumpedSinceTouchedGround) ;
 
 		if (onCoyoteGround || wallJump || HasAirJumps())
 		{
@@ -38,9 +42,8 @@ UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aVal
 			wallrunState && wallJump ?
 				wallrunState->GetWalljumpDirection() :
 				FVector(0, 0, 1);
-			if (wallJump)
-				LOG("Walljump");
 			Jump(direction);
+			myJumpedSinceTouchedGround = true;
 			if (!onCoyoteGround && !wallJump)
 				myAirJumpCount++;
 			return StaticClass();
@@ -59,6 +62,7 @@ UClass* UFPMovementStateInAir::OnLanded()
 	{
 		// Bounce
 		Jump();
+		myJumpedSinceTouchedGround = true;
 		return StaticClass();
 	}
 	return UFPMovementStateRun::StaticClass();
@@ -66,11 +70,17 @@ UClass* UFPMovementStateInAir::OnLanded()
 
 bool UFPMovementStateInAir::HasAirJumps() const
 {
-	return (myAirJumpCount < myNumAirJumps);
+	return HasMagic() && (myAirJumpCount < myNumAirJumps);
 }
 
 void UFPMovementStateInAir::ResetJumps()
 {
+	myJumpedSinceTouchedGround = false;
 	myCoyoteTimeStamp = GetTime();
 	myAirJumpCount = 0;
+}
+
+TSubclassOf<UFPAnimationStateBase> UFPMovementStateInAir::GetAnimation() const
+{
+	return UFPAnimationStateInAir::StaticClass();
 }

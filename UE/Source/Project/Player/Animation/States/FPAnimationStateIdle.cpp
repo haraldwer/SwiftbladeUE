@@ -15,8 +15,6 @@ UClass* UFPAnimationStateIdle::Update(float aDT)
 	FFPAnimationHandPositions hands;
 	hands.myRight = lerpTrans;
 	hands.myLeft = FlipRightToLeft(hands.myRight);
-	hands.myRightHandState = GetSwordHandState();
-	hands.myLeftHandState = EHandState::OPEN;
 	hands.myPosInterpSpd = 5.0f;
     hands.myRotInterpSpd = 5.0f;
 
@@ -39,7 +37,8 @@ UClass* UFPAnimationStateIdle::Update(float aDT)
 		hands.myRight.SetLocation(hands.myRight.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength));
 	if (!leftResult.myHit)
 		hands.myLeft.SetLocation(hands.myLeft.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength, 1000.0f));
-	
+
+	OverrideSwordData(hands, 0.8f, 1.0f);
 	SetHands(hands);
 
 	FFPAnimationCameraData camera;

@@ -11,4 +11,6 @@ class PROJECT_API UFPMovementStateIdle : public UFPMovementStateBase
 	
 public:
 	virtual UClass* Update(float aDT) override;
+	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;
+	virtual int32 Priority() const override { return 0; }
 };

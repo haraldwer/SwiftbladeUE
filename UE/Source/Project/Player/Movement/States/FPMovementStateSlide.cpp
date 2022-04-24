@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
+#include "Project/Player/Animation/States/FPAnimationStateSlide.h"
 
 UClass* UFPMovementStateSlide::Update(float aDT)
 {
@@ -51,4 +52,9 @@ void UFPMovementStateSlide::Exit()
 	Super::Exit();
 	auto& character = GetCharacter();
 	character.UnCrouch();
+}
+
+TSubclassOf<UFPAnimationStateBase> UFPMovementStateSlide::GetAnimation() const
+{
+	return UFPAnimationStateSlide::StaticClass();
 }

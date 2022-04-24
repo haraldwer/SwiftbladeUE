@@ -16,6 +16,13 @@ public:
 	virtual void Enter() override;
 	virtual void Exit() override;
 
+	FVector GetTargetLocation() const { return myTargetLocation; };
+	bool GetIsInFreeze() const;
+
+	virtual bool RequiresMagic() const override { return true; }
+	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;
+	virtual int32 Priority() const override { return 7; }
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Grapple")
 	float myDist = 1500.0f;

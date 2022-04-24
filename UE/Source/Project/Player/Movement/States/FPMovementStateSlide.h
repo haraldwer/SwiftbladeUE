@@ -14,6 +14,10 @@ public:
 	virtual void Enter() override;
 	virtual void Exit() override;
 
+	virtual bool RequiresMagic() const override { return true; }
+	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;
+	virtual int32 Priority() const override { return 3; }
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Slide")

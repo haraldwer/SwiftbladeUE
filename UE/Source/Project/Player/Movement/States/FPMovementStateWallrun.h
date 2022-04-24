@@ -24,6 +24,10 @@ public:
 
 	FVector GetWallNormal() const { return myWallNormal; }
 
+	virtual bool RequiresMagic() const override { return true; }
+	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;
+	virtual int32 Priority() const override { return 4; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myWallrunExitDot = 0.8f;
@@ -36,7 +40,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myOverrideGravityScale = 1.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
-	float myWallrunGravity = 0.05f;
+	float myWallrunGravity = 5.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
+	float myMaxSpeedSlowdown = 5.0f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "WallClimb")
 	float myWallClimbDot = 0.8f;

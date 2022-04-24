@@ -11,8 +11,10 @@ class PROJECT_API UFPMovement : public UStateMachine
 	GENERATED_BODY()
 
 public:
-	virtual ~UFPMovement() override = default;
 	
+	virtual ~UFPMovement() override = default;
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual UClass* GetDefaultStateType() override;
 	virtual bool SetState(UStateBase* aState) override;
 
@@ -31,4 +33,8 @@ public:
 
 	void OnLanded();
 	void OnHit(const FHitResult& aHit);
+
+private:
+	void TryOverrideAnimationState() const;
+	
 };

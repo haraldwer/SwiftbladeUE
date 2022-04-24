@@ -6,12 +6,6 @@
 #include "Project/Player/Combat/FPCombat.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
-void UFPAnimationStateBase::Enter()
-{
-	Super::Enter();
-	myTime = 0.0f;
-}
-
 UClass* UFPAnimationStateBase::Update(float aDT)
 {
 	const auto result = Super::Update(aDT);
@@ -49,11 +43,6 @@ FFPAnimationCameraData UFPAnimationStateBase::GetRealCamera() const
 	return GetAnimator().GetRealCamera();
 }
 
-FTransform UFPAnimationStateBase::DualWeild(const FTransform& aRightTransform)
-{
-	return FTransform(aRightTransform.GetRotation(), aRightTransform.TransformPosition(FVector(0, 0, 5)));
-}
-
 FTransform UFPAnimationStateBase::FlipRightToLeft(const FTransform& aRightTransform)
 {
 	return aRightTransform *
@@ -71,11 +60,6 @@ FTransform UFPAnimationStateBase::ToCameraSpace(const FTransform& aTransform) co
 		aTransform.GetLocation() - camTrans.GetLocation(),
 		aTransform.GetScale3D());
 	return adjustedTransform * camTrans; 
-}
-
-EHandState UFPAnimationStateBase::GetSwordHandState() const
-{
-	return GetCombat().GetHasSword() ? EHandState::CLOSED : EHandState::OPEN; 
 }
 
 FVector UFPAnimationStateBase::Get3DNoise(const float aSpeed, const float aStrength, const float anOffset) const
@@ -131,13 +115,10 @@ FFPAnimationHandCollision UFPAnimationStateBase::GetHandCollision(const FTransfo
 			result.myHit = true;
 			result.myHitActor = hit.GetActor();
 
+			// Palm towards collision 
 			result.myTransform.SetLocation(charTrans.InverseTransformPosition(hit.ImpactPoint));
 			auto rot = charTrans.InverseTransformRotation((hit.ImpactNormal * -1.0f).Rotation().Quaternion());
 			auto adjusted = (rot * FRotator(90.0f, 0.0f, -90.0f).Quaternion()).Rotator();
-			
-			// Rotation is not correct when normal is from straight up
-			// Override yaw when looking from above
-			// Make exponential?
 			FQuat corrected = FMath::Lerp(adjusted.Quaternion(), FRotator(adjusted.Pitch, 0.0f, adjusted.Roll).Quaternion(), hit.ImpactNormal.Z);
 			result.myTransform.SetRotation(corrected);
 			
@@ -146,6 +127,32 @@ FFPAnimationHandCollision UFPAnimationStateBase::GetHandCollision(const FTransfo
 	}
 
 	return result;
+}
+
+void UFPAnimationStateBase::OverrideSwordData(FFPAnimationHandPositions& someData, const float aLocationWeight, float aRotationWeight) const
+{
+	if (GetCombat().HasSword())
+	{
+		const auto swordTrans = GetAnimator().GetDefaultSwordTransform();
+		const auto cameraTrans = LerpTransWeight(
+			swordTrans,
+			ToCameraSpace(swordTrans),
+			0.7f, 0.7f);
+		
+		someData.myRight = LerpTransWeight(
+			someData.myRight,
+			cameraTrans,
+			aLocationWeight,
+			aRotationWeight);
+		someData.myRightHandState = EHandState::CLOSED;
+		if (someData.myDualWeild)
+		{
+			someData.myLeft = FTransform(
+				someData.myRight.GetRotation(),
+				someData.myRight.TransformPosition(FVector(0, 0, 5)));
+			someData.myLeftHandState = EHandState::CLOSED;
+		}
+	}
 }
 
 FTransform UFPAnimationStateBase::GetDefaultHandTransform() const

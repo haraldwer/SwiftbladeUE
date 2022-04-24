@@ -6,7 +6,7 @@
 #include "Project/Utility/Tools/StateMachine/StateMachine.h"
 #include "FPAnimatorNew.generated.h"
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Custom))
 class PROJECT_API UFPAnimatorNew : public UStateMachine
 {
 	GENERATED_BODY()
@@ -26,6 +26,13 @@ public:
 	FFPAnimationCameraData GetTargetCamera() const { return myTargetCamera; }
 	FFPAnimationCameraData GetRealCamera() const { return myRealCamera; }
 
+	FTransform GetDefaultSwordTransform() const { return myDefaultSwordTransform; };
+	
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+	FTransform myDefaultSwordTransform;
+	
 private:
 	class AFPCharacter& GetCharacter() const;
 	

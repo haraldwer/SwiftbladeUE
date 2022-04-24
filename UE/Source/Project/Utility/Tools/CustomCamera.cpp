@@ -30,6 +30,9 @@ void UCustomCamera::AddWidget(UWidgetBase* aWidget, const int32 aZOrder)
 
 void UCustomCamera::RemoveWidget(const UWidgetBase* aWidget)
 {
+	if (IsBeingDestroyed())
+		return;
+	
 	CHECK_RETURN_LOG(!aWidget, "Invalid ptr");
 	for (int i = 0; i < myWidgets.Num(); i++)
 	{

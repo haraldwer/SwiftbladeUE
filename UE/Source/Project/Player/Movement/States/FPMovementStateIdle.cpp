@@ -3,6 +3,7 @@
 #include "FPMovementStateInAir.h"
 #include "FPMovementStateRun.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Project/Player/Animation/States/FPAnimationStateIdle.h"
 
 UClass* UFPMovementStateIdle::Update(float aDT)
 {	
@@ -14,4 +15,9 @@ UClass* UFPMovementStateIdle::Update(float aDT)
 		return UFPMovementStateRun::StaticClass();
 
 	return nullptr;
+}
+
+TSubclassOf<UFPAnimationStateBase> UFPMovementStateIdle::GetAnimation() const
+{
+	return UFPAnimationStateIdle::StaticClass();
 }

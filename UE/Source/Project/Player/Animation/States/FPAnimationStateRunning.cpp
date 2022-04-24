@@ -1,7 +1,6 @@
 ﻿#include "FPAnimationStateRunning.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Project/Utility/Tools/CustomCamera.h"
 
 UClass* UFPAnimationStateRunning::Update(float aDT)
 {
@@ -23,15 +22,16 @@ UClass* UFPAnimationStateRunning::Update(float aDT)
 	FFPAnimationHandPositions hands;
 	hands.myRight = lerpTrans;
 	hands.myLeft = FlipRightToLeft(hands.myRight);
-	hands.myRightHandState = GetSwordHandState();
-	hands.myLeftHandState = EHandState::OPEN;
 
 	// Swing arms
-	const FVector swingDirection = (GetCamera().GetForwardVector() + GetCamera().GetUpVector()).GetSafeNormal();
-	const FVector rightOffset = swingDirection * cos * mySwingAmount;
-	const FVector leftOffset = swingDirection * -cos * mySwingAmount;
+	const FVector rightOffset = mySwingVector * cos * mySwingAmount;
+	const FVector leftOffset = mySwingVector * -cos * mySwingAmount;
 	hands.myRight.SetLocation(hands.myRight.GetLocation() + rightOffset);
 	hands.myLeft.SetLocation(hands.myLeft.GetLocation() + leftOffset);
+	hands.myRight.SetRotation(hands.myRight.GetRotation() *
+		FRotator(cos * mySwingHandRotateAmount, 0.0f, 0.0f).Quaternion());
+	hands.myLeft.SetRotation(hands.myLeft.GetRotation() *
+		FRotator(-cos * mySwingHandRotateAmount, 0.0f, 0.0f).Quaternion());
 
 	// Find close collisions
 	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
@@ -46,19 +46,14 @@ UClass* UFPAnimationStateRunning::Update(float aDT)
 		const FRotator flipped = FlipRightToLeft(hands.myLeft).Rotator();
 		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
 	}
-	
-	// Apply wobble
-	if (!rightResult.myHit)
-		hands.myRight.SetLocation(hands.myRight.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength));
-	if (!leftResult.myHit)
-		hands.myLeft.SetLocation(hands.myLeft.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength, 1000.0f));
-	
+
+	OverrideSwordData(hands, 0.8f, 0.9f);
 	SetHands(hands);
 
 	// Camera
 	FFPAnimationCameraData camera;
 	camera.myHeight = FMath::Abs(cos) * myHeadBobStrength;
-	camera.myTilt = cos * myHeadTiltAmount;
+	camera.myTilt = cos * FMath::DegreesToRadians(myHeadTiltAmount);
 	SetCamera(camera);
 	
 	return nullptr;

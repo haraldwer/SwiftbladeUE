@@ -69,3 +69,8 @@ UFPCombat& UFPStateBase::GetCombat() const
 	CHECK_ASSERT(!ptr, "Combat nullptr");
 	return *ptr;
 }
+
+AEffect* UFPStateBase::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const
+{
+	return GetCharacter().CreateEffect(aBP, aTransform);
+}

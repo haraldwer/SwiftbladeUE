@@ -3,7 +3,8 @@
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Hand.h"
-#include "Project/Player/Movement/FPMovement.h"
+#include "Project/Player/Actors/Sword.h"
+#include "Project/Player/Combat/FPCombat.h"
 #include "States/FPAnimationStateBase.h"
 #include "States/FPAnimationStateIdle.h"
 
@@ -13,6 +14,7 @@ void UFPAnimatorNew::BeginPlay()
 	
 	const auto& character = GetCharacter();
 	AddTickPrerequisiteComponent(Cast<UActorComponent>(character.GetMovement()));
+	AddTickPrerequisiteComponent(Cast<UActorComponent>(character.GetCombat()));
 }
 
 void UFPAnimatorNew::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -27,19 +29,27 @@ void UFPAnimatorNew::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 void UFPAnimatorNew::UpdateHands(const float aDT)
 {
-	myRealHands = FFPAnimationHandPositions::Interp(myRealHands, myTargetHands, aDT);
 	const auto& character = GetCharacter();
 	const auto left = character.GetLeftHand();
 	CHECK_RETURN_LOG(!left, "No left");
 	const auto right = character.GetRightHand();
 	CHECK_RETURN_LOG(!right, "No right");
 	
+	myRealHands = FFPAnimationHandPositions::Interp(myRealHands, myTargetHands, aDT);
+
+	// Set result
 	left->SetActorRelativeTransform(myRealHands.myLeft);
 	left->SetHandState(myRealHands.myLeftHandState);
 	left->SetActorRelativeScale3D(FVector(1, -1, 1));
 	
 	right->SetActorRelativeTransform(myRealHands.myRight);
 	right->SetHandState(myRealHands.myRightHandState);
+
+	// Move sword
+	const auto combat = character.GetCombat();
+	if (combat && combat->HasSword())
+		if (const auto sword = combat->GetSword())
+			sword->SetActorTransform(right->GetTransform());
 }
 
 void UFPAnimatorNew::UpdateCamera(const float aDT)

@@ -42,7 +42,7 @@ FFPControllerState AFPController::GetState() const
 	FFPControllerState state = myState;
 	if (const auto character = GetFPCharacter())
 		if (const auto combat = character->GetCombat())
-			state.myHasSword = combat->GetHasSword();
+			state.myHasSword = combat->HasSword();
 	return state; 
 }
 

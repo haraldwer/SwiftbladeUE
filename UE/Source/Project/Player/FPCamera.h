@@ -4,7 +4,7 @@
 #include "FPComponentBase.h"
 #include "FPCamera.generated.h"
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Custom))
 class PROJECT_API UFPCamera : public UFPActorComponentBase
 {
 	GENERATED_BODY()

@@ -7,6 +7,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Sword.h"
+#include "Project/Player/Animation/FPAnimatorNew.h"
+#include "Project/Player/Animation/States/FPAnimationStateWallclimb.h"
+#include "Project/Player/Animation/States/FPAnimationStateWallrun.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
 void UFPMovementStateWallrun::Init()
@@ -33,6 +36,7 @@ UClass* UFPMovementStateWallrun::Update(float aDT)
 	{
 		movement.SetPlaneConstraintEnabled(false);
 		movement.Velocity = FVector(0, 0, myWallClimbSpeed);
+		animator.TryOverrideState(animator.GetState<UFPAnimationStateWallclimb>());
 		if (character.GetInputAxisValue("MoveVertical") < 0.1f)
 		{
 			LOG("No forward input when climbing");
@@ -41,12 +45,26 @@ UClass* UFPMovementStateWallrun::Update(float aDT)
 	}
 	else
 	{
+		animator.TryOverrideState(animator.GetState<UFPAnimationStateWallrun>());
+
+		// Limit max speed
+		if (movement.Velocity.SizeSquared2D() > movement.MaxWalkSpeed)
+			movement.Velocity = FMath::VInterpTo(
+				movement.Velocity,
+				movement.Velocity.GetSafeNormal() * movement.MaxWalkSpeed,
+				aDT,
+				myMaxSpeedSlowdown);
+		
 		if (movement.Velocity.Z < 0.0f)
 		{
 			movement.Velocity.Z = 0.0f;
 			movement.SetMovementMode(MOVE_Walking);
 		}
-		else movement.Velocity.Z *= FMath::Pow(myWallrunGravity, aDT);
+		else movement.Velocity.Z = FMath::FInterpTo(
+			movement.Velocity.Z,
+			0.0f,
+			aDT,
+			myWallrunGravity);
 	}
 	
 	// Stopping
@@ -129,8 +147,14 @@ bool UFPMovementStateWallrun::GetCanWallJump() const
 
 FVector UFPMovementStateWallrun::GetWalljumpDirection() const
 {
-	return FVector(0, 0, 1) + myWallNormal * myWallrunJumpMul * 
-		(1 - FMath::Abs(FVector::DotProduct(myWallNormal, GetCamera().GetForwardVector())));
+	const auto normal2D = myWallNormal.GetSafeNormal2D();
+	return FVector(0, 0, 1) + normal2D * myWallrunJumpMul * 
+		(1 - FMath::Abs(FVector::DotProduct(normal2D, GetCamera().GetForwardVector())));
+}
+
+TSubclassOf<UFPAnimationStateBase> UFPMovementStateWallrun::GetAnimation() const
+{
+	return UFPAnimationStateWallrun::StaticClass();
 }
 
 void UFPMovementStateWallrun::UpdateWallNormal() const
@@ -138,10 +162,11 @@ void UFPMovementStateWallrun::UpdateWallNormal() const
 	auto& movement = GetCharacterMovement();
 	const auto vel = movement.GetLastUpdateVelocity();
 	const float speed = vel.Size();
-	const auto projected = FVector::VectorPlaneProject(vel, myWallNormal);
+	const auto normal2D = myWallNormal.GetSafeNormal2D();
+	const auto projected = FVector::VectorPlaneProject(vel, normal2D);
 	movement.Velocity = projected.GetSafeNormal() * speed;
 	movement.GravityScale = 0.0f;
-	movement.SetPlaneConstraintNormal(myWallNormal);
+	movement.SetPlaneConstraintNormal(normal2D);
 	movement.SetPlaneConstraintEnabled(true);
 }
 

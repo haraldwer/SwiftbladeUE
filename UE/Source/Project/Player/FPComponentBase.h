@@ -5,7 +5,7 @@
 #include "Components/SceneComponent.h"
 #include "FPComponentBase.generated.h"
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup=(Custom))
 class PROJECT_API UFPActorComponentBase : public UActorComponent
 {
 	GENERATED_BODY()
@@ -27,7 +27,7 @@ public:
 	class UFPCombat& GetCombat() const;
 
 	// Interface for creating player-related effects
-	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform) const;
+	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -52,5 +52,5 @@ public:
 	class UFPCombat& GetCombat() const;
 
 	// Interface for creating player-related effects
-	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform) const;
+	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;
 };

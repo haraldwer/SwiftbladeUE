@@ -32,6 +32,11 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void AEnemy::SetSpawner(AEnemySpawner* aSpawner)
+{
+	mySpawner = aSpawner;
+}
+
 float AEnemy::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser)
 {
 	LOG("Enemy took damage " + FString::SanitizeFloat(aDamageAmount));

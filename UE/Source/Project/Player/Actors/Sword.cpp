@@ -8,15 +8,13 @@ ASword::ASword()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	myTimer = 0;
-	myPlayer = nullptr;
 }
 
-TArray<AActor*> ASword::GetOverlaps(UClass* aClass)
+TArray<AActor*> ASword::GetOverlaps(UClass* aClass) const
 {
 	TArray<AActor*> result;
 
-	if (!myPlayer)
+	if (!myPlayer.IsValid())
 		return result;
 	
 	GetOverlappingActors(result, aClass);
@@ -36,11 +34,21 @@ void ASword::Return()
 	myPlayer = nullptr;
 }
 
+void ASword::CreateHitEffect(AActor* anActor) const
+{
+	CHECK_RETURN(!myPlayer.IsValid());
+	FTransform trans = GetTransform();
+	trans.SetLocation(trans.GetLocation() + GetActorForwardVector());
+	myPlayer->CreateEffect(myHitEffectBP, trans);
+}
+
 // Called when the game starts or when spawned
 void ASword::BeginPlay()
 {
 	Super::BeginPlay();
 	myStartLocation = GetActorLocation();
+	myTimer = 0;
+	myPlayer.Reset();
 }
 
 // Called every frame
@@ -48,7 +56,7 @@ void ASword::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(!myPlayer)
+	if(!myPlayer.IsValid())
 	{
 		myTimer += DeltaTime;
 		SetActorLocationAndRotation(
