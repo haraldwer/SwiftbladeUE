@@ -30,7 +30,7 @@ UClass* UFPAnimationStateInteraction::Update(float aDT)
 		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
 	}
 	
-	OverrideSwordData(hands, 0.8f, 1.0f);
+	OverrideSwordData(hands, 0.8f, 1.0f, false);
 	SetHands(hands);
 
 	FFPAnimationCameraData camera;

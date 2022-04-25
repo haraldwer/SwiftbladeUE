@@ -14,9 +14,8 @@ UClass* UFPAnimationStateBlock::Update(float aDT)
 	
 	FFPAnimationHandPositions hands;
 	hands.myRight = lerpTrans;
-	hands.myLeft = FlipRightToLeft(hands.myRight);
 	
-	OverrideSwordData(hands, 0.8f, 1.0f);
+	OverrideSwordData(hands, 0.8f, 1.0f, true);
 	SetHands(hands);
 
 	FFPAnimationCameraData camera;

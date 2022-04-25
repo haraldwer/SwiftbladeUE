@@ -15,13 +15,11 @@
 
 UClass* UFPCombatStateStrike::Update(float aDT)
 {
-	LOG("Strike");
-
 	const float timeDiff = GetTime() - myStrikeTimestamp;
 	if (timeDiff > myStrikeDuration)
 		return UFPCombatStateIdle::StaticClass();
-
-	// Get sword overlaps
+	if (timeDiff > myStrikeDamageDuration)
+		return nullptr;
 
 	const auto sword = GetSword();
 	CHECK_RETURN(!sword, UFPCombatStateNoSword::StaticClass());
@@ -59,7 +57,6 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 
 UClass* UFPCombatStateStrike::Input(const EFPCombatInput anAction)
 {
-	LOG("Strike input");
 	CHECK_RETURN(!GetCombat().HasSword(), nullptr);
 	CHECK_RETURN(anAction != EFPCombatInput::STRIKE, nullptr);
 

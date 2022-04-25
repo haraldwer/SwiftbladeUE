@@ -55,7 +55,7 @@ UClass* UFPAnimationStateGrapple::Update(float aDT)
 		}
 	}
 	
-	OverrideSwordData(hands, 0.8f, 1.0f);
+	OverrideSwordData(hands, 0.8f, 1.0f, false);
 	SetHands(hands);
 
 	FFPAnimationCameraData camera;

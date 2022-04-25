@@ -50,7 +50,8 @@ protected:
 
 	// Sword
 	
-	void OverrideSwordData(FFPAnimationHandPositions& someData, float aLocationWeight, float aRotationWeight) const;
+	void OverrideSwordData(FFPAnimationHandPositions& someData, float aLocationWeight, float aRotationWeight, bool aDualWeild) const;
+	void OverrideVelocityData(FFPAnimationHandPositions& someData, float aVelocityWeight, float aDT) const;
 
 	// Properties
 	

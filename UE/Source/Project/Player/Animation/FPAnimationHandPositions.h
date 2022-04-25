@@ -18,9 +18,7 @@ struct FFPAnimationHandPositions
 	
 	float myPosInterpSpd = 10.0f;
 	float myRotInterpSpd = 10.0f;
-
-	bool myDualWeild = false;
-
+	
 	static FFPAnimationHandPositions Interp(const FFPAnimationHandPositions& aCurrent, const FFPAnimationHandPositions& aTarget, const float aDT)
 	{
 		FFPAnimationHandPositions result;
@@ -28,7 +26,6 @@ struct FFPAnimationHandPositions
 		result.myRight = LerpTransDelta(aCurrent.myRight, aTarget.myRight, aDT, aTarget.myRotInterpSpd, aTarget.myPosInterpSpd);
 		result.myLeftHandState = aTarget.myLeftHandState;
 		result.myRightHandState = aTarget.myRightHandState;
-		result.myDualWeild = aTarget.myDualWeild;
 		return result;
 	}
 };

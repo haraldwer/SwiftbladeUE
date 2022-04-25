@@ -37,7 +37,7 @@ UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aVal
 			myCoyoteTimeStamp = time;
 			myJumpedSinceTouchedGround = false;
 		}
-
+		
 		const auto wallrunState = Cast<UFPMovementStateWallrun>(GetState(UFPMovementStateWallrun::StaticClass()));
 		const bool wallJump = wallrunState && wallrunState->GetCanWallJump(); 
 	

@@ -2,6 +2,30 @@
 
 #include "Curves/CurveFloat.h"
 
+void UFPAnimationStateStrike::Init()
+{
+	Super::Init();
+
+	// Get children
+	TArray<USceneComponent*> children;
+	GetChildrenComponents(false, children);
+	for (const auto child : children)
+	{
+		TArray<USceneComponent*> transforms;
+		child->GetChildrenComponents(false, transforms);
+		CHECK_CONTINUE_LOG(transforms.Num() < 2, "Too few transforms on child");
+		
+		// Sort by name
+		transforms.Sort([](const USceneComponent& aFirst, const USceneComponent& aSecond) {
+			return aFirst.GetName() < aSecond.GetName(); });
+		
+		myEntries.Add({
+			transforms[0]->GetRelativeTransform(),
+			transforms[1]->GetRelativeTransform()
+		});
+	}
+}
+
 UClass* UFPAnimationStateStrike::Update(float aDT)
 {
 	Super::Update(aDT);
@@ -15,10 +39,8 @@ UClass* UFPAnimationStateStrike::Update(float aDT)
 	if (myEntries.IsValidIndex(myAnimIndex))
 	{
 		const auto& entry = myEntries[myAnimIndex];
-
-		
 		const float weight =
-			myCurve ? myCurve->GetFloatValue(timePart) : timePart;
+			FMath::Clamp(myCurve ? myCurve->GetFloatValue(timePart) : timePart, 0.0f, 1.0f);
 		trans = LerpTransWeight(
 			entry.myStart,
 			entry.myEnd,
@@ -33,10 +55,9 @@ UClass* UFPAnimationStateStrike::Update(float aDT)
 		0.8f, 0.8f);
 	
 	FFPAnimationHandPositions hands;
-	hands.myRight = lerpTrans; 
-	hands.myDualWeild = true;
+	hands.myRight = lerpTrans;
 	
-	OverrideSwordData(hands, 0.0f, 0.0f);
+	OverrideSwordData(hands, 0.0f, 0.0f, true);
 	SetHands(hands, true);
 
 	FFPAnimationCameraData camera;
@@ -49,5 +70,14 @@ void UFPAnimationStateStrike::Enter()
 {
 	Super::Enter();
 	myStrikeTimestamp = GetTime();
-	myAnimIndex = FMath::RandRange(0, myEntries.Num());
+
+	// Randomize index
+	const int32 num = myEntries.Num();
+	myAnimIndex = FMath::RandRange(0, num - 1);
+
+	// Prevent previous anim from being reused
+	if (myEntries.Num() > 1)
+		while (myAnimIndex == myPreviousIndex)
+			myAnimIndex = (myAnimIndex + 1) % num;	
+	myPreviousIndex = myAnimIndex;
 }

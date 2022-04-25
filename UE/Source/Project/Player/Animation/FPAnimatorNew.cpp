@@ -1,10 +1,12 @@
 ﻿#include "FPAnimatorNew.h"
 
+#include "GameFramework/PawnMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Hand.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Combat/FPCombat.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 #include "States/FPAnimationStateBase.h"
 #include "States/FPAnimationStateIdle.h"
 
@@ -30,11 +32,14 @@ void UFPAnimatorNew::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 void UFPAnimatorNew::UpdateHands(const float aDT)
 {
 	const auto& character = GetCharacter();
+	
 	const auto left = character.GetLeftHand();
 	CHECK_RETURN_LOG(!left, "No left");
 	const auto right = character.GetRightHand();
 	CHECK_RETURN_LOG(!right, "No right");
-	
+	const auto combat = character.GetCombat();
+	CHECK_RETURN_LOG(!combat, "No combat");
+
 	myRealHands = FFPAnimationHandPositions::Interp(myRealHands, myTargetHands, aDT);
 
 	// Set result
@@ -46,8 +51,7 @@ void UFPAnimatorNew::UpdateHands(const float aDT)
 	right->SetHandState(myRealHands.myRightHandState);
 
 	// Move sword
-	const auto combat = character.GetCombat();
-	if (combat && combat->HasSword())
+	if (combat->HasSword())
 		if (const auto sword = combat->GetSword())
 			sword->SetActorTransform(right->GetTransform());
 }

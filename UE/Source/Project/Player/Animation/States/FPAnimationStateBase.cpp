@@ -1,5 +1,6 @@
 ﻿#include "FPAnimationStateBase.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Interaction.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
@@ -129,7 +130,7 @@ FFPAnimationHandCollision UFPAnimationStateBase::GetHandCollision(const FTransfo
 	return result;
 }
 
-void UFPAnimationStateBase::OverrideSwordData(FFPAnimationHandPositions& someData, const float aLocationWeight, float aRotationWeight) const
+void UFPAnimationStateBase::OverrideSwordData(FFPAnimationHandPositions& someData, const float aLocationWeight, float aRotationWeight, bool aDualWeild) const
 {
 	if (GetCombat().HasSword())
 	{
@@ -145,7 +146,7 @@ void UFPAnimationStateBase::OverrideSwordData(FFPAnimationHandPositions& someDat
 			aLocationWeight,
 			aRotationWeight);
 		someData.myRightHandState = EHandState::CLOSED;
-		if (someData.myDualWeild)
+		if (aDualWeild)
 		{
 			someData.myLeft = FTransform(
 				someData.myRight.GetRotation(),
@@ -153,6 +154,14 @@ void UFPAnimationStateBase::OverrideSwordData(FFPAnimationHandPositions& someDat
 			someData.myLeftHandState = EHandState::CLOSED;
 		}
 	}
+}
+
+void UFPAnimationStateBase::OverrideVelocityData(FFPAnimationHandPositions& someData, const float aVelocityWeight, const float aDT) const
+{
+	const auto velocity = GetCharacterMovement().GetLastUpdateVelocity();
+	const auto transformedVelocity = GetActorTransform().InverseTransformVectorNoScale(velocity);
+	someData.myRight.SetLocation(someData.myRight.GetLocation() - transformedVelocity * aVelocityWeight * aDT);
+	someData.myLeft.SetLocation(someData.myLeft.GetLocation() - transformedVelocity * aVelocityWeight * aDT);
 }
 
 FTransform UFPAnimationStateBase::GetDefaultHandTransform() const

@@ -3,6 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
+#include "Project/Player/Combat/FPCombat.h"
 
 void UFPMovementStateBase::Jump(const FVector aDirection) const
 {
@@ -55,4 +56,36 @@ void UFPMovementStateBase::LookVertical(const float aValue) const
 bool UFPMovementStateBase::HasMagic() const
 {
 	return GetCharacter().HasMagic();
+}
+
+TArray<FHitResult> UFPMovementStateBase::MultiRay(const FVector& aStart, const FVector& aEnd) const
+{
+	TArray<FHitResult> hits;
+	FCollisionQueryParams params;
+	params.bFindInitialOverlaps = true;
+	params.AddIgnoredActor(Cast<AActor>(GetCharacter().GetLeftHand()));
+	params.AddIgnoredActor(Cast<AActor>(GetCharacter().GetRightHand()));
+	params.AddIgnoredActor(&GetCharacter());
+	if (const auto combat = GetCharacter().GetCombat())
+		params.AddIgnoredActor(Cast<AActor>(combat->GetSword()));
+	GetWorld()->LineTraceMultiByChannel(hits, aStart, aEnd, ECC_WorldStatic, params);
+	return hits;
+}
+
+FHitResult UFPMovementStateBase::SingleRay(const FVector& aStart, const FVector& aEnd) const
+{
+	FHitResult hit;
+	FCollisionQueryParams params;
+	params.bFindInitialOverlaps = true;
+	params.AddIgnoredActor(Cast<AActor>(GetCharacter().GetLeftHand()));
+	params.AddIgnoredActor(Cast<AActor>(GetCharacter().GetRightHand()));
+	params.AddIgnoredActor(&GetCharacter());
+	if (const auto combat = GetCharacter().GetCombat())
+		params.AddIgnoredActor(Cast<AActor>(combat->GetSword()));
+	GetWorld()->LineTraceSingleByChannel(hit, aStart, aEnd, ECC_WorldStatic, params);
+	//if (hit.bBlockingHit)
+	//	DrawDebugLine(GetWorld(), aStart, aEnd, FColor(255, 0, 0, 255), true);
+	//else
+	//	DrawDebugLine(GetWorld(), aStart, aEnd, FColor(0, 255, 0, 255), true);
+	return hit;
 }

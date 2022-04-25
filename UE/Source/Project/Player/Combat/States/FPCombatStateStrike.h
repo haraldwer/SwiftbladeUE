@@ -23,10 +23,13 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float myStrikeDuration = 0.2f;
+	float myStrikeDuration = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myStrikeCooldown = 0.2f;
+	float myStrikeDamageDuration = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myStrikeCooldown = 0.5f;
 
 private:
 

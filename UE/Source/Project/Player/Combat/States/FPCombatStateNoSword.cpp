@@ -33,7 +33,6 @@ UClass* UFPCombatStateNoSword::Update(float aDT)
 
 UClass* UFPCombatStateNoSword::Input(const EFPCombatInput anAction)
 {
-	LOG("No sword interact");
 	CHECK_RETURN(GetCurrentState() != this, nullptr);
 	CHECK_RETURN(anAction != EFPCombatInput::INTERACT, nullptr);
 
@@ -42,7 +41,6 @@ UClass* UFPCombatStateNoSword::Input(const EFPCombatInput anAction)
 	GetCapsule().GetOverlappingActors(actors, ASword::StaticClass());
 	for (const auto& it : actors)
 	{
-		LOG("Sword nearby");
 		GetCombat().SetSword(Cast<ASword>(it));
 		return StaticClass();
 	}

@@ -47,7 +47,8 @@ UClass* UFPAnimationStateRunning::Update(float aDT)
 		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
 	}
 
-	OverrideSwordData(hands, 0.8f, 0.9f);
+	OverrideSwordData(hands, 0.8f, 0.9f, false);
+	OverrideVelocityData(hands, 1.0f, aDT);
 	SetHands(hands);
 
 	// Camera

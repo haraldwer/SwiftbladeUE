@@ -7,6 +7,8 @@
 
 UClass* UFPAnimationStateWallrun::Update(float aDT)
 {
+	LOG("Wallrun");
+	
 	Super::Update(aDT);
 
 	FFPAnimationHandPositions hands;
@@ -77,7 +79,7 @@ UClass* UFPAnimationStateWallrun::Update(float aDT)
 		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
 	}
 
-	OverrideSwordData(hands, 0.8f, 0.9f);
+	OverrideSwordData(hands, 0.8f, 0.9f, false);
 	SetHands(hands);
 
 	// Camera

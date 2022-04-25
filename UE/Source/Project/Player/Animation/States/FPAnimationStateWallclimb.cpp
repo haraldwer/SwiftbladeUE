@@ -4,6 +4,7 @@
 
 UClass* UFPAnimationStateWallclimb::Update(float aDT)
 {
+	LOG("Wallclimb");
 	Super::Update(aDT);
 
 	const float cos = FMath::Cos(GetStateTime() * mySpeed);
@@ -28,7 +29,7 @@ UClass* UFPAnimationStateWallclimb::Update(float aDT)
 		FRotator(cos * mySwingHandRotateAmount, 0.0f, 0.0f).Quaternion());
 	hands.myLeft.SetRotation(hands.myLeft.GetRotation() *
 		FRotator(-cos * mySwingHandRotateAmount, 0.0f, 0.0f).Quaternion());
-
+	
 	// Find close collisions
 	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
 	if (rightResult.myHit)
@@ -43,7 +44,7 @@ UClass* UFPAnimationStateWallclimb::Update(float aDT)
 		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
 	}
 
-	OverrideSwordData(hands, 0.8f, 0.9f);
+	OverrideSwordData(hands, 0.3f, 0.4f, false);
 	SetHands(hands);
 
 	// Camera

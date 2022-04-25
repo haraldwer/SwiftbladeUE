@@ -33,6 +33,9 @@ protected:
 	void LookVertical(float aValue) const;
 
 	bool HasMagic() const;
+
+	TArray<FHitResult> MultiRay(const FVector& aStart, const FVector& aEnd) const;
+	FHitResult SingleRay(const FVector& aStart, const FVector& aEnd) const;
 	
 	// Override for custom modification of input values
 	virtual float GetSensitivity() const;
