@@ -114,6 +114,13 @@ ASword* UFPCombat::GetSword() const
 	return mySword.Get();
 }
 
+bool UFPCombat::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) const
+{
+	if (const auto state = GetCurrentState())
+		return state->TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser);
+	return false;
+}
+
 AFPCharacter& UFPCombat::GetCharacter() const
 {
 	return *Cast<AFPCharacter>(GetOwner());

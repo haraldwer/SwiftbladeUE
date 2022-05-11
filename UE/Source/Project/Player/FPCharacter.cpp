@@ -188,7 +188,8 @@ AEffect* AFPCharacter::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTran
 float AFPCharacter::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator,
 	AActor* aDamageCauser)
 {
-	LOG("Took damage"); 
+	if (myFPCombat->TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser))
+		Die(aDamageCauser ? aDamageCauser->GetName() : "");
 	return Super::TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser);
 }
 

@@ -25,8 +25,12 @@ void AProjectile::Tick(float DeltaTime)
 
 	// Lifetime
 	const float currentTime = GetWorld()->GetTimeSeconds();
-	if (currentTime > myStartTime + myLifetime)
+	if (currentTime < myStartTime + myInitialDelay)
+		return;
+	
+	if (currentTime > myStartTime + myLifetime + myInitialDelay)
 	{
+		// TODO: Never reaches this, don't know why
 		Destroy();
 		return;
 	}

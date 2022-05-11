@@ -24,10 +24,13 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float myLifetime;
+	float myLifetime = 1.0f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float myInitialDelay = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly)
-	FVector myVelocity;
+	FVector myVelocity = FVector::ZeroVector;
 
 private:
 

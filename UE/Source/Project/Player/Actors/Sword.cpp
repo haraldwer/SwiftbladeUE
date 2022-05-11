@@ -38,7 +38,7 @@ void ASword::CreateHitEffect(AActor* anActor) const
 {
 	CHECK_RETURN(!myPlayer.IsValid());
 	FTransform trans = GetTransform();
-	trans.SetLocation(trans.GetLocation() + GetActorForwardVector());
+	trans.SetLocation(trans.GetLocation() + GetActorForwardVector() * 20.0f + GetActorUpVector() * 60.0f);
 	myPlayer->CreateEffect(myHitEffectBP, trans);
 }
 

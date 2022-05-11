@@ -20,15 +20,6 @@ UClass* UFPCombatStateBlock::Update(float aDT)
 {	
 	const auto sword = GetSword();
 	CHECK_RETURN(!sword, UFPCombatStateNoSword::StaticClass());
-
-	// Blocked damage
-	//for (const auto& c : sword->GetOverlaps(ADamage::StaticClass()))
-	//{
-	//	if (FMath::RandBool())
-	//		if (const auto state = GetAnimator().GetState<UFPAnimationStateBlock>())
-	//			state->OnBlock();		
-	//}
-	
 	const float timeDiff = GetTime() - myBlockTimestamp;
 	CHECK_RETURN(timeDiff > myBlockDuration, UFPCombatStateIdle::StaticClass());
 	return nullptr;
@@ -40,13 +31,28 @@ UClass* UFPCombatStateBlock::Input(const EFPCombatInput anAction)
 	CHECK_RETURN(anAction != EFPCombatInput::BLOCK, nullptr);
 
 	// Check cooldown
-	const float timeDiff = GetTime() - myBlockTimestamp;	CHECK_RETURN(timeDiff < myBlockCooldown, nullptr);
+	const float timeDiff = GetTime() - myBlockTimestamp;
+	CHECK_RETURN(timeDiff < myBlockCooldown, nullptr);
 	return StaticClass();
 }
 
 void UFPCombatStateBlock::Enter()
 {
 	myBlockTimestamp = GetTime();
+	myHasBlocked = false;
+}
+
+bool UFPCombatStateBlock::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser)
+{
+	// Exceptions to dealt damage here!
+	if (const auto state = GetAnimator().GetState<UFPAnimationStateBlock>())
+	{
+		state->OnBlock();
+		if (const auto sword = GetSword())
+			sword->CreateHitEffect(aDamageCauser);
+	}
+	myHasBlocked = true; 
+	return false; 
 }
 
 TSubclassOf<UFPAnimationStateBase> UFPCombatStateBlock::GetAnimation() const

@@ -32,6 +32,7 @@ public:
 	void Block()	{ Input(EFPCombatInput::BLOCK);		}
 	void Interact() { Input(EFPCombatInput::INTERACT);	}
 	
+	bool TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) const;
 
 private:
 

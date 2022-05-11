@@ -65,7 +65,7 @@ void UFPAnimationStateBlock::Enter()
 
 void UFPAnimationStateBlock::OnBlock() const
 {
-	const FVector offset = FVector(100, 0, 0);
+	const FVector offset = FVector(myOnBlockForce, 0, 0);
 	
 	auto hands = GetRealHands();
 	hands.myRight.SetLocation(hands.myRight.GetLocation() - offset);
@@ -73,6 +73,6 @@ void UFPAnimationStateBlock::OnBlock() const
 	SetHands(hands, true);
 
 	auto camera = GetRealCamera();
-	camera.myTilt += FMath::RandRange(-1.0f, 1.0f);
+	camera.myTilt += FMath::RandRange(-myOnBlockCameraTilt, myOnBlockCameraTilt);
 	SetCamera(camera, true); 
 }

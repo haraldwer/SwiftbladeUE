@@ -24,6 +24,10 @@ public:
 	
 	virtual int32 Priority() const { return 0; }
 
+	// If player should take damage in this state
+	virtual bool TakeDamage(float ADamageAmount, FDamageEvent const& DamageEvent, AController* Controller, AActor* Actor)
+		{ return true; }
+
 protected:
 	UStateBase* GetCurrentState() const;
 	UStateBase* GetState(UClass* aType) const;
