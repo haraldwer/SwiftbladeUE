@@ -113,7 +113,6 @@ void UFPMovementStateWallrun::Enter()
 	UpdateMovementNormal();
 	myWallrunTimestamp = GetTime();
 	myHasWallJumped = false;
-	LOG("Has Walljumped false");
 	if (const auto dashState = GetState<UFPMovementStateDash>())
 		dashState->Reset();
 }
@@ -137,8 +136,8 @@ UClass* UFPMovementStateWallrun::OnLanded()
 UClass* UFPMovementStateWallrun::OnHit(const FHitResult& aHit)
 {
 	CHECK_RETURN(aHit.ImpactNormal.Size() < 0.5f, nullptr);
-	CHECK_RETURN_LOG(FMath::Abs(aHit.ImpactNormal.Z) > 0.5f, "Hit head normal", nullptr);
-	CHECK_RETURN_LOG(GetHitHead(), "Hit head ray", nullptr)
+	CHECK_RETURN(FMath::Abs(aHit.ImpactNormal.Z) > 0.5f, nullptr);
+	CHECK_RETURN(GetHitHead(), nullptr)
 	const auto& movement = GetCharacterMovement();
 	CHECK_RETURN(movement.IsWalking(), nullptr);
 	myWallNormal = aHit.Normal;
@@ -158,15 +157,12 @@ FVector UFPMovementStateWallrun::GetWalljumpDirection() const
 {
 	const auto normal2D = myWallNormal.GetSafeNormal2D();
 	const float wallForwardDot = FVector::DotProduct(normal2D, GetCamera().GetForwardVector());
-	LOG("Forward dot" + FString::SanitizeFloat(wallForwardDot));
 	const float wallNormalPart = FMath::Lerp(1.0f, FMath::Abs(wallForwardDot), myWallrunJumpForwardPart);
-	LOG("Normal part" + FString::SanitizeFloat(wallForwardDot));
 	return FVector(0, 0, 1) + normal2D * myWallrunJumpMul * wallNormalPart;
 }
 
 void UFPMovementStateWallrun::OnWallJump()
 {
-	LOG("Has Walljumped true")
 	myHasWallJumped = true;
 }
 
@@ -215,11 +211,13 @@ bool UFPMovementStateWallrun::FindWallInfo(FVector& aNormal, float& aDistance) c
 {
 	constexpr float depth = 100.0f;
 	const auto normal = aNormal.GetSafeNormal2D();
+	const auto originalNormal = normal;
 	const FVector right = FVector::UpVector.Cross(normal);
 	const FVector location = GetActorTransform().GetLocation();
 
 	FVector normals = FVector::ZeroVector;
-	float distance = 0.0f; 
+	float totalNormals = 0.0f;
+	float distance = 0.0f;
 	int32 hits = 0;
 
 	// Brute force traces to find average normal
@@ -234,15 +232,20 @@ bool UFPMovementStateWallrun::FindWallInfo(FVector& aNormal, float& aDistance) c
 		CHECK_CONTINUE(!result.bBlockingHit);
 		CHECK_CONTINUE(FMath::Abs(result.Normal.Z) > 0.5f);
 		hits++;
-		normals += result.Normal.GetSafeNormal2D();
-		distance += result.Distance;
+
+		// Compare hit normal dot to in normal dot
+		const auto resultNormal = result.Normal.GetSafeNormal2D();
+		const float normalWeight = FMath::Max(0, resultNormal.Dot(originalNormal));
+		normals += resultNormal * normalWeight;
+		distance += result.Distance * normalWeight;
+		totalNormals += normalWeight;
 	}
 
-	// Average normal
+	// Average normal and distance
 	if (hits > 0)
 	{
-		aNormal = normals / static_cast<float>(hits);
-		aDistance = distance / static_cast<float>(hits);
+		aNormal = normals / totalNormals;
+		aDistance = distance / totalNormals;
 		return true;
 	}
 

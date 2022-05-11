@@ -1,5 +1,9 @@
 ﻿#include "FPAnimationStateInteraction.h"
 
+#include "Project/Gameplay/Interaction.h"
+#include "Project/Player/Combat/FPCombat.h"
+#include "Project/Player/Combat/States/FPCombatStateInteract.h"
+
 UClass* UFPAnimationStateInteraction::Update(float aDT)
 {
 	Super::Update(aDT);
@@ -11,30 +15,39 @@ UClass* UFPAnimationStateInteraction::Update(float aDT)
 		defaultTrans,
 		ToCameraSpace(defaultTrans),
 		0.5f, 0.5f);
-	
+
 	FFPAnimationHandPositions hands;
 	hands.myRight = lerpTrans;
 	hands.myLeft = FlipRightToLeft(hands.myRight);
 
-	// Find close collisions
-	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
-	if (rightResult.myHit)
-		hands.myRight = rightResult.myTransform;
-	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft, 50.0f);
-	if (leftResult.myHit)
+	myInterpSpd = FMath::Min(
+		myInterpSpd + aDT * myInterpSpdIncrease,
+		myMaxInterpSpd);
+	hands.myPosInterpSpd = myInterpSpd;
+	hands.myRotInterpSpd = myInterpSpd; 
+
+	if (const auto combatState = GetCombat().GetState<UFPCombatStateInteract>())
 	{
-		hands.myLeft = leftResult.myTransform;
-		// Flip rotation
-		const FRotator normal = hands.myLeft.Rotator();
-		const FRotator flipped = FlipRightToLeft(hands.myLeft).Rotator();
-		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
+		if (const auto interaction = combatState->GetInteraction())
+		{
+			const auto actorTrans = GetActorTransform();
+			if (interaction->GetRight(hands.myRight, hands.myRightHandState))
+				hands.myRight = hands.myRight * actorTrans.Inverse();
+			if (interaction->GetLeft(hands.myLeft, hands.myRightHandState))
+				hands.myLeft = hands.myLeft * actorTrans.Inverse();
+		}
 	}
-	
-	OverrideSwordData(hands, 0.8f, 1.0f, false);
-	SetHands(hands);
+
+	SetHands(hands, myInterpSpd >= myMaxInterpSpd);
 
 	FFPAnimationCameraData camera;
-	SetCamera(camera); 
-	
+	SetCamera(camera);
+
 	return nullptr;
+}
+
+void UFPAnimationStateInteraction::Enter()
+{
+	Super::Enter();
+	myInterpSpd = 0.0f;
 }

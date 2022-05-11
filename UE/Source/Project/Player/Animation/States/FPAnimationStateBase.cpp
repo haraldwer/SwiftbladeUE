@@ -2,10 +2,11 @@
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCharacter.h"
-#include "Project/Player/Actors/Interaction.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Player/Combat/FPCombat.h"
 #include "Project/Utility/Tools/CustomCamera.h"
+#include "Project/Player/Actors/Hand.h"
+#include "Project/Player/Actors/Sword.h"
 
 UClass* UFPAnimationStateBase::Update(float aDT)
 {

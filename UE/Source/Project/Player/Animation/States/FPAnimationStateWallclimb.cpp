@@ -4,7 +4,6 @@
 
 UClass* UFPAnimationStateWallclimb::Update(float aDT)
 {
-	LOG("Wallclimb");
 	Super::Update(aDT);
 
 	const float cos = FMath::Cos(GetStateTime() * mySpeed);

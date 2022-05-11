@@ -37,15 +37,8 @@ UClass* UFPMovementStateGrapple::Update(float aDT)
 	return nullptr;
 }
 
-UClass* UFPMovementStateGrapple::Input(EFPMovementInputAction anAction, float aValue)
+UClass* UFPMovementStateGrapple::Check()
 {
-	Super::Input(anAction, aValue);
-
-	CHECK_RETURN(anAction != EFPMovementInputAction::GRAPPLE, nullptr)
-
-	const auto timer = GetTime() - myTimeStamp;
-	CHECK_RETURN(timer < myCooldown, nullptr);
-	
 	TArray<AActor*> actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGrapplePoint::StaticClass(), actors);
 
@@ -68,8 +61,33 @@ UClass* UFPMovementStateGrapple::Input(EFPMovementInputAction anAction, float aV
 		}
 	}
 
-	CHECK_RETURN(!ptr, nullptr);
-	myTargetLocation = ptr->GetTransform().GetTranslation();
+	const auto newTarget = Cast<AGrapplePoint>(ptr);
+	const auto currentTarget = myTarget.Get();
+	if (currentTarget != newTarget)
+	{
+		if (currentTarget)
+			currentTarget->SetFocus(false);
+		if (newTarget)
+			newTarget->SetFocus(true);
+	}
+
+	myTarget = newTarget;
+	
+	return nullptr;
+}
+
+UClass* UFPMovementStateGrapple::Input(EFPMovementInputAction anAction, float aValue)
+{
+	Super::Input(anAction, aValue);
+
+	CHECK_RETURN(anAction != EFPMovementInputAction::GRAPPLE, nullptr)
+
+	const auto timer = GetTime() - myTimeStamp;
+	CHECK_RETURN(timer < myCooldown, nullptr);
+
+	const auto currentTarget = myTarget.Get();
+	CHECK_RETURN(!currentTarget, nullptr);
+	myTargetLocation = currentTarget->GetTransform().GetTranslation();
 	
 	return StaticClass();
 }

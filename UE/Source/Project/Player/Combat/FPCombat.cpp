@@ -5,6 +5,7 @@
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Player/Animation/States/FPAnimationStateBase.h"
+#include "Project/Player/Movement/FPMovement.h"
 #include "States/FPCombatStateBase.h"
 #include "States/FPCombatStateIdle.h"
 #include "States/FPCombatStateNoSword.h"
@@ -83,9 +84,9 @@ void UFPCombat::SetHasSword(const bool aValue)
 			CHECK_CONTINUE(ptr->GetWorld() != GetWorld());
 			mySword = ptr;
 
-			// Teleport sword to hand
-			if (const auto hand = character.GetRightHand())
-				ptr->SetActorTransform(hand->GetTransform());
+			if (auto hand = GetCharacter().GetRightHand())
+				ptr->SetActorTransform(hand->GetActorTransform());
+			
 			return;
 		}
 	}
@@ -95,8 +96,6 @@ void UFPCombat::SetHasSword(const bool aValue)
 		sword->SetPlayer(&character);
 		SetState(GetState<UFPCombatStateIdle>());
 	}
-
-	LOG("No sword in world"); 
 }
 
 bool UFPCombat::HasSword() const

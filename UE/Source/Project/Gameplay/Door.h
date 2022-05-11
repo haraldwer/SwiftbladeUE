@@ -13,21 +13,4 @@ class PROJECT_API ADoor : public AActor
 	
 public:
 	ADoor();
-	
-	// Open door
-	void Open(AFPCharacter* anInstigator);
-
-	// When door started opening
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnOpen();
-
-	// When door completely opened
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnOpened();
-
-	UFUNCTION(BlueprintCallable)
-	void NotifyOpen();
-	
-private:
-	TWeakObjectPtr<AFPCharacter> myInstigator;
 };

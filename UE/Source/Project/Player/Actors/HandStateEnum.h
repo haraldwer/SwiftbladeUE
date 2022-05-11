@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "HandStateEnum.generated.h"
 
-UENUM()
+UENUM(BlueprintType)
 enum class EHandState : uint8
 {
 	OPEN,

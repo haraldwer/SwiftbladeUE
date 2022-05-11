@@ -52,7 +52,7 @@ protected:
 	float myWallClimbSpeed = 410.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "WallDetection")
-	float myTestWidth = 150.0f;
+	float myTestWidth = 200.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallDetection")
 	float myTestHeight = 200.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallDetection")

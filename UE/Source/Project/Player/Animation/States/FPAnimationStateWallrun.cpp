@@ -7,8 +7,6 @@
 
 UClass* UFPAnimationStateWallrun::Update(float aDT)
 {
-	LOG("Wallrun");
-	
 	Super::Update(aDT);
 
 	FFPAnimationHandPositions hands;

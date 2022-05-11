@@ -11,6 +11,8 @@ class PROJECT_API UFPMovementStateGrapple : public UFPMovementStateBase
 	
 public:
 	virtual UClass* Update(float aDT) override;
+
+	virtual UClass* Check() override;
 	virtual UClass* Input(EFPMovementInputAction anAction, float aValue) override;
 
 	virtual void Enter() override;
@@ -45,6 +47,7 @@ protected:
 	
 private:
 	FVector myTargetLocation;
+	TWeakObjectPtr<class AGrapplePoint> myTarget;
 	float myTimeStamp;
 	FVector myStartVelocity;
 	

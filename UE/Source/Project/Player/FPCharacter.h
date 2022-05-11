@@ -55,7 +55,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Die(const FString& anObjectName);
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void DoorOpened(ADoor* aDoor) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")

@@ -11,8 +11,7 @@
 
 void AFPController::BeginPlay()
 {
-	Super::BeginPlay();
-	LoadState(); 
+	Super::BeginPlay(); 
 }
 
 AFPCharacter* AFPController::GetFPCharacter() const

@@ -4,6 +4,7 @@
 #include "FPCamera.h"
 #include "FPController.h"
 #include "Actors/Hand.h"
+#include "Actors/Sword.h"
 #include "Animation/FPAnimatorNew.h"
 #include "Blueprint/UserWidget.h"
 #include "Combat/FPCombat.h"
@@ -88,8 +89,11 @@ void AFPCharacter::BeginPlay()
 			myLeftHand->AttachToActor(this,
 				FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 			myLeftHand->SetActorRelativeScale3D(FVector(1, -1, 1));
-		}		
+		}
 	}
+
+	if (const auto controller = GetFPController())
+		controller->LoadState();
 }
 
 void AFPCharacter::BeginDestroy()
@@ -225,7 +229,4 @@ void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 {
 	if (myFPMovement)
 		myFPMovement->OnHit(Hit);
-
-	if (auto door = Cast<ADoor>(OtherActor))
-		door->Open(this);
 }

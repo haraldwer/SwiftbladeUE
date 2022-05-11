@@ -10,15 +10,17 @@ class PROJECT_API UFPCombatStateBlock : public UFPCombatStateBase
 	GENERATED_BODY()
 	
 public:
-	
+
+	virtual void Init() override;
 	virtual UClass* Update(float aDT) override;
 	virtual UClass* Input(EFPCombatInput anAction) override;
+	virtual void Enter() override;
 	
 	virtual int32 Priority() const override { return 1; }
 	
 	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;
 	virtual TSubclassOf<UFPAnimationStateBase> GetResetAnimation() const override;
-
+	
 protected:
 
 	UPROPERTY(EditDefaultsOnly)

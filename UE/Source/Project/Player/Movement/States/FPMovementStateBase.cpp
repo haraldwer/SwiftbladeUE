@@ -4,6 +4,8 @@
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
 #include "Project/Player/Combat/FPCombat.h"
+#include "Project/Player/Actors/Hand.h"
+#include "Project/Player/Actors/Sword.h"
 
 void UFPMovementStateBase::Jump(const FVector aDirection) const
 {
