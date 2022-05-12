@@ -23,6 +23,7 @@ public:
 	bool IsActorInDamageHitbox(AActor* anActor) const;
 
 	class UObjectAnimator* GetObjectAnimator() const { return myObjectAnimator; }
+	class UPrimitiveComponent* GetCollider() const { return Cast<UPrimitiveComponent>(myCollider); }
 	
 protected:
 	
@@ -32,13 +33,17 @@ protected:
 	void OnDied();
 	
 	UPROPERTY(EditDefaultsOnly)
-	class UEnemyBehaviour* myBehaviour;
+	class USceneComponent* myCollider;
+	
 	UPROPERTY(EditDefaultsOnly)
 	class USceneComponent* myMeshParent;
 	UPROPERTY(EditDefaultsOnly)
 	class USceneComponent* myAnimationParent;
 	UPROPERTY(EditDefaultsOnly)
 	class USceneComponent* myDamageHitboxParent;
+	
+	UPROPERTY(EditDefaultsOnly)
+	class UEnemyBehaviour* myBehaviour;
 	UPROPERTY(EditDefaultsOnly)
 	class UObjectAnimator* myObjectAnimator;
 
@@ -51,7 +56,7 @@ private:
 	{
 		aPtr = CreateDefaultSubobject<T>(aName);
 		CHECK_RETURN_LOG(!aPtr, "Failed to create " + aName.ToString() + " component", false);
-		aPtr->SetupAttachment(myBehaviour);
+		aPtr->SetupAttachment(myCollider);
 		return true;
 	}
 

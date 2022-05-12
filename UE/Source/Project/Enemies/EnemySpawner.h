@@ -55,7 +55,7 @@ protected:
 private:
 	UFUNCTION()
 	void SpawnerFinished(AEnemySpawner* aSpawner);
-	AEnemy* SpawnEnemy(const TSubclassOf<AEnemy>& aClass);
+	AEnemy* SpawnEnemy(const TSubclassOf<AEnemy>& aClass) const;
 
 	UPROPERTY()
 	TSet<AEnemy*> mySpawnedEnemies;

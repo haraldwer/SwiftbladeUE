@@ -1,7 +1,9 @@
 ﻿#include "EnemyStateMove.h"
 
+#include "DrawDebugHelpers.h"
 #include "Attacking/EnemyStateAttackBase.h"
 #include "EnemyStateIdle.h"
+#include "Project/Enemies/Enemy.h"
 #include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 
 UEnemyStateMove::UEnemyStateMove()

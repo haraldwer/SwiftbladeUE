@@ -11,16 +11,18 @@ void UObjectAnimator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto base = Cast<USceneComponent>(GetOwner()->GetComponentByClass(USceneComponent::StaticClass()));
-	if (base)
+	if (const auto base = Cast<USceneComponent>(GetOwner()->GetComponentByClass(USceneComponent::StaticClass())))
 	{
 		TArray<USceneComponent*> children;
 		base->GetChildrenComponents(false, children);
 		if (children.IsValidIndex(0))
-			myObjectParent = children[0];
+			children[0]->GetChildrenComponents(true, myObjects);
 		if (children.IsValidIndex(1))
-			myTransformParent = children[1];
+			children[1]->GetChildrenComponents(true, myTransforms);
 	}
+
+	myObjects.Sort([](const USceneComponent& aFirst, const USceneComponent& aSecond) { return aFirst.GetName() < aSecond.GetName(); });
+	myTransforms.Sort([](const USceneComponent& aFirst, const USceneComponent& aSecond) { return aFirst.GetName() < aSecond.GetName(); });
 }
 
 void UObjectAnimator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -42,22 +44,14 @@ void UObjectAnimator::Update(const float aDT)
 {
 	CHECK_RETURN(!myKeys.Num());
 
-	CHECK_RETURN(!myObjectParent.IsValid());
-	CHECK_RETURN(!myTransformParent.IsValid());
-
-	TArray<USceneComponent*> objects;
-	myObjectParent->GetChildrenComponents(true, objects);
-	TArray<USceneComponent*> transforms;
-	myTransformParent->GetChildrenComponents(true, transforms);
-
 	myDone = true;
 	for (const auto& it : myKeys)
 	{
 		CHECK_CONTINUE(it.myObjectIndex == -1);
 		CHECK_CONTINUE(it.myTransformIndex == -1);
-		CHECK_CONTINUE(it.myObjectIndex < 0 || it.myObjectIndex >= objects.Num());
-		CHECK_CONTINUE(it.myTransformIndex < 0 || it.myTransformIndex >= transforms.Num());
-		if (!MoveObject(objects[it.myObjectIndex], transforms[it.myTransformIndex], it.mySpeed, aDT))
+		CHECK_CONTINUE(!myObjects.IsValidIndex(it.myObjectIndex));
+		CHECK_CONTINUE(!myTransforms.IsValidIndex(it.myTransformIndex));
+		if (!MoveObject(myObjects[it.myObjectIndex], myTransforms[it.myTransformIndex], it.mySpeed, aDT))
 			myDone = false;
 	}	
 }

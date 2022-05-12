@@ -33,9 +33,9 @@ private:
 	bool MoveObject(USceneComponent* anObject, USceneComponent* aTarget, float aSpeed, float aDT) const;
 	
 	UPROPERTY()
-	TWeakObjectPtr<USceneComponent> myObjectParent;
+	TArray<USceneComponent*> myObjects;
 	UPROPERTY()
-	TWeakObjectPtr<USceneComponent> myTransformParent;
+	TArray<USceneComponent*> myTransforms;
 
 	TArray<FObjectAnimatorKey> myKeys;
 	bool myDone = false;

@@ -45,6 +45,10 @@ void UFPCombatStateBlock::Enter()
 bool UFPCombatStateBlock::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser)
 {
 	// Exceptions to dealt damage here!
+	if (aDamageCauser->IsA(AEnemy::StaticClass()))
+		return false;
+
+	// Block
 	if (const auto state = GetAnimator().GetState<UFPAnimationStateBlock>())
 	{
 		state->OnBlock();

@@ -12,5 +12,8 @@ public:
 	ACheckpoint();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnActivated();
+	void Activate(class AFPController* anInstigator);
+
+	UFUNCTION(BlueprintCallable)
+	void FinishActivate(class AFPController* anInstigator);
 };

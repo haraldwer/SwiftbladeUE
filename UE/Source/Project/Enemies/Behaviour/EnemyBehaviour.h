@@ -9,7 +9,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyBehaviourStateChanged, UEnem
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyAnimationEvent, FString, aName);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_API UEnemyBehaviour : public USceneComponent
+class PROJECT_API UEnemyBehaviour : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -24,8 +24,8 @@ public:
 
 	// - Targeting - //
 	
-	AActor* FindTarget();
-	bool CheckTargetVisibility();
+	AActor* FindTarget() const;
+	bool CheckTargetVisibility() const;
 	bool CanAttackTarget() const;
 	
 	void SetTarget(AActor* aTarget) { myCurrentTarget = aTarget; }
@@ -73,9 +73,9 @@ protected:
 	FOnEnemyAnimationEvent myOnAnimationEvent;
 	
 private:
-	bool CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVector& aLocation, const FVector& aForward);
+	bool CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVector& aLocation, const FVector& aForward) const;
 
-	void UpdateAnimations(UEnemyBaseState* aState, float aDT);
+	void UpdateAnimations(UEnemyBaseState* aState, float aDT) const;
 	
 	UPROPERTY()
 	UEnemyBaseState* myCurrentState;

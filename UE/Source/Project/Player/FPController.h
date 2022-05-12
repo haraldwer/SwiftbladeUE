@@ -65,6 +65,7 @@ public:
 
 	// Called when checkpoint is set
 	bool SetCheckpoint(class ACheckpoint* aCheckpoint);
+	void TravelCheckpoint(const class ACheckpoint* aCheckpoint);
 
 	// UI helper function
 	void SetEnablePawnControls(bool aEnabled);

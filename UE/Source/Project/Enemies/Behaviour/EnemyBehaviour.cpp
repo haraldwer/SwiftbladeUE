@@ -1,5 +1,6 @@
 ﻿#include "EnemyBehaviour.h"
 
+#include "GameFramework/PawnMovementComponent.h"
 #include "Project/Enemies/EnemyManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Project/Player/FPCharacter.h"
@@ -55,15 +56,14 @@ bool UEnemyBehaviour::CanDamageTarget() const
 	return self->IsActorInDamageHitbox(myCurrentTarget.Get());
 }
 
-AActor* UEnemyBehaviour::FindTarget()
+AActor* UEnemyBehaviour::FindTarget() const
 {
 	const auto owner = GetOwner();
 	CHECK_RETURN_LOG(!owner, "Invalid owner", nullptr);
 	const FVector location = owner->GetActorLocation();
 	const FVector forward = owner->GetActorForwardVector();
 
-	AFPCharacter* player = UMainSingelton::GetLocalPlayer();
-	if (player)
+	if (AFPCharacter* player = UMainSingelton::GetLocalPlayer())
 	{
 		if (CanTarget(player, location, forward))
 			return player;
@@ -81,7 +81,7 @@ AActor* UEnemyBehaviour::FindTarget()
 	return nullptr;
 }
 
-bool UEnemyBehaviour::CheckTargetVisibility()
+bool UEnemyBehaviour::CheckTargetVisibility() const
 {
 	if (!myCurrentTarget.IsValid())
 		return false;
@@ -127,7 +127,15 @@ void UEnemyBehaviour::MoveTowards(AActor* aTarget, const float aMovementSpeed, c
 	
 	const auto diff = targetLocation - location;
 	const auto dir = UKismetMathLibrary::VLerp(diff.GetSafeNormal(), forward, aForwardWeight);
-	self->SetActorLocation(self->GetActorLocation() + dir * aMovementSpeed * aDT);
+
+	if (const auto collider = self->GetCollider())
+	{
+		collider->AddForce(dir * aMovementSpeed, NAME_None, true);
+		DrawDebugLine(GetWorld(),
+			collider->GetComponentLocation(),
+			collider->GetComponentLocation() + collider->GetComponentVelocity(),
+			FColor(0, 255, 0, 255));
+	}
 }
 
 void UEnemyBehaviour::RotateTowards(AActor* aTarget, const float aRotationSpeed, const float aDT) const
@@ -144,11 +152,25 @@ void UEnemyBehaviour::RotateTowards(AActor* aTarget, const float aRotationSpeed,
 	const auto location = self->GetActorLocation();
 	
 	const auto desiredRotation = UKismetMathLibrary::FindLookAtRotation(location, targetLocation);
-	const auto resultingRotation = UKismetMathLibrary::RInterpTo(rotation, desiredRotation, aDT, aRotationSpeed);
-	self->SetActorRotation(resultingRotation);
+
+	const auto cross = rotation.Vector().Cross(desiredRotation.Vector());
+
+	// adjust roll so that right is correct
+	const auto updot = self->GetActorUpVector().Dot(FVector::UpVector);
+	const auto rightCross = self->GetActorRightVector().Cross((self->GetActorRightVector() * updot).GetSafeNormal2D());
+	
+	if (const auto collider = self->GetCollider())
+	{
+		collider->AddTorqueInRadians(cross * aRotationSpeed, NAME_None, true);
+		collider->AddTorqueInRadians(rightCross * 20.0f, NAME_None, true);
+		DrawDebugLine(GetWorld(),
+			collider->GetComponentLocation(),
+			collider->GetComponentLocation() + rightCross * 100.0f,
+			FColor(0, 0, 255, 255));
+	}
 }
 
-bool UEnemyBehaviour::CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVector& aLocation, const FVector& aForward)
+bool UEnemyBehaviour::CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVector& aLocation, const FVector& aForward) const
 {
 	CHECK_RETURN_LOG(!anActor.IsValid(), "Invalid actor", false);
 	const auto pos = anActor->GetActorLocation();
@@ -166,7 +188,7 @@ bool UEnemyBehaviour::CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVe
 }
 
 
-void UEnemyBehaviour::UpdateAnimations(UEnemyBaseState* aState, float aDT)
+void UEnemyBehaviour::UpdateAnimations(UEnemyBaseState* aState, float aDT) const
 {
 	CHECK_RETURN_LOG(!aState, "Invalid state");
 	

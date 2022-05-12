@@ -68,11 +68,11 @@ void AEnemySpawner::RemoveEnemy(const AEnemy* anEnemy)
 	}
 }
 
-AEnemy* AEnemySpawner::SpawnEnemy(const TSubclassOf<AEnemy>& aClass)
+AEnemy* AEnemySpawner::SpawnEnemy(const TSubclassOf<AEnemy>& aClass) const
 {
-	AEnemy* enemy = Cast<AEnemy>(GetWorld()->SpawnActor(aClass));
-	CHECK_RETURN_LOG(!enemy, "Unable to spawn enemy", nullptr);
-	enemy->SetActorLocation(GetActorLocation());
-	enemy->SetActorRotation(GetActorRotation());
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	const FTransform trans = GetTransform();
+	AEnemy* enemy = Cast<AEnemy>(GetWorld()->SpawnActor(aClass, &trans, params));
 	return enemy;
 }

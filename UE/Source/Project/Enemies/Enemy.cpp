@@ -1,22 +1,27 @@
 #include "Enemy.h"
 
-#include "Behaviour/EnemyBehaviour.h"
 #include "EnemyManager.h"
-#include "Components/StaticMeshComponent.h"
+#include "Behaviour/EnemyBehaviour.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/ShapeComponent.h"
 #include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Tools/Animation/ObjectAnimator.h"
 
 AEnemy::AEnemy()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
-	myBehaviour = CreateDefaultSubobject<UEnemyBehaviour>("EnemyBehaviour");
-	CHECK_RETURN_LOG(!myBehaviour, "Failed to create EnemyBehaviour component");
+	myCollider = CreateDefaultSubobject<USceneComponent>("Collider");
+	CHECK_RETURN_LOG(!myCollider, "Failed to create collider component");
+	RootComponent = myCollider;
 	
 	CreateChildComponent<USceneComponent>("MeshParent", myMeshParent);
 	CreateChildComponent<USceneComponent>("AnimationParent", myAnimationParent);
 	CreateChildComponent<USceneComponent>("DamageHitboxParent", myDamageHitboxParent);
 
+	myBehaviour = CreateDefaultSubobject<UEnemyBehaviour>("EnemyBehaviour");
+	CHECK_RETURN_LOG(!myBehaviour, "Failed to create EnemyBehaviour component");
+	
 	myObjectAnimator = CreateDefaultSubobject<UObjectAnimator>("ObjectAnimator");
 	CHECK_RETURN_LOG(!myObjectAnimator, "Failed to create ObjectAnimator component");
 }

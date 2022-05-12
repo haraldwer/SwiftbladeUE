@@ -90,9 +90,15 @@ bool AFPController::SetCheckpoint(ACheckpoint* aCheckpoint)
 	myState.myRespawnCount = 0;
 	myState.myArenaIndex++;
 	myCheckpoint = aCheckpoint;
-	myCheckpoint->OnActivated();
-	EnterSection();
+	myCheckpoint->Activate(this);
 	return true;
+}
+
+void AFPController::TravelCheckpoint(const ACheckpoint* aCheckpoint)
+{
+	CHECK_RETURN_LOG(aCheckpoint != myCheckpoint, "Attempted to travel to unknown checkpoint");
+	LOG("Travel checkpoint");
+	EnterSection();
 }
 
 void AFPController::SetEnablePawnControls(const bool aEnabled)
