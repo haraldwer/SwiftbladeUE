@@ -5,6 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project/UI/Prompts/PromptManager.h"
+#include "Project/Utility/MainSingelton.h"
 
 ALevelGenerator::ALevelGenerator()
 {
@@ -94,7 +96,7 @@ void ALevelGenerator::GenerateLevelOrder(const int aSeed)
 void ALevelGenerator::LoadSection(const int anArenaIndex)
 {
 	CHECK_RETURN_LOG(anArenaIndex < 0, "Arena index out of range");
-
+	
 	// If out of range, choose last index as end
 	const int32 endIndex = anArenaIndex < myArenaIndices.Num() ? myArenaIndices[anArenaIndex] : myLevels.Num();
 	CHECK_RETURN_LOG(endIndex < 0 || endIndex > myLevels.Num(), "Level index out of range");

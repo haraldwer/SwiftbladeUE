@@ -63,13 +63,10 @@ protected:
 
 	// - Movement - //
 	
-	UPROPERTY(EditDefaultsOnly, Category="Movement")
-	bool myGrounded = false;
-
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintAssignable)
 	FOnEnemyBehaviourStateChanged myOnBehaviourStateChanged;
 	
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintAssignable)
 	FOnEnemyAnimationEvent myOnAnimationEvent;
 	
 private:

@@ -6,8 +6,6 @@
 
 void UFPCombatStateBase::Exit()
 {
-	Super::Exit();
-
 	auto& animator = GetAnimator();
 	animator.SetState(animator.GetState(GetResetAnimation()));
 }

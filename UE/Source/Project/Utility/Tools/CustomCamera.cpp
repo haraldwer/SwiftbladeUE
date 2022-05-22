@@ -1,14 +1,49 @@
 ﻿#include "CustomCamera.h"
+
 #include "../Utility.h"
 #include "Components/WidgetComponent.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Project/Player/FPCamera.h"
 #include "Project/UI/Widgets/CustomWidgetComponent.h"
 #include "Project/UI/Widgets/WidgetBase.h"
+
+UCustomCamera::UCustomCamera()
+{
+	PrimaryComponentTick.bCanEverTick = true; 
+}
 
 void UCustomCamera::BeginPlay()
 {
 	Super::BeginPlay();
 	RefreshComponents();
+
+	// Make sure other cameras tick first
+	TArray<UFPCamera*> cameras;
+	GetOwner()->GetComponents(cameras);
+	for (const auto& camera : cameras)
+		AddTickPrerequisiteComponent(camera);
+}
+
+void UCustomCamera::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// Widget transform should be affected by offset
+	float fov;
+	FTransform offset;
+	GetAdditiveOffset(offset, fov);
+	for (const auto& widget : myWidgets)
+		if (const auto comp = widget.myComponent.Get())
+			comp->SetRelativeLocation(offset.GetLocation());
+}
+
+void UCustomCamera::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	const auto widgets = myWidgets;
+	for (const auto& it : widgets)
+		RemoveWidget(it.myWidget.Get());
 }
 
 void UCustomCamera::AddWidget(UWidgetBase* aWidget, const int32 aZOrder)
@@ -22,10 +57,15 @@ void UCustomCamera::AddWidget(UWidgetBase* aWidget, const int32 aZOrder)
 	const auto comp = GetWidgetComponent();
 	CHECK_RETURN_LOG(!comp, "Failed to create widget component");
 	myWidgets.Emplace(FWidgetEntry{aWidget, comp});
+	
 	comp->SetInitialLayerZOrder(aZOrder);
 	comp->SetWidgetClass(aWidget->GetClass());
 	comp->SetWidget(aWidget);
 	comp->SetVisibility(true);
+	
+	comp->SetWindowVisibility(EWindowVisibility::Visible);
+	//comp->SetReceiveHardwareInput(true);
+	//comp->SetWindowFocusable(true);
 }
 
 void UCustomCamera::RemoveWidget(const UWidgetBase* aWidget)
@@ -56,7 +96,12 @@ void UCustomCamera::RefreshComponents()
 		// Get widget components
 		if (auto widgetComponent = Cast<UCustomWidgetComponent>(c))
 		{
-			widgetComponent->SetActive(false);
+			widgetComponent->SetVisibility(false);
+			
+			widgetComponent->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
+			//widgetComponent->SetReceiveHardwareInput(false);
+			//widgetComponent->SetWindowFocusable(false);
+			
 			myUnusedComponents.Add(widgetComponent);
 		}
 	}
@@ -75,11 +120,16 @@ void UCustomCamera::ReturnWidgetComponent(UCustomWidgetComponent* aComp)
 {
 	CHECK_RETURN_LOG(!aComp, "Tried to return null comp");
 	CHECK_RETURN_LOG(myUnusedComponents.Contains(aComp), "Component already returned")
+
+	aComp->SetInitialLayerZOrder(0);
 	aComp->SetWidgetClass(nullptr);
 	aComp->SetWidget(nullptr);
-	aComp->SetActive(false);
-	aComp->SetInitialLayerZOrder(0);
 	aComp->SetVisibility(false);
+	
+	aComp->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
+	//aComp->SetReceiveHardwareInput(false);
+	//aComp->SetWindowFocusable(false);
+	
 	myUnusedComponents.Add(aComp);
 }
 

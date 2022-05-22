@@ -22,6 +22,16 @@ struct FFPControllerState
 	
 };
 
+UENUM()
+enum class EFPTravelReason
+{
+	NONE,
+	RESPAWN,
+	CHECKPOINT,
+	ARENA,
+	COUNT
+};
+
 UCLASS()
 class PROJECT_API AFPController : public APlayerController
 {
@@ -34,23 +44,24 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	class AFPCharacter* GetFPCharacter() const;
+	class UCustomCamera* GetCamera() const;
 
 	// -- State -- //
-	
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void LoadState();
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void SaveState();
-
+	
 	UFUNCTION(BlueprintCallable)
 	void OnStateLoaded(FFPControllerState aState);
 
 	UFUNCTION(BlueprintCallable)
 	FFPControllerState GetState() const;
-	
-	// -- End state -- // 
 
+	// -- Respawning -- // 
+	
 	// Called when character dies
 	void CharacterKilled();
 
@@ -58,15 +69,27 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Respawn();
 
-	// Enter the next section. Will reload level.
-	void EnterSection();
-	// Enter the next arena. Will reload level.
-	void EnterArena();
+	UFUNCTION(BlueprintPure)
+	int32 GetRemainingLives() const { return myRespawns - myState.myRespawnCount; }
 
+	UFUNCTION(BlueprintPure)
+	int32 GetRespawns() const { return myRespawns; } 
+	
+	// -- Checkpoints -- // 
+	
 	// Called when checkpoint is set
-	bool SetCheckpoint(class ACheckpoint* aCheckpoint);
-	void TravelCheckpoint(const class ACheckpoint* aCheckpoint);
+	bool TrySetCheckpoint(class ACheckpoint* aCheckpoint);
+	void UseCheckpoint(const class ACheckpoint* aCheckpoint);
 
+	// -- Travelling -- //
+	
+	void StartTravel(EFPTravelReason aReason);
+	
+	UFUNCTION(BlueprintCallable)
+	void FinishTravel();
+
+	// -- Other -- // 
+	
 	// UI helper function
 	void SetEnablePawnControls(bool aEnabled);
 	
@@ -76,13 +99,19 @@ protected:
 	TSubclassOf<AFPCharacter> myCharacterBlueprint;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	int myRespawns = 2;
+	int myRespawns = 3;
 	
 private:
+
+	// Enter the next section. Will reload level.
+	void EnterSection();
+	// Enter the next arena. Will reload level.
+	void EnterArena();
 	
 	virtual void SetupInputComponent() override;
 	void PausePressed();
 
 	TWeakObjectPtr<ACheckpoint> myCheckpoint;
-	FFPControllerState myState; 
+	FFPControllerState myState;
+	EFPTravelReason myTravelReason = EFPTravelReason::NONE;
 };

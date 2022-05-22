@@ -2,21 +2,36 @@
 #include "FPController.h"
 
 #include "FPCharacter.h"
+#include "Camera/CameraActor.h"
 #include "Combat/FPCombat.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
-#include "Project/Utility/MainSingelton.h"
 #include "Project/UI/Menus/MenuManager.h"
 #include "Project/UI/Prompts/PromptManager.h"
+#include "Project/Utility/MainSingelton.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 
 void AFPController::BeginPlay()
 {
-	Super::BeginPlay(); 
+	Super::BeginPlay();
+	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::LEVEL_FADEIN);
 }
 
 AFPCharacter* AFPController::GetFPCharacter() const
 {
 	return Cast<AFPCharacter>(GetPawn());
+}
+
+UCustomCamera* AFPController::GetCamera() const
+{
+	if (const auto character = GetFPCharacter())
+		if (const auto camera = character->GetCamera())
+			return camera;
+	if (const auto camera = GetAutoActivateCameraForPlayer())
+		if (const auto cameraComponent = Cast<UCustomCamera>(
+			camera->GetComponentByClass(UCustomCamera::StaticClass())))
+			return cameraComponent;
+	return nullptr;
 }
 
 void AFPController::OnStateLoaded(const FFPControllerState aState)
@@ -47,26 +62,90 @@ FFPControllerState AFPController::GetState() const
 
 void AFPController::CharacterKilled()
 {
-	if (myState.myArenaIndex)
-    {
-    	myState.myRespawnCount++;
-    	if (myState.myRespawnCount > myRespawns)
-    		myState.myArenaIndex = 0;
-    }
-
+	if (myState.myArenaIndex || myState.myInArena)
+	{
+		myState.myRespawnCount++;
+		if (const auto character = GetFPCharacter())
+			character->OnLivesChanged(GetRemainingLives());
+	}
+	
 	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::DEATH);
 
 	const auto character = GetFPCharacter();
 	character->DisableInput(this);
-	
+
 	LOG("Character killed");
 }
 
 void AFPController::Respawn()
 {
 	LOG("Respawn");
-	myState.myInArena ?
-		EnterArena() : EnterSection();
+	StartTravel(EFPTravelReason::RESPAWN);
+}
+
+bool AFPController::TrySetCheckpoint(ACheckpoint* aCheckpoint)
+{
+	CHECK_RETURN_LOG(!aCheckpoint->IsEnabled(), "Checkpoint not yet enabled", false);
+	CHECK_RETURN_LOG(myCheckpoint == aCheckpoint, "Checkpoint already set", false);
+	LOG("Checkpoint set"); 
+	myState.myRespawnCount = 0;
+	myState.myArenaIndex++;
+	if (const auto character = GetFPCharacter())
+		character->OnLivesChanged(GetRemainingLives());
+	myCheckpoint = aCheckpoint;
+	myCheckpoint->Activate(this);
+	return true;
+}
+
+void AFPController::UseCheckpoint(const ACheckpoint* aCheckpoint)
+{
+	CHECK_RETURN_LOG(aCheckpoint != myCheckpoint, "Attempted to travel to unknown checkpoint");
+	StartTravel(EFPTravelReason::CHECKPOINT);
+}
+
+void AFPController::StartTravel(const EFPTravelReason aReason)
+{
+	LOG("Start travel ");
+	myTravelReason = aReason;
+	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::LEVEL_FADEOUT);
+}
+
+void AFPController::FinishTravel()
+{
+	switch (myTravelReason)
+	{	
+	case EFPTravelReason::RESPAWN:
+		{
+			if (myState.myRespawnCount >= myRespawns)
+			{
+				myState.myArenaIndex = 0;
+				myState.myRespawnCount = 0;
+			}
+			myState.myInArena ?
+				EnterArena() : EnterSection();
+		}
+		break;
+	case EFPTravelReason::CHECKPOINT:
+		EnterSection();
+		break;
+	case EFPTravelReason::ARENA:
+		EnterArena();
+		break;
+	
+	case EFPTravelReason::NONE:
+	case EFPTravelReason::COUNT:
+	default:
+		LOG("Unknown travel reason");
+	}
+}
+
+void AFPController::SetEnablePawnControls(const bool aEnabled)
+{
+	const auto character = GetFPCharacter();
+	CHECK_RETURN_LOG(!character, "Character nullptr");
+	aEnabled ?		
+		character->EnableInput(this) :
+		character->DisableInput(this);
 }
 
 void AFPController::EnterSection()
@@ -81,33 +160,6 @@ void AFPController::EnterArena()
 	myState.myInArena = true;
 	SaveState();
 	UGameplayStatics::OpenLevel(GetWorld(), "Base");
-}
-
-bool AFPController::SetCheckpoint(ACheckpoint* aCheckpoint)
-{
-	CHECK_RETURN_LOG(myCheckpoint == aCheckpoint, "Checkpoint already set", false);
-	LOG("Checkpoint set"); 
-	myState.myRespawnCount = 0;
-	myState.myArenaIndex++;
-	myCheckpoint = aCheckpoint;
-	myCheckpoint->Activate(this);
-	return true;
-}
-
-void AFPController::TravelCheckpoint(const ACheckpoint* aCheckpoint)
-{
-	CHECK_RETURN_LOG(aCheckpoint != myCheckpoint, "Attempted to travel to unknown checkpoint");
-	LOG("Travel checkpoint");
-	EnterSection();
-}
-
-void AFPController::SetEnablePawnControls(const bool aEnabled)
-{
-	const auto character = GetFPCharacter();
-	CHECK_RETURN_LOG(!character, "Character nullptr");
-	aEnabled ?		
-		character->EnableInput(this) :
-		character->DisableInput(this);
 }
 
 void AFPController::SetupInputComponent()

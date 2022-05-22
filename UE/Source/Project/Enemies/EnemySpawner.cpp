@@ -1,6 +1,7 @@
 ﻿#include "EnemySpawner.h"
 
 #include "EnemyManager.h"
+#include "Project/Player/FPCharacter.h"
 #include "Project/Utility/MainSingelton.h"
 
 AEnemySpawner::AEnemySpawner()
@@ -21,8 +22,11 @@ void AEnemySpawner::BeginPlay()
 		break;
 	case EEnemySpawnReason::SPAWN_SEQUENCE:
 		if (myLinkedSpawner)
-			myLinkedSpawner->myOnSpawnerFinished.AddDynamic(this, &AEnemySpawner::SpawnerFinished);
+			myLinkedSpawner->myOnSpawnerFinished.AddDynamic(this, &AEnemySpawner::OnSpawnerFinished);
 		break;
+	case EEnemySpawnReason::ON_COLLISION:
+		if (myLinkedCollider)
+			myLinkedCollider->OnActorBeginOverlap.AddDynamic(this, &AEnemySpawner::OnColliderOverlap);
 	case EEnemySpawnReason::CUSTOM:
 	default:
 		break;
@@ -35,12 +39,6 @@ void AEnemySpawner::EndPlay(const EEndPlayReason::Type aEndPlayReason)
 	if (aEndPlayReason != EEndPlayReason::EndPlayInEditor &&
 		aEndPlayReason != EEndPlayReason::Quit)
 		UMainSingelton::GetEnemyManager().RemoveSpawner(this);
-}
-
-void AEnemySpawner::SpawnerFinished(AEnemySpawner* aSpawner)
-{
-	if (aSpawner == myLinkedSpawner)
-		Spawn();
 }
 
 void AEnemySpawner::Spawn()
@@ -56,16 +54,27 @@ void AEnemySpawner::Spawn()
 	}
 	
 	myHasSpawned = true;
+	if (!mySpawnedEnemies.Num())
+		FinishSpawner();
 }
 
 void AEnemySpawner::RemoveEnemy(const AEnemy* anEnemy)
 {
 	mySpawnedEnemies.Remove(anEnemy);
 	if (mySpawnedEnemies.Num() <= 0)
-	{
-		myIsFinished = true;
-		myOnSpawnerFinished.Broadcast(this);
-	}
+		FinishSpawner();
+}
+
+void AEnemySpawner::OnSpawnerFinished(AEnemySpawner* aSpawner)
+{
+	if (aSpawner == myLinkedSpawner)
+		Spawn();
+}
+
+void AEnemySpawner::OnColliderOverlap(AActor* aOverlappedActor, AActor* aOtherActor)
+{
+	if (aOverlappedActor->IsA(AFPCharacter::StaticClass()))
+		Spawn();
 }
 
 AEnemy* AEnemySpawner::SpawnEnemy(const TSubclassOf<AEnemy>& aClass) const
@@ -75,4 +84,10 @@ AEnemy* AEnemySpawner::SpawnEnemy(const TSubclassOf<AEnemy>& aClass) const
 	const FTransform trans = GetTransform();
 	AEnemy* enemy = Cast<AEnemy>(GetWorld()->SpawnActor(aClass, &trans, params));
 	return enemy;
+}
+
+void AEnemySpawner::FinishSpawner()
+{
+	myOnSpawnerFinished.Broadcast(this);
+	Destroy();
 }

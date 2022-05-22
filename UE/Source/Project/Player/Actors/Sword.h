@@ -20,7 +20,10 @@ public:
 	void SetPlayer(class AFPCharacter* aPlayer);
 	void Return();
 	
-	void CreateHitEffect(AActor* anActor) const;
+	void CreateHitEffect(const AActor* anActor) const;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetCrystalsActive(int32 aCrystalCount);
 
 protected:
 	
@@ -32,6 +35,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Before pickup")
 	float myPositionScale = 50.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit Effect")
+	float myEffectStartOffset = 20.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit Effect")
+	float myEffectEndOffset = 100.0f;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AEffect> myHitEffectBP;

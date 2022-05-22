@@ -26,8 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	EPromptType GetPromptType() const { return myPromptType; }
 	
-private:
+protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	EPromptType myPromptType = EPromptType::UNKNOWN;
+
 };

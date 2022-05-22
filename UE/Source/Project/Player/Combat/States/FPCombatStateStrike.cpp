@@ -29,9 +29,11 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 	{
 		const auto checkpoint = Cast<ACheckpoint>(c);
 		CHECK_CONTINUE_LOG(!checkpoint, "Not a checkpoint")
-		if (GetController().SetCheckpoint(checkpoint))
+		if (GetController().TrySetCheckpoint(checkpoint))
+		{
 			sword->CreateHitEffect(checkpoint);
-		break;
+			break;
+		}
 	}
 
 	// Enemies

@@ -23,26 +23,29 @@ public:
 	float GetSensitivity() const						{ return mySensitivity; }
 	
 	// Getters
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class AFPController* GetFPController() const;
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UCustomCamera* GetCamera() const				{ return myCamera; }
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UFPCamera* GetFPCamera() const				{ return myFPCamera; }
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	class UFPAnimatorNew* GetAnimator() const				{ return myFPAnimator; }
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
+	class UFPAnimatorNew* GetAnimator() const			{ return myFPAnimator; }
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UFPMovement* GetMovement() const				{ return myFPMovement; }
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UFPCombat* GetCombat() const					{ return myFPCombat; }
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UCapsuleComponent* GetWallDetection() const	{ return myWallDetection; }
 
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class AHand* GetRightHand() const					{ return myRightHand; }
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class AHand* GetLeftHand() const					{ return myLeftHand; }
 
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
+	class ASword* GetSword() const;
+	
 	// Crouch size
 	void SetHalfHeight();
 	void SetFullHeight();
@@ -55,11 +58,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void Die(const FString& anObjectName);
+	void OnLivesChanged(int32 aNewLifeCount) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void DoorOpened(ADoor* aDoor) const;
 
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	bool HasMagic() const;
 
 private:
@@ -100,5 +104,8 @@ protected:
 	float mySensitivity = 0.5f;
 	
 private:
+	
 	float myFullHeight = 0.0f;
+	bool myAlive = true;
+	
 };

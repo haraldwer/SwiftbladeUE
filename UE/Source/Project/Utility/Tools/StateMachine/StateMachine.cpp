@@ -98,6 +98,7 @@ bool UStateMachine::TryOverrideState(UStateBase* aState)
 
 UStateBase* UStateMachine::GetState(UClass* aType)
 {
+	CHECK_RETURN(!aType, nullptr);
 	for (auto& state : myStates)
 		if (const auto ptr = state.Get())
 			if (ptr->IsA(aType))

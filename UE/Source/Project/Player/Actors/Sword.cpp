@@ -2,6 +2,7 @@
 
 #include "Project/Player/FPCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project/Player/FPController.h"
 
 // Sets default values
 ASword::ASword()
@@ -23,9 +24,14 @@ TArray<AActor*> ASword::GetOverlaps(UClass* aClass) const
 
 void ASword::SetPlayer(AFPCharacter* aPlayer)
 {
+	if (!aPlayer)
+	{
+		Return();
+		return;
+	}
+	
 	AttachToActor(aPlayer, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	myPlayer = aPlayer;
-	
 }
 
 void ASword::Return()
@@ -34,11 +40,19 @@ void ASword::Return()
 	myPlayer = nullptr;
 }
 
-void ASword::CreateHitEffect(AActor* anActor) const
+void ASword::CreateHitEffect(const AActor* anActor) const
 {
 	CHECK_RETURN(!myPlayer.IsValid());
 	FTransform trans = GetTransform();
-	trans.SetLocation(trans.GetLocation() + GetActorForwardVector() * 20.0f + GetActorUpVector() * 60.0f);
+	
+	const FVector base = trans.GetLocation() + GetActorForwardVector() * 20.0f;
+	const FVector start = base + GetActorUpVector() * myEffectStartOffset;
+	const FVector end = base + GetActorUpVector() * myEffectEndOffset;
+	const FVector point = anActor ?
+		FMath::ClosestPointOnLine(start, end, anActor->GetActorLocation()) :
+		FMath::Lerp(start, end, 0.5f);
+	trans.SetLocation(point);
+	
 	myPlayer->CreateEffect(myHitEffectBP, trans);
 }
 

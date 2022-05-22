@@ -6,15 +6,17 @@
 #include "GameFramework/Actor.h"
 #include "EnemyManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemiesCleared);
+
 UCLASS()
 class PROJECT_API AEnemyManager : public AActor
 {
 	GENERATED_BODY()
 
 public:
+	
 	AEnemyManager();
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
 
 	void AddEnemy(AEnemy* anEnemy);
 	void RemoveEnemy(const AEnemy* anEnemy);
@@ -23,7 +25,12 @@ public:
 	void RemoveSpawner(const AEnemySpawner* aSpawner);
 	TSet<AEnemy*> GetEnemies() const;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnEnemiesCleared myOnEnemiesCleared;
+
 private:
+	
 	TSet<AEnemy*> myEnemies;
 	TSet<AEnemySpawner*> mySpawners;
+	
 };

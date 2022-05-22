@@ -49,7 +49,7 @@ protected:
 	TMap<EGeneratedObstacleType, FRandomObjectContainer> myPlaceableActors;
 	
 private:
-	
+
 	void LoadLevels(TArray<FString> someLevelsToLoad);
 
 	// On levels loaded 
@@ -75,5 +75,4 @@ private:
 	
 	TArray<LoadedLevelData> myLoadedLevels;
 	bool myStaticInvalid = false;
-	
 };

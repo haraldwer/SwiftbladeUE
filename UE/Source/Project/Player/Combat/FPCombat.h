@@ -41,4 +41,5 @@ private:
 	void TryOverrideAnimation() const;
 	
 	TWeakObjectPtr<ASword> mySword;
+	bool mySwordFirstTick = false; 
 };

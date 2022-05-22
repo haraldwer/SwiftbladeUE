@@ -147,6 +147,11 @@ AFPController* AFPCharacter::GetFPController() const
 	return Cast<AFPController>(GetController());
 }
 
+ASword* AFPCharacter::GetSword() const
+{
+	return myFPCombat ? myFPCombat->GetSword() : nullptr;
+}
+
 void AFPCharacter::SetHalfHeight()
 {
 	const auto capsule = GetCapsuleComponent();
@@ -195,12 +200,17 @@ float AFPCharacter::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageE
 
 void AFPCharacter::Die(const FString& anObjectName)
 {
-	if (const auto combat = GetCombat())
-		combat->ReturnSword();
-	
+	CHECK_RETURN(!myAlive);
+	myAlive = false;
 	const auto controller = GetFPController();
 	CHECK_RETURN_LOG(!controller, "Controller nullptr");
 	controller->CharacterKilled();
+}
+
+void AFPCharacter::OnLivesChanged(const int32 aNewLifeCount) const
+{
+	if (const auto sword = GetSword())
+		sword->SetCrystalsActive(aNewLifeCount);
 }
 
 void AFPCharacter::DoorOpened(ADoor* aDoor) const
@@ -208,7 +218,7 @@ void AFPCharacter::DoorOpened(ADoor* aDoor) const
 	// Arena door
 	const auto controller = GetFPController();
 	CHECK_RETURN_LOG(!controller, "No controller");
-	controller->EnterArena();
+	controller->StartTravel(EFPTravelReason::ARENA);
 }
 
 bool AFPCharacter::HasMagic() const

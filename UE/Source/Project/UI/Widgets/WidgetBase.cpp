@@ -1,6 +1,6 @@
 ﻿#include "WidgetBase.h"
 
-#include "Project/Player/FPCharacter.h"
+#include "Project/Player/FPController.h"
 #include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
@@ -11,9 +11,15 @@ void UWidgetBase::NativeConstruct()
 
 void UWidgetBase::AddToCamera()
 {
-	const auto character = UMainSingelton::GetLocalPlayer();
-	const auto camera = character ? character->GetCamera() : nullptr;
 	const int zOrder = GetZOrder();
+	if (!myCameraWidget)
+	{
+		AddToViewport(zOrder);
+		return;
+	}
+	
+	const auto controller = UMainSingelton::GetLocalController();
+	const auto camera = controller ? controller->GetCamera() : nullptr;
 	if (!camera)
 	{
 		AddToViewport(zOrder);
@@ -25,8 +31,14 @@ void UWidgetBase::AddToCamera()
 
 void UWidgetBase::RemoveFromCamera()
 {
-	const auto character = UMainSingelton::GetLocalPlayer();
-	const auto camera = character ? character->GetCamera() : nullptr;
+	if (!myCameraWidget)
+	{
+		RemoveFromViewport();
+		return;
+	}
+	
+	const auto controller = UMainSingelton::GetLocalController();
+	const auto camera = controller ? controller->GetCamera() : nullptr;
 	if (!camera)
 	{
 		RemoveFromViewport();

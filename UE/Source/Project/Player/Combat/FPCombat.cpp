@@ -1,6 +1,7 @@
 #include "FPCombat.h"
 
 #include "Project/Player/FPCharacter.h"
+#include "Project/Player/FPController.h"
 #include "Project/Player/Actors/Hand.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
@@ -29,6 +30,21 @@ void UFPCombat::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (mySwordFirstTick)
+	{
+		mySwordFirstTick = false; 
+		if (const auto sword = mySword.Get())
+		{
+		   	// Set crystals
+		   	if (const auto controller = GetCharacter().GetFPController())
+		   		sword->SetCrystalsActive(controller->GetRemainingLives());
+
+			// Set position
+			if (const auto hand = GetCharacter().GetRightHand())
+				sword->SetActorTransform(hand->GetActorTransform());
+		}
+	}
+	
 	TryOverrideAnimation();
 }
 
@@ -83,11 +99,8 @@ void UFPCombat::SetHasSword(const bool aValue)
 			CHECK_CONTINUE(!ptr);
 			CHECK_CONTINUE(ptr->GetWorld() != GetWorld());
 			mySword = ptr;
-
-			if (auto hand = GetCharacter().GetRightHand())
-				ptr->SetActorTransform(hand->GetActorTransform());
-			
-			return;
+			mySwordFirstTick = true;
+			break;
 		}
 	}
 

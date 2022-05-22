@@ -2,18 +2,12 @@
 
 AEnemyManager::AEnemyManager()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void AEnemyManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
-}
-
-void AEnemyManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void AEnemyManager::AddEnemy(AEnemy* anEnemy)
@@ -24,6 +18,8 @@ void AEnemyManager::AddEnemy(AEnemy* anEnemy)
 void AEnemyManager::RemoveEnemy(const AEnemy* anEnemy)
 {
 	myEnemies.Remove(anEnemy);
+	if (!myEnemies.Num() && !mySpawners.Num() && myOnEnemiesCleared.IsBound())
+		myOnEnemiesCleared.Broadcast();
 }
 
 void AEnemyManager::AddSpawner(AEnemySpawner* aSpawner)
@@ -34,6 +30,8 @@ void AEnemyManager::AddSpawner(AEnemySpawner* aSpawner)
 void AEnemyManager::RemoveSpawner(const AEnemySpawner* aSpawner)
 {
 	mySpawners.Remove(aSpawner);
+	if (!myEnemies.Num() && !mySpawners.Num() && myOnEnemiesCleared.IsBound())
+		myOnEnemiesCleared.Broadcast();
 }
 
 TSet<AEnemy*> AEnemyManager::GetEnemies() const

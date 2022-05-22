@@ -18,4 +18,9 @@ public:
 	
 	void AddToCamera();
 	void RemoveFromCamera();
+
+protected:
+	
+	UPROPERTY(EditDefaultsOnly)
+	bool myCameraWidget = true;
 };

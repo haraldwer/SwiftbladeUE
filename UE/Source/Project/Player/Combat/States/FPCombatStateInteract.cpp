@@ -7,6 +7,7 @@
 #include "Project/Player/Animation/States/FPAnimationStateIdle.h"
 #include "Project/Player/Animation/States/FPAnimationStateInteraction.h"
 #include "Project/Player/Combat/FPCombat.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 
 void UFPCombatStateInteract::Init()
 {
@@ -98,21 +99,31 @@ TArray<UInteraction*> UFPCombatStateInteract::FindPossibleInteractions() const
 
 bool UFPCombatStateInteract::IsCloseToSpecificInteraction(const UInteraction* anInteraction) const
 {
+	CHECK_RETURN(!anInteraction, false);
 	const auto interactions = FindPossibleInteractions();
-	return interactions.Contains(anInteraction);
+	CHECK_RETURN(!interactions.Contains(anInteraction), false);
+	const auto diff = anInteraction->GetComponentLocation() - GetCharacter().GetTransform().GetLocation();
+	const auto dot = diff.GetSafeNormal().Dot(GetCamera().GetForwardVector());
+	CHECK_RETURN(dot < myAcceptableDot, false);
+	return true; 
 }
 
 UInteraction* UFPCombatStateInteract::FindClosestInteraction() const
 {
 	const auto trans = GetCharacter().GetTransform();
+	const auto loc = trans.GetLocation();
+	const auto forward = GetCamera().GetForwardVector();	
 	auto interactions = FindPossibleInteractions();
 	float dist = 99999999999999999.0f;
 	UInteraction* current = nullptr;
 	for (const auto interaction : interactions)
 	{
 		CHECK_CONTINUE(interaction->HasFinished());
-		const float thisDist = FVector::DistSquared(interaction->GetComponentLocation(), trans.GetLocation());
+		const auto intLoc = interaction->GetComponentLocation();
+		const auto diff = intLoc - loc;
+		const float thisDist = diff.SquaredLength();
 		CHECK_CONTINUE(thisDist >= dist);
+		CHECK_CONTINUE(diff.GetSafeNormal().Dot(forward) < myAcceptableDot);
 		current = interaction;
 		dist = thisDist;
 	}
