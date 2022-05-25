@@ -63,7 +63,7 @@ void UCustomCamera::AddWidget(UWidgetBase* aWidget, const int32 aZOrder)
 	comp->SetWidget(aWidget);
 	comp->SetVisibility(true);
 	
-	comp->SetWindowVisibility(EWindowVisibility::Visible);
+	//comp->SetWindowVisibility(EWindowVisibility::Visible);
 	//comp->SetReceiveHardwareInput(true);
 	//comp->SetWindowFocusable(true);
 }
@@ -98,7 +98,7 @@ void UCustomCamera::RefreshComponents()
 		{
 			widgetComponent->SetVisibility(false);
 			
-			widgetComponent->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
+			//widgetComponent->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
 			//widgetComponent->SetReceiveHardwareInput(false);
 			//widgetComponent->SetWindowFocusable(false);
 			
@@ -126,7 +126,7 @@ void UCustomCamera::ReturnWidgetComponent(UCustomWidgetComponent* aComp)
 	aComp->SetWidget(nullptr);
 	aComp->SetVisibility(false);
 	
-	aComp->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
+	//aComp->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
 	//aComp->SetReceiveHardwareInput(false);
 	//aComp->SetWindowFocusable(false);
 	

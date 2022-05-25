@@ -45,7 +45,7 @@ void AProjectile::Tick(float DeltaTime)
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	params.AddIgnoredActor(myInstigator.Get());
-	if (GetWorld()->LineTraceMultiByChannel(hits, trans.GetLocation(), myPreviousLocation, ECC_Visibility, params))
+	if (GetWorld()->LineTraceMultiByChannel(hits, trans.GetLocation(), myPreviousLocation, ECC_Pawn, params))
 	{
 		for (auto& hit : hits)
 		{	
@@ -60,7 +60,14 @@ void AProjectile::Tick(float DeltaTime)
 				CreateHitEffects();
 				Destroy();
 			}
-			else if (hit.bBlockingHit)
+		}
+	}
+
+	if (GetWorld()->LineTraceMultiByChannel(hits, trans.GetLocation(), myPreviousLocation, ECC_WorldStatic, params))
+	{
+		for (const auto& hit : hits)
+		{
+			if (hit.bBlockingHit)
 			{
 				CreateHitEffects();
 				Destroy();

@@ -37,7 +37,8 @@ void AEnemySpawner::EndPlay(const EEndPlayReason::Type aEndPlayReason)
 {
 	Super::EndPlay(aEndPlayReason);
 	if (aEndPlayReason != EEndPlayReason::EndPlayInEditor &&
-		aEndPlayReason != EEndPlayReason::Quit)
+		aEndPlayReason != EEndPlayReason::Quit &&
+		aEndPlayReason != EEndPlayReason::LevelTransition)	
 		UMainSingelton::GetEnemyManager().RemoveSpawner(this);
 }
 
