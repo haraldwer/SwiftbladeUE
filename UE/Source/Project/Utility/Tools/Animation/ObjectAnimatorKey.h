@@ -13,5 +13,8 @@ struct FObjectAnimatorKey
 	UPROPERTY(EditDefaultsOnly)
 	int myTransformIndex = -1;
 	UPROPERTY(EditDefaultsOnly)
-	float mySpeed = 10.0f; 
+	float mySpeed = 10.0f;
+	UPROPERTY(EditDefaultsOnly)
+	bool myHidden = false; 
+	
 };

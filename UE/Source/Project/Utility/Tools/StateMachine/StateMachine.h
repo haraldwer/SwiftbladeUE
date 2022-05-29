@@ -29,8 +29,10 @@ public:
 	UStateBase* GetState(UClass* aType);
 
 protected:
+	
 	TWeakObjectPtr<UStateBase> myState;
 	TArray<TWeakObjectPtr<UStateBase>> myStates;
+	
 };
 
 template <class T>

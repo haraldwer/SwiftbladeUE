@@ -30,7 +30,7 @@ protected:
 	float myMinRot = 0.5f;
 	
 private:
-	bool MoveObject(USceneComponent* anObject, USceneComponent* aTarget, float aSpeed, float aDT) const;
+	bool MoveObject(USceneComponent* anObject, USceneComponent* aTarget, float aSpeed, bool aHidden, float aDT) const;
 	
 	UPROPERTY()
 	TArray<USceneComponent*> myObjects;

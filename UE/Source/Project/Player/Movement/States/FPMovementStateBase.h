@@ -22,6 +22,7 @@ public:
 
 	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const { return {}; }
 	virtual bool RequiresMagic() const { return false; }
+	virtual bool CanJump() const { return true; }
 
 protected:
 

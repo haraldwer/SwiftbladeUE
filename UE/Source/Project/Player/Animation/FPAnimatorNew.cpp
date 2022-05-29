@@ -1,11 +1,11 @@
 ﻿#include "FPAnimatorNew.h"
 
-#include "GameFramework/PawnMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Hand.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Combat/FPCombat.h"
+#include "Project/Player/Movement/FPMovement.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 #include "States/FPAnimationStateBase.h"
 #include "States/FPAnimationStateIdle.h"

@@ -105,4 +105,3 @@ UStateBase* UStateMachine::GetState(UClass* aType)
 				return ptr;
 	return nullptr;
 }
-

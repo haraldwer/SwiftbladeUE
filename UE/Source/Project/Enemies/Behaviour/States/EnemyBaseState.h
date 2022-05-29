@@ -11,6 +11,7 @@ class PROJECT_API UEnemyBaseState : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	
 	UEnemyBaseState();
 	virtual void BeginPlay() override;
 	virtual void Enter(const UEnemyBaseState* aFromState) {}
@@ -19,6 +20,7 @@ public:
 	FEnemyAnimation& GetAnimation() { return myAnimation; }  
 
 protected:
+	
 	void SetState(const TSubclassOf<UEnemyBaseState>& aStateType);
 	
 	class UEnemyBehaviour& GetBehaviour() const;

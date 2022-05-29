@@ -41,10 +41,8 @@ void UEnemyStateAttackCharge::Attack(const float aDT)
 void UEnemyStateAttackCharge::Recover(const float aDT)
 {
 	// Rotate slowly
-	
 	const auto& behaviour = GetBehaviour();
 	behaviour.RotateTowards(behaviour.GetTarget(), myRecoverRotationSpeed, aDT);
-	
 	UEnemyStateAttackBase::Recover(aDT);
 }
 

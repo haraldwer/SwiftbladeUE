@@ -25,7 +25,16 @@ UClass* UFPMovementStateInAir::Update(float aDT)
 UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aValue)
 {
 	Super::Input(anAction, aValue);
-	
+
+	if (const auto currentState = Cast<UFPMovementStateBase>(GetCurrentState()))
+	{
+		if (!currentState->CanJump())
+		{
+			myJumpHeld = false;
+			return nullptr;
+		}
+	}
+		
 	if (anAction == EFPMovementInputAction::JUMP_PRESSED)
 	{
 		myJumpHeld = true;

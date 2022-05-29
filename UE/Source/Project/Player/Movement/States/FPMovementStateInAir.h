@@ -12,7 +12,7 @@ class PROJECT_API UFPMovementStateInAir : public UFPMovementStateBase
 public:
 	virtual void Init() override;
 	virtual UClass* Update(float aDT) override;
-
+	
 	virtual UClass* Input(EFPMovementInputAction anAction, float aValue) override;
 	virtual UClass* OnLanded() override;
 	
