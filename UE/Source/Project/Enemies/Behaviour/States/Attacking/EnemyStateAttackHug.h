@@ -25,4 +25,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float myAttackForwardOffset = -50.0f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float myAttackUpOffset = 20.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	FRotator myAttackRotation;
+
 };

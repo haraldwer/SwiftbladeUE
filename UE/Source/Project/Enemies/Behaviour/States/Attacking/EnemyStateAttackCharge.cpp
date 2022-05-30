@@ -23,15 +23,18 @@ void UEnemyStateAttackCharge::Charge(const float aDT)
 
 void UEnemyStateAttackCharge::Attack(const float aDT)
 {
-	// Don't rotate
-	// Move fast
-	// Deal damage if close
-
-	const auto& self = GetSelf();
 	const auto& behaviour = GetBehaviour();
 	const auto target = behaviour.GetTarget();
+	if (!target)
+	{
+		SetSubState(EEnemyAttackState::RECOVER);
+		return;
+	}
+
+	// Move fast
 	behaviour.MoveTowards(target, myAttackMovementSpeed, myAttackMovementForwardWeight, aDT);
 
+	// Deal damage if close
 	if (behaviour.CanDamageTarget())
 		PerformAttack(target);
 	

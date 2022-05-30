@@ -19,26 +19,28 @@ void UEnemyStateAttackHug::Charge(const float aDT)
 	// TODO: Store initial rotation
 	
 	// Skip this state
-	const auto& behaviour = GetBehaviour();
-	if (behaviour.CanDamageTarget())
-		SetSubState(EEnemyAttackState::ATTACK);
+	SetSubState(EEnemyAttackState::ATTACK);
 }
 
 void UEnemyStateAttackHug::Attack(const float aDT)
 {
-	// Disable player movement
-	// Player has to break loose
-	// Unique movement state?
-	
 	const auto& behaviour = GetBehaviour();
 	const auto target = behaviour.GetTarget();
-
+	if (!target)
+	{
+		SetSubState(EEnemyAttackState::RECOVER);
+		return;
+	}
+	
 	// Attach self to player, use initial rotation
 	auto& self = GetSelf();
-	//self.SetActorRotation(target->GetActorRotation());
-	self.SetActorLocation(target->GetActorLocation() + self.GetActorForwardVector() * myAttackForwardOffset);
+	self.SetActorRotation(target->GetActorRotation().Quaternion() * myAttackRotation.Quaternion());
+	self.SetActorLocation(target->GetActorLocation() + self.GetActorForwardVector() * myAttackForwardOffset + self.GetActorUpVector() * myAttackUpOffset);
 	self.SetActorEnableCollision(false);
-	
+
+	// Disable player movement
+	// Player has to break loose
+	// Unique movement state
 	const auto character = Cast<AFPCharacter>(target);
 	CHECK_RETURN_LOG(!character, "Tried to hug non-player");
 	const auto combat = character->GetCombat();
@@ -47,17 +49,19 @@ void UEnemyStateAttackHug::Attack(const float aDT)
 	CHECK_RETURN_LOG(!state, "State nullptr");
 	combat->SetState(state);
 
+	// When player has broken loose
 	if (state->HasReachedTarget())
+	{
 		SetSubState(EEnemyAttackState::RECOVER);
+		return;
+	}
 
 	Super::Attack(aDT);
 }
 
 void UEnemyStateAttackHug::Recover(const float aDT)
 {
-	// Rotate slowly
-	const auto& behaviour = GetBehaviour();
-	behaviour.RotateTowards(behaviour.GetTarget(), myRecoverRotationSpeed, aDT);
+	// Dont do anything
 	Super::Recover(aDT);
 }
 
@@ -67,7 +71,7 @@ void UEnemyStateAttackHug::PerformAttack(AActor* aTarget)
 	auto& self = GetSelf();
 	const auto controller = GetSelf().GetController();
 	UGameplayStatics::ApplyDamage(aTarget, 1.0f, controller, &self, UDamageType::StaticClass());	 
-	UEnemyStateAttackBase::PerformAttack(aTarget);
+	Super::PerformAttack(aTarget);
 }
 
 void UEnemyStateAttackHug::OnSubStateChanged(EEnemyAttackState aPreviousState)
@@ -79,9 +83,9 @@ void UEnemyStateAttackHug::OnSubStateChanged(EEnemyAttackState aPreviousState)
 		const auto target = behaviour.GetTarget();
 		const auto character = Cast<AFPCharacter>(target);
 		CHECK_RETURN_LOG(!character, "Tried to hug non-player");
-		auto combat = character->GetCombat();
+		const auto combat = character->GetCombat();
 		CHECK_RETURN_LOG(!combat, "Combat nullptr");
-		auto state = combat->GetState<UFPCombatStateHug>();
+		const auto state = combat->GetState<UFPCombatStateHug>();
 		CHECK_RETURN_LOG(!state, "State nullptr");
 		if (!state->HasReachedTarget())
 			PerformAttack(target);

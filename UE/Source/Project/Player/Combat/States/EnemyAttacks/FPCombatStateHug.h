@@ -26,10 +26,10 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float myFriction = 0.8f;
+	float myFriction = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myAcceleration = 0.1f;
+	float myAcceleration = 0.16f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myTargetValue = 100.0f;
