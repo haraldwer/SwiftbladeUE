@@ -6,6 +6,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/WorldSettings.h"
+#include "Project/Gameplay/AbilityBlocker.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
@@ -135,8 +136,7 @@ UClass* UFPMovementStateWallrun::OnLanded()
 
 UClass* UFPMovementStateWallrun::OnHit(const FHitResult& aHit)
 {
-	CHECK_RETURN(aHit.ImpactNormal.Size() < 0.5f, nullptr);
-	CHECK_RETURN(FMath::Abs(aHit.ImpactNormal.Z) > 0.5f, nullptr);
+	CHECK_RETURN(!IsValidHit(aHit), nullptr);
 	CHECK_RETURN(GetHitHead(), nullptr)
 	const auto& movement = GetCharacterMovement();
 	CHECK_RETURN(movement.IsWalking(), nullptr);
@@ -186,10 +186,13 @@ bool UFPMovementStateWallrun::GetIsOverlapping() const
 		const auto overlapInfo = capsule->GetOverlapInfos();
 		for (auto& it : overlapInfo)
 		{
-			if(it.OverlapInfo.GetActor() == GetOwner())
+			if (it.OverlapInfo.GetActor() == GetOwner())
 				continue;
 
-			if(it.OverlapInfo.GetActor()->IsA(ASword::StaticClass()))
+			if (it.OverlapInfo.GetActor()->IsA(ASword::StaticClass()))
+				continue;
+
+			if (it.OverlapInfo.GetActor()->IsA(AAbilityBlocker::StaticClass()))
 				continue;
 
 			return true;
@@ -229,8 +232,8 @@ bool UFPMovementStateWallrun::FindWallInfo(FVector& aNormal, float& aDistance) c
 		const FVector start = location + right * x + FVector::UpVector * y;
 		const FVector end = start - normal * depth;
 		const auto result = SingleRay(start, end);
-		CHECK_CONTINUE(!result.bBlockingHit);
-		CHECK_CONTINUE(FMath::Abs(result.Normal.Z) > 0.5f);
+		CHECK_CONTINUE(!IsValidHit(result));
+		
 		hits++;
 
 		// Compare hit normal dot to in normal dot
@@ -250,4 +253,16 @@ bool UFPMovementStateWallrun::FindWallInfo(FVector& aNormal, float& aDistance) c
 	}
 
 	return false;
+}
+
+bool UFPMovementStateWallrun::IsValidHit(const FHitResult& aHit)
+{
+	CHECK_RETURN(!aHit.bBlockingHit, false);
+	CHECK_RETURN(FMath::Abs(aHit.Normal.Z) > 0.5f, false);
+		
+	const auto actor = aHit.GetActor();
+	CHECK_RETURN(!actor, false);
+	CHECK_RETURN(actor->IsA(AAbilityBlocker::StaticClass()), false);
+
+	return true; 
 }

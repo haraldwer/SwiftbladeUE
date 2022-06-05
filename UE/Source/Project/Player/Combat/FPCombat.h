@@ -34,6 +34,11 @@ public:
 	
 	bool TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) const;
 
+protected:
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ASword> mySwordBP;
+	
 private:
 
 	class AFPCharacter& GetCharacter() const;
@@ -41,5 +46,6 @@ private:
 	void TryOverrideAnimation() const;
 	
 	TWeakObjectPtr<ASword> mySword;
-	bool mySwordFirstTick = false; 
+	bool mySwordFirstTick = false;
+	
 };

@@ -92,8 +92,17 @@ void AFPCharacter::BeginPlay()
 		}
 	}
 
-	if (const auto controller = GetFPController())
-		controller->LoadState();
+	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "Base")
+	{
+		if (const auto controller = GetFPController())
+			controller->LoadState();	
+	}
+	else
+	{
+		// Just give player a sword
+		if (myFPCombat)
+			myFPCombat->SetHasSword(true);
+	}
 }
 
 void AFPCharacter::BeginDestroy()

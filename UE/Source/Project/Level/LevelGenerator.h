@@ -4,6 +4,7 @@
 
 #include "LevelData.h"
 #include "GameFramework/Actor.h"
+#include "Project/Player/FPController.h"
 #include "LevelGenerator.generated.h"
 
 enum class EGeneratedObstacleType : uint8;
@@ -33,7 +34,8 @@ public:
 	void GenerateLevelOrder(int aSeed);
 	void LoadSection(int anArenaIndex);
 	void LoadArena(int anArenaIndex);
-	
+	void LoadLevelOverride(const FString& aLevelName);
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly)

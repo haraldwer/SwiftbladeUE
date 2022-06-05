@@ -104,6 +104,10 @@ void UFPCombat::SetHasSword(const bool aValue)
 		}
 	}
 
+	if (!mySword.IsValid())
+		if (const auto swordBP = mySwordBP.Get())
+			mySword = Cast<ASword>(GetWorld()->SpawnActor(swordBP));
+	
 	if (const auto sword = mySword.Get())
 	{
 		sword->SetPlayer(&character);

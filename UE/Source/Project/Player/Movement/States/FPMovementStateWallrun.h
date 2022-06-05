@@ -64,6 +64,7 @@ private:
 	bool GetIsOverlapping() const;
 	bool GetHitHead() const;
 	bool FindWallInfo(FVector& aNormal, float& aDistance) const;
+	static bool IsValidHit(const FHitResult& aHit);
 	
 	FVector myWallNormal;
 	bool myHasWallJumped = false;

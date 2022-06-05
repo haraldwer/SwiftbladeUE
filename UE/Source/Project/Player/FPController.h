@@ -19,7 +19,6 @@ struct FFPControllerState
 	int32 mySeed = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool myHasSword = false;
-	
 };
 
 UENUM()

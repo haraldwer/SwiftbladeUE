@@ -16,6 +16,7 @@ ALevelGenerator::ALevelGenerator()
 void ALevelGenerator::BeginPlay()
 {
 	Super::BeginPlay();
+	EnableOverlapEvents();
 }
 
 void ALevelGenerator::Tick(float DeltaTime)
@@ -119,6 +120,11 @@ void ALevelGenerator::LoadArena(const int anArenaIndex)
 	const int32 index = myArenaIndices[anArenaIndex];
 	CHECK_RETURN_LOG(index < 0 || index >= myLevels.Num(), "Level index out of range");
 	LoadLevels({myLevels[index]});
+}
+
+void ALevelGenerator::LoadLevelOverride(const FString& aLevelName)
+{
+	LoadLevels({ aLevelName });
 }
 
 void ALevelGenerator::LoadLevels(TArray<FString> someLevelsToLoad)
