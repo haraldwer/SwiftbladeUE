@@ -48,10 +48,10 @@ protected:
 	FVector Get3DNoise(float aSpeed, float aStrength, float anOffset = 0.0f) const;
 	FFPAnimationHandCollision GetHandCollision(const FTransform& aHandTrans, float aRadius) const;
 
-	// Sword
-	
 	void OverrideSwordData(FFPAnimationHandPositions& someData, float aLocationWeight, float aRotationWeight, bool aDualWeild) const;
 	void OverrideVelocityData(FFPAnimationHandPositions& someData, float aVelocityWeight, float aDT) const;
+	
+	float GetVelocityCameraTilt() const;
 
 	// Properties
 	

@@ -22,7 +22,7 @@ void UStateMachine::BeginPlay()
 		{
 			myStates.Add(state);
 			if (state->IsA(GetDefaultStateType()))
-				SetState(state);
+				SetStatePtr(state);
 		}
 	}
 
@@ -59,14 +59,14 @@ void UStateMachine::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	}
 
 	if (nextState)
-		SetState(nextState);
+		SetStatePtr(nextState);
 
 	// Update current state
 	const auto statePtr = myState.Get();
 	CHECK_RETURN_LOG(!statePtr, "No current state");
 	if (const auto newStateType = statePtr->Update(DeltaTime))
 		if (const auto newState = GetState(newStateType))
-			SetState(newState);
+			SetStatePtr(newState);
 }
 
 UClass* UStateMachine::GetDefaultStateType()
@@ -74,7 +74,7 @@ UClass* UStateMachine::GetDefaultStateType()
 	return UStateBase::StaticClass();
 }
 
-bool UStateMachine::SetState(UStateBase* aState)
+bool UStateMachine::SetStatePtr(UStateBase* aState)
 {
 	CHECK_RETURN(!aState, false);
 	const auto currentState = myState.Get();
@@ -93,7 +93,7 @@ bool UStateMachine::TryOverrideState(UStateBase* aState)
 	CHECK_RETURN(aState == currentState, false);
 	// Will still set state if equal priority!
 	CHECK_RETURN(currentState && currentState->Priority() > aState->Priority(), false); 
-	return SetState(aState);
+	return SetStatePtr(aState);
 }
 
 UStateBase* UStateMachine::GetState(UClass* aType)

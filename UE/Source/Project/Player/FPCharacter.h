@@ -101,7 +101,10 @@ protected:
 	
 	// Gameplay
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	float mySensitivity = 0.5f;
+	float mySensitivity = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+	float myKillZ = -1000.0f;
 	
 private:
 	

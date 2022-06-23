@@ -55,6 +55,7 @@ UClass* UFPAnimationStateRunning::Update(float aDT)
 	FFPAnimationCameraData camera;
 	camera.myHeight = FMath::Abs(cos) * myHeadBobStrength;
 	camera.myTilt = cos * FMath::DegreesToRadians(myHeadTiltAmount);
+	camera.myTilt -= GetVelocityCameraTilt() * FMath::DegreesToRadians(myVelocityCameraTilt); 
 	SetCamera(camera);
 	
 	return nullptr;

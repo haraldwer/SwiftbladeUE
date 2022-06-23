@@ -17,7 +17,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	virtual UClass* GetDefaultStateType() override;
-	virtual bool SetState(UStateBase* aState) override;
+	virtual bool SetStatePtr(UStateBase* aState) override;
 	
 	// Sword
 	void PickupSword();

@@ -47,7 +47,7 @@ void UEnemyStateAttackHug::Attack(const float aDT)
 	CHECK_RETURN_LOG(!combat, "Combat nullptr");
 	auto state = combat->GetState<UFPCombatStateHug>();
 	CHECK_RETURN_LOG(!state, "State nullptr");
-	combat->SetState(state);
+	combat->SetStatePtr(state);
 
 	// When player has broken loose
 	if (state->HasReachedTarget())
@@ -89,7 +89,7 @@ void UEnemyStateAttackHug::OnSubStateChanged(EEnemyAttackState aPreviousState)
 		CHECK_RETURN_LOG(!state, "State nullptr");
 		if (!state->HasReachedTarget())
 			PerformAttack(target);
-		combat->SetState(combat->GetState<UFPCombatStateIdle>());
+		combat->SetState<UFPCombatStateIdle>();
 		
 		auto& self = GetSelf();
 		self.SetActorEnableCollision(true); 

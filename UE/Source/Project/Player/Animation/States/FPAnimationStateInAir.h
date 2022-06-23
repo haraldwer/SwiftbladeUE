@@ -26,4 +26,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myCameraBobSpeed = 4.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myVelocityCameraTilt = 2.0f;
 };

@@ -25,6 +25,7 @@ UClass* UFPMovementStateBoostPad::Check()
 	GetCharacter().GetOverlappingActors(overlaps, ABoostPad::StaticClass());
 	for (const auto& overlap : overlaps)
 	{
+		myBoostLocation = overlap->GetActorLocation();
 		myBoostDirection = overlap->GetActorForwardVector();
 		return StaticClass();
 	}
@@ -35,6 +36,7 @@ void UFPMovementStateBoostPad::Enter()
 {
 	myBoostTimestamp = GetTime();
 	auto& movement = GetCharacterMovement();
+	GetCharacter().SetActorLocation(myBoostLocation);
 	movement.SetMovementMode(MOVE_Falling);
 	movement.Velocity = myBoostDirection * myBoostVelocity;
 }

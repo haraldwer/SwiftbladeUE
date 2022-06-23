@@ -7,7 +7,7 @@
 void UFPCombatStateBase::Exit()
 {
 	auto& animator = GetAnimator();
-	animator.SetState(animator.GetState(GetResetAnimation()));
+	animator.SetStatePtr(animator.GetState(GetResetAnimation()));
 }
 
 ASword* UFPCombatStateBase::GetSword() const

@@ -35,6 +35,8 @@ public:
 	void LoadSection(int anArenaIndex);
 	void LoadArena(int anArenaIndex);
 	void LoadLevelOverride(const FString& aLevelName);
+	
+	float GetLowestEnd() const { return myLowestEnd; }
 
 protected:
 	
@@ -77,4 +79,5 @@ private:
 	
 	TArray<LoadedLevelData> myLoadedLevels;
 	bool myStaticInvalid = false;
+	float myLowestEnd = 0.0f; 
 };

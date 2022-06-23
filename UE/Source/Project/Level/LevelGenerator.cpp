@@ -178,6 +178,7 @@ void ALevelGenerator::SetupLevels()
 	// Sort by index
 	myLoadedLevels.Sort([](const LoadedLevelData& aFirst, const LoadedLevelData& aSecond){ return aFirst.myIndex < aSecond.myIndex; });
 
+	myLowestEnd = 0.0f;
 	FVector previousPosition = FVector(0, 0, 0);
 	for (auto& level : myLoadedLevels)
 	{
@@ -189,7 +190,11 @@ void ALevelGenerator::SetupLevels()
 		level.myOffset = previousPosition;
 		AActor** end = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ALevelEndLocation::StaticClass()); });
 		if (end && *end)
+		{
 			previousPosition = (*end)->GetActorLocation();
+			if (previousPosition.Z < myLowestEnd)
+				myLowestEnd = previousPosition.Z;
+		}
 		else LOG("Missing end location for level " + level.myName);
 	}
 }

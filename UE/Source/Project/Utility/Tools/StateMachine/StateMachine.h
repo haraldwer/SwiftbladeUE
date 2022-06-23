@@ -20,10 +20,12 @@ public:
 	// Override with default state
 	virtual UClass* GetDefaultStateType();
 
-	virtual bool SetState(UStateBase* aState);
+	template <class T>
+	bool SetState();
+	virtual bool SetStatePtr(UStateBase* aState);
 	virtual bool TryOverrideState(UStateBase* aState);
 	UStateBase* GetCurrentState() const { return myState.Get(); };
-
+	
 	template <class T>
 	T* GetState() const;
 	UStateBase* GetState(UClass* aType);
@@ -34,6 +36,12 @@ protected:
 	TArray<TWeakObjectPtr<UStateBase>> myStates;
 	
 };
+
+template <class T>
+bool UStateMachine::SetState()
+{
+	return SetStatePtr(GetState<T>());
+}
 
 template <class T>
 T* UStateMachine::GetState() const

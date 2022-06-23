@@ -31,6 +31,8 @@ protected:
 	float myHeadBobStrength = 5.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float myHeadTiltAmount = 2.0f;
+	UPROPERTY(EditDefaultsOnly)
+	float myVelocityCameraTilt = 2.0f;
 
 private:
 	float myDist = 0.0f;

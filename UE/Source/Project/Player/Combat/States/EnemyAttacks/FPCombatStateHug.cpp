@@ -11,7 +11,7 @@
 void UFPCombatStateHug::Enter()
 {
 	auto& movement = GetMovement();
-	movement.SetState(movement.GetState<UFPMovementStateHug>());
+	movement.SetState<UFPMovementStateHug>();
 
 	myValue = 0.0f;
 	myVelocity = 0.0f;
@@ -20,7 +20,7 @@ void UFPCombatStateHug::Enter()
 void UFPCombatStateHug::Exit()
 {
 	auto& movement = GetMovement();
-	movement.SetState(movement.GetState<UFPMovementStateInAir>());
+	movement.SetState<UFPMovementStateInAir>();
 }
 
 UClass* UFPCombatStateHug::Update(float aDT)
