@@ -87,3 +87,6 @@ UE/DerivedDataCache/*
 UE/Plugins/Developer/RiderLink/*
 
 Builds/*
+
+GitSyncer/GitSyncer/bin/Debug/*
+GitSyncer/GitSyncer/obj/Debug/*
