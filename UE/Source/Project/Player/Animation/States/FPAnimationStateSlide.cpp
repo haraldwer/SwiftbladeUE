@@ -37,26 +37,10 @@ UClass* UFPAnimationStateSlide::Update(float aDT)
 	hands.myLeft = FlipRightToLeft(hands.myRight);
 	hands.myPosInterpSpd = 5.0f;
     hands.myRotInterpSpd = 5.0f;
-
-	// Find close collisions
-	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
-	if (rightResult.myHit)
-		hands.myRight = rightResult.myTransform;
-	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft, 50.0f);
-	if (leftResult.myHit)
-	{
-		hands.myLeft = leftResult.myTransform;
-		// Flip rotation
-		const FRotator normal = hands.myLeft.Rotator();
-		const FRotator flipped = FlipRightToLeft(hands.myLeft).Rotator();
-		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
-	}
 	
 	// Apply wobble
-	if (!rightResult.myHit)
-		hands.myRight.SetLocation(hands.myRight.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength));
-	if (!leftResult.myHit)
-		hands.myLeft.SetLocation(hands.myLeft.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength, 1000.0f));
+	hands.myRight.SetLocation(hands.myRight.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength));
+	hands.myLeft.SetLocation(hands.myLeft.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength, 1000.0f));
 
 	OverrideSwordData(hands, 0.8f, 0.5f, false);
 	OverrideVelocityData(hands, 0.5f, aDT);

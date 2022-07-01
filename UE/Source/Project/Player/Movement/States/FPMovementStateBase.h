@@ -35,8 +35,8 @@ protected:
 
 	bool HasMagic() const;
 
-	TArray<FHitResult> MultiRay(const FVector& aStart, const FVector& aEnd) const;
-	FHitResult SingleRay(const FVector& aStart, const FVector& aEnd) const;
+	TArray<FHitResult> MultiSweep(const FVector& aStart, const FVector& aEnd, const float aRadius = 0.0f) const;
+	FHitResult Sweep(const FVector& aStart, const FVector& aEnd, const float aRadius = 0.0f) const;
 	
 	// Override for custom modification of input values
 	virtual float GetSensitivity() const;

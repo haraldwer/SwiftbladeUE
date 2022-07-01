@@ -37,7 +37,7 @@ void UFPCombat::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		{
 		   	// Set crystals
 		   	if (const auto controller = GetCharacter().GetFPController())
-		   		sword->SetCrystalsActive(controller->GetRemainingLives());
+		   		sword->SetCrystalsActive(controller->GetRemainingLives(), false);
 
 			// Set position
 			if (const auto hand = GetCharacter().GetRightHand())

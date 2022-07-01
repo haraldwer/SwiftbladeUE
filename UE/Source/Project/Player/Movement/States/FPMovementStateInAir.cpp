@@ -1,7 +1,7 @@
 ﻿#include "FPMovementStateInAir.h"
 
 #include "FPMovementStateRun.h"
-#include "FPMovementStateWallrun.h"
+#include "FPMovementStateWall.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/Animation/States/FPAnimationStateInAir.h"
 
@@ -47,7 +47,7 @@ UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aVal
 			myJumpedSinceTouchedGround = false;
 		}
 		
-		const auto wallrunState = Cast<UFPMovementStateWallrun>(GetState(UFPMovementStateWallrun::StaticClass()));
+		const auto wallrunState = Cast<UFPMovementStateWall>(GetState(UFPMovementStateWall::StaticClass()));
 		const bool wallJump = wallrunState && wallrunState->GetCanWallJump(); 
 	
 		const bool onCoyoteGround = onGround ||

@@ -1,4 +1,4 @@
-﻿#include "FPMovementStateWallrun.h"
+﻿#include "FPMovementStateWall.h"
 
 #include "FPMovementStateDash.h"
 #include "FPMovementStateInAir.h"
@@ -14,14 +14,14 @@
 #include "Project/Player/Animation/States/FPAnimationStateWallrun.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
-void UFPMovementStateWallrun::Init()
+void UFPMovementStateWall::Init()
 {
 	Super::Init();
 	auto& movement = GetCharacterMovement();
 	movement.GravityScale = myOverrideGravityScale;
 }
 
-UClass* UFPMovementStateWallrun::Update(float aDT)
+UClass* UFPMovementStateWall::Update(float aDT)
 {
 	UpdateMovementNormal();
 	myWallrunTimestamp = GetTime();
@@ -34,60 +34,89 @@ UClass* UFPMovementStateWallrun::Update(float aDT)
 	float distance = 0.0f;
 	if (FindWallInfo(myWallNormal, distance))
 		character.SetActorLocation(character.GetActorLocation() - myWallNormal * (distance - myTargetDistance));
-	
-	const float lookForwardDot = FVector::DotProduct(myWallNormal, character.GetActorForwardVector());
-	const float movementForwardDot = FVector::DotProduct(myWallNormal, character.GetLastMovementInputVector());
-	
-	if (lookForwardDot < -myWallClimbDot)
-	{
-		// Climbing
-		
-		animator.TryOverrideState(animator.GetState<UFPAnimationStateWallclimb>());
-		movement.SetPlaneConstraintEnabled(false);
-		movement.Velocity = FVector(0, 0, myWallClimbSpeed);
-		if (character.GetInputAxisValue("MoveVertical") < 0.1f)
-		{
-			LOG("No forward input when climbing");
-			return UFPMovementStateInAir::StaticClass();
-		}
-	}
-	else
-	{
-		// Wallrunning
-		
-		animator.TryOverrideState(animator.GetState<UFPAnimationStateWallrun>());
 
-		// Limit max speed
-		if (movement.Velocity.SizeSquared2D() > movement.MaxWalkSpeed)
+	const auto inputVector = character.GetLastMovementInputVector();
+	const float lookForwardDot = FVector::DotProduct(myWallNormal, character.GetActorForwardVector());
+	const float movementForwardDot = FVector::DotProduct(myWallNormal, inputVector.GetSafeNormal2D());
+
+	EFPMovementWallState state = RUN;
+	if (movementForwardDot < -myWallSitMoveDot)
+		state = (GetHitHead() || lookForwardDot > -myWallClimbLookDot) ? SIT : CLIMB;
+
+	switch (state)
+	{
+	case SIT:
+		{
+			LOG("Sit");
+			animator.TryOverrideState(animator.GetState<UFPAnimationStateWallrun>());
+
+			// Limit max speed
 			movement.Velocity = FMath::VInterpTo(
 				movement.Velocity,
-				movement.Velocity.GetSafeNormal() * movement.MaxWalkSpeed,
+				FVector(0.0f, 0.0f, movement.Velocity.Z),
 				aDT,
-				myMaxSpeedSlowdown);
-		
-		if (movement.Velocity.Z < 0.0f)
-		{
-			movement.Velocity.Z = 0.0f;
-			movement.SetMovementMode(MOVE_Walking);
+				myWallSitSlowdown);
+
+			if (movement.Velocity.Z < 0.0f)
+			{
+				movement.Velocity.Z = 0.0f;
+				movement.SetMovementMode(MOVE_Walking);
+			}
+			else movement.Velocity.Z = FMath::FInterpTo(
+				movement.Velocity.Z,
+				0.0f,
+				aDT,
+				myWallGravity);
 		}
-		else movement.Velocity.Z = FMath::FInterpTo(
-			movement.Velocity.Z,
-			0.0f,
-			aDT,
-			myWallrunGravity);
+		break;
+
+	case RUN:
+		{
+			LOG("Run");
+			animator.TryOverrideState(animator.GetState<UFPAnimationStateWallrun>());
+
+			// Limit max speed
+			if (movement.Velocity.SizeSquared2D() > movement.MaxWalkSpeed)
+				movement.Velocity = FMath::VInterpTo(
+					movement.Velocity,
+					movement.Velocity.GetSafeNormal() * movement.MaxWalkSpeed,
+					aDT,
+					myMaxSpeedSlowdown);
+		
+			if (movement.Velocity.Z < 0.0f)
+			{
+				movement.Velocity.Z = 0.0f;
+				movement.SetMovementMode(MOVE_Walking);
+			}
+			else movement.Velocity.Z = FMath::FInterpTo(
+				movement.Velocity.Z,
+				0.0f,
+				aDT,
+				myWallGravity);
+		}
+		break;
+		
+	case CLIMB:
+		{
+			LOG("Climb");
+			animator.TryOverrideState(animator.GetState<UFPAnimationStateWallclimb>());
+			movement.SetPlaneConstraintEnabled(false);
+			movement.Velocity = FVector(0, 0, myWallClimbSpeed);
+		}
+		break;
 	}
 	
 	// Stopping
-	if (character.GetLastMovementInputVector().Size() < myWallrunMinVelocity)
+	if (inputVector.Size() < myWallMinVelocity)
 	{
 		LOG("Stopping");
 		return UFPMovementStateInAir::StaticClass();
 	}
 		
-	// Looking away
-	if (lookForwardDot > myWallrunExitDot || movementForwardDot > myWallrunExitDot)
+	// Moving away
+	if (movementForwardDot > myWallExitDot)
 	{
-		LOG("Looking away");
+		LOG("Moving away");
 		return UFPMovementStateInAir::StaticClass();
 	}
 	
@@ -98,17 +127,10 @@ UClass* UFPMovementStateWallrun::Update(float aDT)
 		return UFPMovementStateInAir::StaticClass();
 	}
 
-	// Hit head
-	if (GetHitHead())
-	{
-		LOG("Hit head ray");
-		return UFPMovementStateInAir::StaticClass();
-	}
-	
 	return nullptr;
 }
 
-void UFPMovementStateWallrun::Enter()
+void UFPMovementStateWall::Enter()
 {
 	Super::Enter();
 	UpdateMovementNormal();
@@ -118,7 +140,7 @@ void UFPMovementStateWallrun::Enter()
 		dashState->Reset();
 }
 
-void UFPMovementStateWallrun::Exit()
+void UFPMovementStateWall::Exit()
 {
 	auto& movement = GetCharacterMovement();
 	movement.SetPlaneConstraintEnabled(false);
@@ -128,16 +150,15 @@ void UFPMovementStateWallrun::Exit()
 	Super::Exit();
 }
 
-UClass* UFPMovementStateWallrun::OnLanded()
+UClass* UFPMovementStateWall::OnLanded()
 {
 	CHECK_RETURN(!IsCurrentState(), nullptr);
 	return UFPMovementStateRun::StaticClass();
 }
 
-UClass* UFPMovementStateWallrun::OnHit(const FHitResult& aHit)
+UClass* UFPMovementStateWall::OnHit(const FHitResult& aHit)
 {
 	CHECK_RETURN(!IsValidHit(aHit), nullptr);
-	CHECK_RETURN(GetHitHead(), nullptr)
 	const auto& movement = GetCharacterMovement();
 	CHECK_RETURN(movement.IsWalking(), nullptr);
 	myWallNormal = aHit.Normal;
@@ -146,27 +167,27 @@ UClass* UFPMovementStateWallrun::OnHit(const FHitResult& aHit)
 	return StaticClass();
 }
 
-bool UFPMovementStateWallrun::GetCanWallJump() const
+bool UFPMovementStateWall::GetCanWallJump() const
 {
 	return !myHasWallJumped &&
 		(GetCurrentState() == this ||
-		(GetTime() - myWallrunTimestamp < myWallrunJumpCoyoteTime)); 
+		(GetTime() - myWallrunTimestamp < myWallJumpCoyoteTime)); 
 }
 
-FVector UFPMovementStateWallrun::GetWalljumpDirection() const
+FVector UFPMovementStateWall::GetWalljumpDirection() const
 {
 	const auto normal2D = myWallNormal.GetSafeNormal2D();
 	const float wallForwardDot = FVector::DotProduct(normal2D, GetCamera().GetForwardVector());
-	const float wallNormalPart = FMath::Lerp(1.0f, FMath::Abs(wallForwardDot), myWallrunJumpForwardPart);
-	return FVector(0, 0, 1) + normal2D * myWallrunJumpMul * wallNormalPart;
+	const float wallNormalPart = FMath::Lerp(1.0f, FMath::Abs(wallForwardDot), myWallJumpForwardPart);
+	return FVector(0, 0, 1) + normal2D * myWallJumpMul * wallNormalPart;
 }
 
-void UFPMovementStateWallrun::OnWallJump()
+void UFPMovementStateWall::OnWallJump()
 {
 	myHasWallJumped = true;
 }
 
-void UFPMovementStateWallrun::UpdateMovementNormal() const
+void UFPMovementStateWall::UpdateMovementNormal() const
 {
 	auto& movement = GetCharacterMovement();
 	const auto vel = movement.GetLastUpdateVelocity();
@@ -179,7 +200,7 @@ void UFPMovementStateWallrun::UpdateMovementNormal() const
 	movement.SetPlaneConstraintEnabled(true);
 }
 
-bool UFPMovementStateWallrun::GetIsOverlapping() const
+bool UFPMovementStateWall::GetIsOverlapping() const
 {
 	if (const auto capsule = GetCharacter().GetWallDetection())
 	{
@@ -201,18 +222,17 @@ bool UFPMovementStateWallrun::GetIsOverlapping() const
 	return false;
 }
 
-bool UFPMovementStateWallrun::GetHitHead() const
+bool UFPMovementStateWall::GetHitHead() const
 {
 	// Check hit head
 	const auto start = GetCharacter().GetActorLocation();
 	const auto offset = FVector(0.0f, 0.0f, GetCharacter().GetDefaultHalfHeight() + 10.0f);
-	const auto result = SingleRay(start, start + offset);
+	const auto result = Sweep(start, start + offset);
 	return result.bBlockingHit; 
 }
 
-bool UFPMovementStateWallrun::FindWallInfo(FVector& aNormal, float& aDistance) const
-{
-	constexpr float depth = 100.0f;
+bool UFPMovementStateWall::FindWallInfo(FVector& aNormal, float& aDistance) const
+{	
 	const auto normal = aNormal.GetSafeNormal2D();
 	const auto originalNormal = normal;
 	const FVector right = FVector::UpVector.Cross(normal);
@@ -223,22 +243,36 @@ bool UFPMovementStateWallrun::FindWallInfo(FVector& aNormal, float& aDistance) c
 	float distance = 0.0f;
 	int32 hits = 0;
 
-	// Brute force traces to find average normal
-	static constexpr int numTraces = 20;
-	for (int32 i = 0; i < numTraces; i++)
+	static constexpr int numTraces = 3;
+	const float stepHeight = mySweepHeight / numTraces;
+	const float startStep = mySweepHeight / 2.0f;
+
+	TArray<TPair<FVector, FVector>> sweeps;
+	sweeps.Reserve(numTraces * 3);
+	
+	for (int i = 0; i < numTraces; i++)
 	{
-		const float x = FMath::FRandRange(-myTestWidth * 0.5f, myTestWidth * 0.5f);
-		const float y = FMath::FRandRange(-myTestHeight * 0.5f, myTestHeight * 0.5f);
-		const FVector start = location + right * x + FVector::UpVector * y;
-		const FVector end = start - normal * depth;
-		const auto result = SingleRay(start, end);
+		const FVector start = location + FVector::UpVector * (stepHeight - startStep);
+		const FVector end = start - normal * mySweepDepth; 
+		const FVector leftEnd = start - (normal - right).GetSafeNormal2D() * mySweepDepth; 
+		const FVector rightEnd = start - (normal + right).GetSafeNormal2D() * mySweepDepth;
+		sweeps.Add({start, end});
+		sweeps.Add({start, leftEnd});
+		sweeps.Add({start, rightEnd});	
+	}
+
+	for (auto& sweep : sweeps)
+	{
+		const auto result = Sweep(sweep.Key, sweep.Value, mySweepRadius);
+		//DrawDebugLine(GetWorld(), sweep.Key, sweep.Value, FColor(0, 255, 0), false, 5.0f);
 		CHECK_CONTINUE(!IsValidHit(result));
+		//DrawDebugSphere(GetWorld(), result.Location, mySweepRadius, 8, FColor(255, 0, 0), false, 5.0f);
 		
 		hits++;
 
 		// Compare hit normal dot to in normal dot
 		const auto resultNormal = result.Normal.GetSafeNormal2D();
-		const float normalWeight = FMath::Max(0, resultNormal.Dot(originalNormal));
+		const float normalWeight = FMath::Max(0, resultNormal.Dot(originalNormal)); // Maybe dont do this? 
 		normals += resultNormal * normalWeight;
 		distance += result.Distance * normalWeight;
 		totalNormals += normalWeight;
@@ -247,7 +281,7 @@ bool UFPMovementStateWallrun::FindWallInfo(FVector& aNormal, float& aDistance) c
 	// Average normal and distance
 	if (hits > 0)
 	{
-		aNormal = normals / totalNormals;
+		aNormal = (normals / totalNormals).GetSafeNormal2D();
 		aDistance = distance / totalNormals;
 		return true;
 	}
@@ -255,7 +289,7 @@ bool UFPMovementStateWallrun::FindWallInfo(FVector& aNormal, float& aDistance) c
 	return false;
 }
 
-bool UFPMovementStateWallrun::IsValidHit(const FHitResult& aHit)
+bool UFPMovementStateWall::IsValidHit(const FHitResult& aHit)
 {
 	CHECK_RETURN(!aHit.bBlockingHit, false);
 	CHECK_RETURN(FMath::Abs(aHit.Normal.Z) > 0.5f, false);

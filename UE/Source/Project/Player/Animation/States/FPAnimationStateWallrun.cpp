@@ -3,7 +3,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Movement/FPMovement.h"
-#include "Project/Player/Movement/States/FPMovementStateWallrun.h"
+#include "Project/Player/Movement/States/FPMovementStateWall.h"
 
 UClass* UFPAnimationStateWallrun::Update(float aDT)
 {
@@ -39,7 +39,7 @@ UClass* UFPAnimationStateWallrun::Update(float aDT)
 		FRotator(-cos * mySwingHandRotateAmount, 0.0f, 0.0f).Quaternion());
 
 	// Wall normal specific 
-	if (const auto wallrun = GetMovement().GetState<UFPMovementStateWallrun>())
+	if (const auto wallrun = GetMovement().GetState<UFPMovementStateWall>())
 	{
 		const auto wallNormal = wallrun->GetWallNormal();
 		const auto& character = GetCharacter();

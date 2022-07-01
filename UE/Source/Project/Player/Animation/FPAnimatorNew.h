@@ -32,10 +32,17 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	FTransform myDefaultSwordTransform;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myStepUpLerpSpeed = 20.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myMaxStepUp = 20.0f;
 	
 private:
 	class AFPCharacter& GetCharacter() const;
-	
+
+	void UpdateStepUp(float aDT);
 	void UpdateHands(float aDT);
 	void UpdateCamera(float aDT);
 	
@@ -45,4 +52,9 @@ private:
 
 	FFPAnimationCameraData myTargetCamera;
 	FFPAnimationCameraData myRealCamera;
+
+	// Step up
+	bool myWasOnGround = false;
+	float myPreviousZ = 0.0f;
+	float myCurrentStepUp = 0.0f; 
 };

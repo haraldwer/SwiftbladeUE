@@ -64,7 +64,7 @@ void UEnemyStateAttackStare::Attack(const float aDT)
 	// How much has rotation changed? 
 	const float rotChangedDot = myTargetPreviousRotation.Vector().Dot(targetRot.Vector());
 	const float rotChanged = 1.0f - (rotChangedDot + 1.0f) * 0.5f;
-	myStareValue -= rotChanged * myStarePullMul * aDT;
+	myStareValue -= rotChanged * myStarePullMul;
 	LOG("Stare value" + FString::SanitizeFloat(myStareValue));
 	
 	// Release if pull fast enough
@@ -100,17 +100,19 @@ void UEnemyStateAttackStare::Attack(const float aDT)
 	myTargetPreviousRotation = result; 
 	if (const auto controller = target->GetController())
 		controller->SetControlRotation(result);
-
+	
 	const float fov = FMath::Lerp(myStareStartFov, myStareEndFov, starePart);
 	mySmoothFov = FMath::FInterpTo(mySmoothFov, fov, aDT, myFovInterpSpeed);
 	if (const auto character = Cast<AFPCharacter>(target))
-		character->GetFPCamera()->AddAdditiveFov(mySmoothFov);
-			
+	{
+		character->SetPPScalar(PP_EYE, "Strength", starePart);
+		if (const auto camera = character->GetFPCamera())
+			camera->AddAdditiveFov(mySmoothFov);
+	}
 }
 
 void UEnemyStateAttackStare::Recover(const float aDT)
 {
-	// Dont do anything
 	Super::Recover(aDT);
 }
 
@@ -128,7 +130,5 @@ void UEnemyStateAttackStare::OnSubStateChanged(EEnemyAttackState aPreviousState)
 	if (aPreviousState == EEnemyAttackState::ATTACK &&
 		GetSubState() != EEnemyAttackState::ATTACK)
 	{
-		
-		
 	}
 }

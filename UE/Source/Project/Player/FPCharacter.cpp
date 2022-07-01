@@ -126,6 +126,8 @@ void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunctio
 {
 	Super::TickActor(DeltaTime, Tick, ThisTickFunction);
 
+	UpdatePP(DeltaTime);
+	
 	const float lowestPoint = UMainSingelton::GetLevelGenerator().GetLowestEnd();
 	if (GetActorLocation().Z < lowestPoint + myKillZ)
 		Die("OutOfBounds"); 
@@ -228,7 +230,7 @@ void AFPCharacter::Die(const FString& anObjectName)
 void AFPCharacter::OnLivesChanged(const int32 aNewLifeCount) const
 {
 	if (const auto sword = GetSword())
-		sword->SetCrystalsActive(aNewLifeCount);
+		sword->SetCrystalsActive(aNewLifeCount, true);
 }
 
 void AFPCharacter::DoorOpened(ADoor* aDoor) const
@@ -258,4 +260,36 @@ void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 {
 	if (myFPMovement)
 		myFPMovement->OnHit(Hit);
+}
+
+void AFPCharacter::SetPPScalar(const EFPPostProcess aPP, const FName aName, const float aValue)
+{
+	const auto find = myPPEntries.FindByPredicate([&](const PPEntry& entry) {
+		return (entry.aPP == aPP && entry.aName == aName);
+	});
+
+	if (!find)
+	{
+		myPPEntries.Add({aPP, aName, aValue, 0.0f});
+		// TODO: Add pp
+		return;
+	}
+
+	find->aTargetValue = aValue;	
+}
+
+void AFPCharacter::UpdatePP(float aDT)
+{
+	for (auto& it : myPPEntries)
+	{
+		// Interp current
+		UpdatePPScalar(it.aPP, it.aName, it.aCurrentValue);
+		it.aCurrentValue = FMath::FInterpTo(it.aCurrentValue, it.aTargetValue, aDT, myPPInterpSpeed);
+		// Decrease target
+		it.aTargetValue = FMath::FInterpTo(it.aTargetValue, 0.0f, aDT, myPPInterpSpeed);
+		if (FMath::Abs(it.aCurrentValue - it.aTargetValue) < KINDA_SMALL_NUMBER && FMath::Abs(it.aTargetValue) < KINDA_SMALL_NUMBER)
+		{
+			// TODO: Remove pp
+		}
+	}
 }

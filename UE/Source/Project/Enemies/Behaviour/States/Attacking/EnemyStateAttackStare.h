@@ -26,10 +26,10 @@ protected:
 	float myStareValidDot = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myStareRotInterpStart = 3.0f;
+	float myStareRotInterpStart = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myStareRotInterpEnd = 100.0f;
+	float myStareRotInterpEnd = 50.0f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myStareDistStart = 200.0f;
@@ -50,13 +50,10 @@ protected:
 	float myFovInterpSpeed = 3.0f;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float myStarePullMul = 500.0f;
+	float myStarePullMul = 50.0f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myStareInitialPart = 0.1f;
-	
-	UPROPERTY(EditDefaultsOnly)
-	float myRecoverRotationSpeed = 1.0f;
 
 private:
 

@@ -23,7 +23,7 @@ public:
 	void CreateHitEffect(const AActor* anActor) const;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetCrystalsActive(int32 aCrystalCount);
+	void SetCrystalsActive(int32 aCrystalCount, bool aShowEffect);
 
 protected:
 	
