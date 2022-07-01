@@ -22,19 +22,23 @@ class PROJECT_API UEnemyStateAttackBase : public UEnemyBaseState
 	GENERATED_BODY()
 	
 public:
-	UEnemyStateAttackBase();
 	
-protected:
+	UEnemyStateAttackBase();
 	void BeginPlay() override;
 	void Enter(const UEnemyBaseState* aFromState) override;
 	void Update(const float aDT) override;
 
+protected:
+
 	virtual void Charge(const float aDT);
 	virtual void Attack(const float aDT);
 	virtual void Recover(const float aDT);
-
 	virtual void PerformAttack(AActor* aTarget);
-
+	virtual void OnSubStateChanged(EEnemyAttackState aPreviousState) {}
+	
+	void SetSubState(EEnemyAttackState aSubState);
+	EEnemyAttackState GetSubState() const { return mySubState; }
+	
 	UPROPERTY(BlueprintReadWrite)
 	FEnemyOnPerformAttack myOnPerformAttackEvent;
 	
@@ -42,17 +46,16 @@ protected:
 	FEnemyOnAttackStateChanged myOnAttackStateChangedEvent;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float myChargeTime = 1.0f;
+	float myChargeTime = -1.0f;
 	UPROPERTY(EditDefaultsOnly)
-	float myAttackTime = 1.0f;
+	float myAttackTime = -1.0f;
 	UPROPERTY(EditDefaultsOnly)
-	float myRecoverTime = 1.0f;
+	float myRecoverTime = -1.0f;
 
 private:
-	void SetSubState(EEnemyAttackState aSubState);
+	
 	bool ShouldChangeState(const float aStateTime) const;
 	
 	EEnemyAttackState mySubState = EEnemyAttackState::CHARGE;
 	float myEnterStateTime = 0.0f;
-	
 };

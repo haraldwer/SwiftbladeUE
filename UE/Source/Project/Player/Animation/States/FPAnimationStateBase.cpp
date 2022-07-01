@@ -165,6 +165,18 @@ void UFPAnimationStateBase::OverrideVelocityData(FFPAnimationHandPositions& some
 	someData.myLeft.SetLocation(someData.myLeft.GetLocation() - transformedVelocity * aVelocityWeight * aDT);
 }
 
+float UFPAnimationStateBase::GetVelocityCameraTilt() const
+{
+	const auto& movement = GetCharacterMovement();
+	const auto velocity = movement.GetLastUpdateVelocity();
+	const auto maxSpeed = movement.GetMaxSpeed();
+	const auto speedPart = velocity.Size() / maxSpeed;
+	const auto right = GetCharacter().GetActorRightVector();
+	const auto dot = FVector::DotProduct(velocity.GetSafeNormal2D(), right);
+	return dot * speedPart;
+	
+}
+
 FTransform UFPAnimationStateBase::GetDefaultHandTransform() const
 {
 	return GetRelativeTransform();

@@ -2,10 +2,18 @@
 
 #include "CoreMinimal.h"
 #include "FPMovementStateBase.h"
-#include "FPMovementStateWallrun.generated.h"
+#include "FPMovementStateWall.generated.h"
+
+UENUM()
+enum EFPMovementWallState
+{
+	SIT,
+	CLIMB,
+	RUN
+};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_API UFPMovementStateWallrun : public UFPMovementStateBase
+class PROJECT_API UFPMovementStateWall : public UFPMovementStateBase
 {
 	GENERATED_BODY()
 	
@@ -29,43 +37,54 @@ public:
 	FVector GetWallNormal() const { return myWallNormal; }
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
-	float myWallrunExitDot = 0.8f;
-	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
-	float myWallrunMinVelocity = 0.5f;
-	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
-	float myWallrunJumpMul = 1.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
-	float myWallrunJumpForwardPart = 0.3f;
-	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
-	float myWallrunJumpCoyoteTime = 0.5f;
-	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
+	UPROPERTY(EditDefaultsOnly, Category = "WallGeneral")
+	float myWallExitDot = 0.8f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallGeneral")
+	float myWallMinVelocity = 0.5f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallGeneral")
 	float myOverrideGravityScale = 1.5f;
-	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
-	float myWallrunGravity = 5.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallGeneral")
+	float myWallGravity = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "WallJump")
+	float myWallJumpMul = 1.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallJump")
+	float myWallJumpForwardPart = 0.3f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallJump")
+	float myWallJumpCoyoteTime = 0.5f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "WallRun")
 	float myMaxSpeedSlowdown = 5.0f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "WallClimb")
-	float myWallClimbDot = 0.8f;
+	float myWallClimbLookDot = 0.8f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallClimb")
 	float myWallClimbSpeed = 410.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "WallSit")
+	float myWallSitSlowdown = 10.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallSit")
+	float myWallSitMoveDot = 0.9f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "WallDetection")
-	float myTestWidth = 200.0f;
+	float mySweepHeight = 100.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallDetection")
-	float myTestHeight = 200.0f;
+	float mySweepRadius = 30.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "WallDetection")
-	float myTargetDistance = 45.0f;
+	float mySweepDepth = 100.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "WallDetection")
+	float myTargetDistance = 10.0f;
 
 private:
+
 	void UpdateMovementNormal() const;
 	
 	bool GetIsOverlapping() const;
 	bool GetHitHead() const;
 	bool FindWallInfo(FVector& aNormal, float& aDistance) const;
+	static bool IsValidHit(const FHitResult& aHit);
 	
-	FVector myWallNormal;
+	FVector myWallNormal = FVector::ZeroVector;
 	bool myHasWallJumped = false;
 	float myWallrunTimestamp = 0.0f;
 };

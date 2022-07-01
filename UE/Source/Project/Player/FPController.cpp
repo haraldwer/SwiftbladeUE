@@ -62,7 +62,7 @@ FFPControllerState AFPController::GetState() const
 
 void AFPController::CharacterKilled()
 {
-	if (myState.myArenaIndex || myState.myInArena)
+	//if (myState.myArenaIndex || myState.myInArena)
 	{
 		myState.myRespawnCount++;
 		if (const auto character = GetFPCharacter())

@@ -13,6 +13,7 @@ public:
 	UEnemyStateAttackCharge();
 
 protected:
+	
 	void Charge(const float aDT) override;
 	void Attack(const float aDT) override;
 	void Recover(const float aDT) override;

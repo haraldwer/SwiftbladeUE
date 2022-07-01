@@ -16,7 +16,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual UClass* GetDefaultStateType() override;
-	virtual bool SetState(UStateBase* aState) override;
+	virtual bool SetStatePtr(UStateBase* aState) override;
 
 	void MoveHorizontal(const float aValue) 	{ Input(EFPMovementInputAction::MOVE_HORIZONTAL, aValue, false); }
 	void MoveVertical(const float aValue) 		{ Input(EFPMovementInputAction::MOVE_VERTICAL, aValue, false); }

@@ -1,11 +1,12 @@
 ﻿#include "FPAnimatorNew.h"
 
-#include "GameFramework/PawnMovementComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Hand.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Combat/FPCombat.h"
+#include "Project/Player/Movement/FPMovement.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 #include "States/FPAnimationStateBase.h"
 #include "States/FPAnimationStateIdle.h"
@@ -24,7 +25,8 @@ void UFPAnimatorNew::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	// Update states
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Interp result 
+	// Interp result
+	UpdateStepUp(DeltaTime);
 	UpdateHands(DeltaTime);
 	UpdateCamera(DeltaTime);
 }
@@ -41,14 +43,18 @@ void UFPAnimatorNew::UpdateHands(const float aDT)
 	CHECK_RETURN_LOG(!combat, "No combat");
 
 	myRealHands = FFPAnimationHandPositions::Interp(myRealHands, myTargetHands, aDT);
+	
+	auto stepUpAdjusted = myRealHands;
+	stepUpAdjusted.myLeft.SetLocation(stepUpAdjusted.myLeft.GetLocation() + FVector::UpVector * myCurrentStepUp);
+	stepUpAdjusted.myRight.SetLocation(stepUpAdjusted.myRight.GetLocation() + FVector::UpVector * myCurrentStepUp);
 
 	// Set result
-	left->SetActorRelativeTransform(myRealHands.myLeft);
-	left->SetHandState(myRealHands.myLeftHandState);
+	left->SetActorRelativeTransform(stepUpAdjusted.myLeft);
+	left->SetHandState(stepUpAdjusted.myLeftHandState);
 	left->SetActorRelativeScale3D(FVector(1, -1, 1));
 	
-	right->SetActorRelativeTransform(myRealHands.myRight);
-	right->SetHandState(myRealHands.myRightHandState);
+	right->SetActorRelativeTransform(stepUpAdjusted.myRight);
+	right->SetHandState(stepUpAdjusted.myRightHandState);
 
 	// Move sword
 	if (combat->HasSword())
@@ -59,18 +65,46 @@ void UFPAnimatorNew::UpdateHands(const float aDT)
 void UFPAnimatorNew::UpdateCamera(const float aDT)
 {
 	myRealCamera = FFPAnimationCameraData::Interp(myRealCamera, myTargetCamera, aDT);
+	
 	const auto& character = GetCharacter();
 	const auto camera = character.GetFPCamera();
 	CHECK_RETURN_LOG(!camera, "No camera");
+
+	// Offset
 	camera->SetOffset(FTransform(
 		FQuat(FVector(1, 0, 0), myRealCamera.myTilt), // Rotation
 			FVector(0, 0, myRealCamera.myHeight))); // Position
-	camera->AddAdditiveFov(myRealCamera.myFOV);	
+
+	// FOV
+	camera->AddAdditiveFov(myRealCamera.myFOV);
 }
 
 AFPCharacter& UFPAnimatorNew::GetCharacter() const
 {
 	return *Cast<AFPCharacter>(GetOwner());
+}
+
+void UFPAnimatorNew::UpdateStepUp(const float aDT)
+{
+	const auto& character = GetCharacter();
+	const auto camera = character.GetFPCamera();
+	CHECK_RETURN_LOG(!camera, "No camera");
+
+	// Interp first
+	myCurrentStepUp = FMath::FInterpTo(myCurrentStepUp, 0.0f, aDT, myStepUpLerpSpeed);
+	
+	const bool onGround = character.GetCharacterMovement()->IsMovingOnGround();
+	const float currentZ = character.GetActorLocation().Z;
+	if (myWasOnGround && onGround)
+	{
+		// delta z?
+		const float delta = currentZ - myPreviousZ;
+		myCurrentStepUp = FMath::Clamp(myCurrentStepUp - delta, -myMaxStepUp, myMaxStepUp); 
+	}
+	myWasOnGround = onGround;
+	myPreviousZ = currentZ;
+	
+	camera->SetStepUpOffset(myCurrentStepUp);
 }
 
 UClass* UFPAnimatorNew::GetDefaultStateType()

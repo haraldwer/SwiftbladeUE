@@ -6,6 +6,12 @@
 
 #include "FPCharacter.generated.h"
 
+UENUM()
+enum EFPPostProcess
+{
+	PP_EYE
+};
+
 UCLASS()
 class PROJECT_API AFPCharacter : public ACharacter
 {
@@ -66,6 +72,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	bool HasMagic() const;
 
+	UFUNCTION(BlueprintCallable)
+	void SetPPScalar(const EFPPostProcess aPP, const FName aName, const float aValue);
+
 private:
 
 	// Collision callbacks
@@ -75,6 +84,9 @@ private:
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 	
 protected:
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdatePPScalar(const EFPPostProcess aPP, const FName aName, const float aValue);
 
 	// Components
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
@@ -101,11 +113,27 @@ protected:
 	
 	// Gameplay
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	float mySensitivity = 0.5f;
+	float mySensitivity = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+	float myKillZ = -1000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "PostProcessing")
+	float myPPInterpSpeed = 10.0f;
 	
 private:
 	
 	float myFullHeight = 0.0f;
 	bool myAlive = true;
+
+	void UpdatePP(float aDT);
 	
+	struct PPEntry
+	{
+		EFPPostProcess aPP;
+		FName aName;
+		float aTargetValue = 0.0f;
+		float aCurrentValue = 0.0f;
+	};
+	TArray<PPEntry> myPPEntries;
 };

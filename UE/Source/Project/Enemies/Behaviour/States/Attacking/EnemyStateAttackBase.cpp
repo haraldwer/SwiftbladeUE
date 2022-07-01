@@ -35,13 +35,17 @@ void UEnemyStateAttackBase::Update(const float aDT)
 
 void UEnemyStateAttackBase::SetSubState(const EEnemyAttackState aSubState)
 {
+	const auto previousState = mySubState;
 	mySubState = aSubState;
 	myEnterStateTime = GetWorld()->GetTimeSeconds();
+	OnSubStateChanged(previousState);
 	myOnAttackStateChangedEvent.Broadcast(aSubState);
 }
 
 bool UEnemyStateAttackBase::ShouldChangeState(const float aStateTime) const
 {
+	if (aStateTime < 0.0f)
+		return false; 
 	const float currentTime = GetWorld()->GetTimeSeconds();
 	return currentTime - myEnterStateTime > aStateTime;
 }

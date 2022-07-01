@@ -37,7 +37,7 @@ void UFPCombat::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		{
 		   	// Set crystals
 		   	if (const auto controller = GetCharacter().GetFPController())
-		   		sword->SetCrystalsActive(controller->GetRemainingLives());
+		   		sword->SetCrystalsActive(controller->GetRemainingLives(), false);
 
 			// Set position
 			if (const auto hand = GetCharacter().GetRightHand())
@@ -53,10 +53,10 @@ UClass* UFPCombat::GetDefaultStateType()
 	return UFPCombatStateNoSword::StaticClass();
 }
 
-bool UFPCombat::SetState(UStateBase* aState)
+bool UFPCombat::SetStatePtr(UStateBase* aState)
 {
 	// Call base function
-	CHECK_RETURN(!Super::SetState(aState), false);
+	CHECK_RETURN(!Super::SetStatePtr(aState), false);
 
 	TryOverrideAnimation();
 
@@ -69,7 +69,7 @@ void UFPCombat::PickupSword()
 	CHECK_RETURN_LOG(!sword, "Sword ptr not set");
 	LOG("PickupSword");
 	sword->SetPlayer(&GetCharacter());
-	SetState(GetState<UFPCombatStateIdle>());
+	SetState<UFPCombatStateIdle>();
 }
 
 void UFPCombat::ReturnSword()
@@ -78,7 +78,7 @@ void UFPCombat::ReturnSword()
 	CHECK_RETURN_LOG(!sword, "No sword to return");
 	sword->Return();
 	mySword.Reset();
-	SetState(GetState<UFPCombatStateNoSword>());
+	SetState<UFPCombatStateNoSword>();
 }
 
 void UFPCombat::SetHasSword(const bool aValue)
@@ -104,10 +104,14 @@ void UFPCombat::SetHasSword(const bool aValue)
 		}
 	}
 
+	if (!mySword.IsValid())
+		if (const auto swordBP = mySwordBP.Get())
+			mySword = Cast<ASword>(GetWorld()->SpawnActor(swordBP));
+	
 	if (const auto sword = mySword.Get())
 	{
 		sword->SetPlayer(&character);
-		SetState(GetState<UFPCombatStateIdle>());
+		SetState<UFPCombatStateIdle>();
 	}
 }
 
@@ -148,7 +152,7 @@ void UFPCombat::Input(const EFPCombatInput anInput)
 				if (const auto newState = GetState(newStateType))
 					nextState = newState;
 	if (nextState)
-		SetState(nextState);
+		SetStatePtr(nextState);
 }
 
 void UFPCombat::TryOverrideAnimation() const

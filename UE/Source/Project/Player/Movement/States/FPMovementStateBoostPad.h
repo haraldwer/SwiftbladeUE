@@ -31,5 +31,6 @@ protected:
 private:
 	
 	FVector myBoostDirection;
+	FVector myBoostLocation;
 	float myBoostTimestamp = 0.0f;
 };

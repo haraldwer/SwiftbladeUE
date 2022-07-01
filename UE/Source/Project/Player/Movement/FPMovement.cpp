@@ -29,7 +29,7 @@ UClass* UFPMovement::GetDefaultStateType()
 	return UFPMovementStateIdle::StaticClass();
 }
 
-bool UFPMovement::SetState(UStateBase* aState)
+bool UFPMovement::SetStatePtr(UStateBase* aState)
 {
 	if (const auto moveState = Cast<UFPMovementStateBase>(aState))
 		if (moveState->RequiresMagic())
@@ -38,7 +38,7 @@ bool UFPMovement::SetState(UStateBase* aState)
 					return false;
 	
 	// Call base function
-	CHECK_RETURN(!Super::SetState(aState), false);
+	CHECK_RETURN(!Super::SetStatePtr(aState), false);
 	TryOverrideAnimationState();
 	return true;
 }
@@ -62,7 +62,7 @@ void UFPMovement::Input(const EFPMovementInputAction& anAction, const float aVal
 					nextState = newState;
 	}
 	if (nextState)
-		SetState(nextState);
+		SetStatePtr(nextState);
 }
 
 void UFPMovement::OnLanded()
@@ -74,7 +74,7 @@ void UFPMovement::OnLanded()
 				if (const auto newState = GetState(newStateType))
 					nextState = newState;
 	if (nextState)
-		SetState(nextState);
+		SetStatePtr(nextState);
 }
 
 void UFPMovement::OnHit(const FHitResult& aHit)
@@ -86,7 +86,7 @@ void UFPMovement::OnHit(const FHitResult& aHit)
 				if (const auto newState = GetState(newStateType))
 					nextState = newState;
 	if (nextState)
-		SetState(nextState);
+		SetStatePtr(nextState);
 }
 
 void UFPMovement::TryOverrideAnimationState() const

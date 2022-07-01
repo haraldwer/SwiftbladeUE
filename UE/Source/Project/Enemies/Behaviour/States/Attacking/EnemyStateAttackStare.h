@@ -17,13 +17,48 @@ protected:
 	void Attack(const float aDT) override;
 	void Recover(const float aDT) override;
 	virtual void PerformAttack(AActor* aTarget) override;
+	virtual void OnSubStateChanged(EEnemyAttackState aPreviousState) override;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myChargeRotationSpeed = 30.0f;
+	float myStareRotationSpeed = 30.0f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float myStareValidDot = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myAttackRotationSpeed = 10.0f;
+	float myStareRotInterpStart = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myRecoverRotationSpeed = 1.0f;
+	float myStareRotInterpEnd = 50.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myStareDistStart = 200.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myStareDistEnd= 500.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myStareDistEndMul = 0.5f; 
+	
+	UPROPERTY(EditDefaultsOnly)
+	float myStareStartFov = 0.0f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float myStareEndFov = -50.0f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float myFovInterpSpeed = 3.0f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float myStarePullMul = 50.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myStareInitialPart = 0.1f;
+
+private:
+
+	float myStareValue = 0.0f;
+	float mySmoothFov = 0.0f; 
+	FRotator myTargetPreviousRotation;
+	
 };

@@ -51,7 +51,7 @@ void UObjectAnimator::Update(const float aDT)
 		CHECK_CONTINUE(it.myTransformIndex == -1);
 		CHECK_CONTINUE(!myObjects.IsValidIndex(it.myObjectIndex));
 		CHECK_CONTINUE(!myTransforms.IsValidIndex(it.myTransformIndex));
-		if (!MoveObject(myObjects[it.myObjectIndex], myTransforms[it.myTransformIndex], it.mySpeed, aDT))
+		if (!MoveObject(myObjects[it.myObjectIndex], myTransforms[it.myTransformIndex], it.mySpeed, it.myHidden, aDT))
 			myDone = false;
 	}	
 }
@@ -62,11 +62,13 @@ void UObjectAnimator::SetKeys(const TArray<FObjectAnimatorKey>& someKeys)
 	myDone = false;
 }
 
-bool UObjectAnimator::MoveObject(USceneComponent* anObject, USceneComponent* aTarget, const float aSpeed, const float aDT) const
+bool UObjectAnimator::MoveObject(USceneComponent* anObject, USceneComponent* aTarget, const float aSpeed, const bool aHidden, const float aDT) const
 {
 	CHECK_RETURN_LOG(!anObject, "Invalid object", false);
 	CHECK_RETURN_LOG(!aTarget, "Invalid target", false);
-
+	
+	anObject->SetVisibility(!aHidden, true);
+	
 	const auto& objTrans = anObject->GetRelativeTransform();
 	const auto& tarTrans = aTarget->GetRelativeTransform();
 

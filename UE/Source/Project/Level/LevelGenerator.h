@@ -4,6 +4,7 @@
 
 #include "LevelData.h"
 #include "GameFramework/Actor.h"
+#include "Project/Player/FPController.h"
 #include "LevelGenerator.generated.h"
 
 enum class EGeneratedObstacleType : uint8;
@@ -33,7 +34,10 @@ public:
 	void GenerateLevelOrder(int aSeed);
 	void LoadSection(int anArenaIndex);
 	void LoadArena(int anArenaIndex);
+	void LoadLevelOverride(const FString& aLevelName);
 	
+	float GetLowestEnd() const { return myLowestEnd; }
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly)
@@ -75,4 +79,5 @@ private:
 	
 	TArray<LoadedLevelData> myLoadedLevels;
 	bool myStaticInvalid = false;
+	float myLowestEnd = 0.0f; 
 };

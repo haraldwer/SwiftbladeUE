@@ -60,7 +60,7 @@ bool UFPMovementStateBase::HasMagic() const
 	return GetCharacter().HasMagic();
 }
 
-TArray<FHitResult> UFPMovementStateBase::MultiRay(const FVector& aStart, const FVector& aEnd) const
+TArray<FHitResult> UFPMovementStateBase::MultiSweep(const FVector& aStart, const FVector& aEnd, const float aRadius) const
 {
 	TArray<FHitResult> hits;
 	FCollisionQueryParams params;
@@ -70,11 +70,19 @@ TArray<FHitResult> UFPMovementStateBase::MultiRay(const FVector& aStart, const F
 	params.AddIgnoredActor(&GetCharacter());
 	if (const auto combat = GetCharacter().GetCombat())
 		params.AddIgnoredActor(Cast<AActor>(combat->GetSword()));
-	GetWorld()->LineTraceMultiByChannel(hits, aStart, aEnd, ECC_WorldStatic, params);
+
+	if (aRadius > KINDA_SMALL_NUMBER)
+		GetWorld()->SweepMultiByChannel(hits, aStart, aEnd,
+			FQuat::Identity, ECC_WorldStatic,
+			FCollisionShape::MakeSphere(aRadius), params);
+	else
+		GetWorld()->LineTraceMultiByChannel(hits, aStart, aEnd,
+			ECC_WorldStatic, params);
+	
 	return hits;
 }
 
-FHitResult UFPMovementStateBase::SingleRay(const FVector& aStart, const FVector& aEnd) const
+FHitResult UFPMovementStateBase::Sweep(const FVector& aStart, const FVector& aEnd, const float aRadius) const
 {
 	FHitResult hit;
 	FCollisionQueryParams params;
@@ -84,10 +92,14 @@ FHitResult UFPMovementStateBase::SingleRay(const FVector& aStart, const FVector&
 	params.AddIgnoredActor(&GetCharacter());
 	if (const auto combat = GetCharacter().GetCombat())
 		params.AddIgnoredActor(Cast<AActor>(combat->GetSword()));
-	GetWorld()->LineTraceSingleByChannel(hit, aStart, aEnd, ECC_WorldStatic, params);
-	//if (hit.bBlockingHit)
-	//	DrawDebugLine(GetWorld(), aStart, aEnd, FColor(255, 0, 0, 255), true);
-	//else
-	//	DrawDebugLine(GetWorld(), aStart, aEnd, FColor(0, 255, 0, 255), true);
+
+	if (aRadius > KINDA_SMALL_NUMBER)
+		GetWorld()->SweepSingleByChannel(hit, aStart, aEnd,
+			FQuat::Identity, ECC_WorldStatic,
+			FCollisionShape::MakeSphere(aRadius), params);
+	else
+		GetWorld()->LineTraceSingleByChannel(hit, aStart, aEnd,
+			ECC_WorldStatic, params);
+	
 	return hit;
 }

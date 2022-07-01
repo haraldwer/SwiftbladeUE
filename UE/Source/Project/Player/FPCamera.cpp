@@ -2,6 +2,8 @@
 
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Project/Player/Movement/FPMovement.h"
+#include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
 UFPCamera::UFPCamera()
@@ -41,28 +43,8 @@ void UFPCamera::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		myCameraHeightSmoothing);
 	
 	const float height = myHeight * myOriginalHeight - GetCapsule().GetScaledCapsuleHalfHeight();
-	camera.SetRelativeLocation(FVector(0, 0, height));
+	camera.SetRelativeLocation(FVector(0, 0, height + myStepUpOffset));
 
 	// FOV
 	camera.AddAdditiveOffset(myOffset, myAdditiveFov);
-}
-
-void UFPCamera::SetHeight(const float aHeight)
-{
-	myHeight = aHeight;
-}
-
-void UFPCamera::SetTargetHeight(const float aHeight)
-{
-	myTargetHeight = aHeight;
-}
-
-void UFPCamera::AddAdditiveFov(const float aFov)
-{
-	myAdditiveFov += aFov; 
-}
-
-void UFPCamera::SetOffset(const FTransform& anOffset)
-{
-	myOffset = anOffset;
 }

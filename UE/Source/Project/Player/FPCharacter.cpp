@@ -6,6 +6,7 @@
 #include "Actors/Hand.h"
 #include "Actors/Sword.h"
 #include "Animation/FPAnimatorNew.h"
+#include "Animation/States/FPAnimationStateDeath.h"
 #include "Blueprint/UserWidget.h"
 #include "Combat/FPCombat.h"
 #include "Components/CapsuleComponent.h"
@@ -17,6 +18,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Movement/FPMovement.h"
 #include "Project/Gameplay/Door.h"
+#include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Utility.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 #include "Project/Utility/Tools/Effect.h"
@@ -92,8 +94,17 @@ void AFPCharacter::BeginPlay()
 		}
 	}
 
-	if (const auto controller = GetFPController())
-		controller->LoadState();
+	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "Base")
+	{
+		if (const auto controller = GetFPController())
+			controller->LoadState();	
+	}
+	else
+	{
+		// Just give player a sword
+		if (myFPCombat)
+			myFPCombat->SetHasSword(true);
+	}
 }
 
 void AFPCharacter::BeginDestroy()
@@ -114,6 +125,13 @@ void AFPCharacter::BeginDestroy()
 void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunction& ThisTickFunction)
 {
 	Super::TickActor(DeltaTime, Tick, ThisTickFunction);
+
+	UpdatePP(DeltaTime);
+	
+	const float lowestPoint = UMainSingelton::GetLevelGenerator().GetLowestEnd();
+	if (GetActorLocation().Z < lowestPoint + myKillZ)
+		Die("OutOfBounds"); 
+	
 	if (myFPCamera)
 		myFPCamera->BeginTick(DeltaTime);
 }
@@ -202,6 +220,8 @@ void AFPCharacter::Die(const FString& anObjectName)
 {
 	CHECK_RETURN(!myAlive);
 	myAlive = false;
+	if (const auto animator = GetAnimator())
+		animator->SetState<UFPAnimationStateDeath>();
 	const auto controller = GetFPController();
 	CHECK_RETURN_LOG(!controller, "Controller nullptr");
 	controller->CharacterKilled();
@@ -210,7 +230,7 @@ void AFPCharacter::Die(const FString& anObjectName)
 void AFPCharacter::OnLivesChanged(const int32 aNewLifeCount) const
 {
 	if (const auto sword = GetSword())
-		sword->SetCrystalsActive(aNewLifeCount);
+		sword->SetCrystalsActive(aNewLifeCount, true);
 }
 
 void AFPCharacter::DoorOpened(ADoor* aDoor) const
@@ -240,4 +260,36 @@ void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 {
 	if (myFPMovement)
 		myFPMovement->OnHit(Hit);
+}
+
+void AFPCharacter::SetPPScalar(const EFPPostProcess aPP, const FName aName, const float aValue)
+{
+	const auto find = myPPEntries.FindByPredicate([&](const PPEntry& entry) {
+		return (entry.aPP == aPP && entry.aName == aName);
+	});
+
+	if (!find)
+	{
+		myPPEntries.Add({aPP, aName, aValue, 0.0f});
+		// TODO: Add pp
+		return;
+	}
+
+	find->aTargetValue = aValue;	
+}
+
+void AFPCharacter::UpdatePP(float aDT)
+{
+	for (auto& it : myPPEntries)
+	{
+		// Interp current
+		UpdatePPScalar(it.aPP, it.aName, it.aCurrentValue);
+		it.aCurrentValue = FMath::FInterpTo(it.aCurrentValue, it.aTargetValue, aDT, myPPInterpSpeed);
+		// Decrease target
+		it.aTargetValue = FMath::FInterpTo(it.aTargetValue, 0.0f, aDT, myPPInterpSpeed);
+		if (FMath::Abs(it.aCurrentValue - it.aTargetValue) < KINDA_SMALL_NUMBER && FMath::Abs(it.aTargetValue) < KINDA_SMALL_NUMBER)
+		{
+			// TODO: Remove pp
+		}
+	}
 }
