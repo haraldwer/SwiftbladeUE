@@ -22,6 +22,15 @@ UClass* UFPMovementStateInAir::Update(float aDT)
 	return nullptr;
 }
 
+UClass* UFPMovementStateInAir::Check()
+{
+	const float time = GetTime();
+	const auto& movement = GetCharacterMovement();
+	if (movement.IsWalking())
+		myCoyoteTimeStamp = time;
+	return nullptr;
+}
+
 UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aValue)
 {
 	Super::Input(anAction, aValue);

@@ -1,25 +1,5 @@
 ﻿#include "FPAnimationStateSlide.h"
 
-void UFPAnimationStateSlide::Enter()
-{
-	return;
-	const FVector offset(0, 0, 50);
-	auto hands = GetRealHands();
-	hands.myLeft.SetLocation(hands.myLeft.GetLocation() + offset);
-	hands.myRight.SetLocation(hands.myRight.GetLocation() + offset);
-	SetHands(hands, true);
-}
-
-void UFPAnimationStateSlide::Exit()
-{
-	// Move hands?
-	const FVector offset(0, 0, -50);
-	auto hands = GetRealHands();
-	hands.myLeft.SetLocation(hands.myLeft.GetLocation() + offset);
-	hands.myRight.SetLocation(hands.myRight.GetLocation() + offset);
-	SetHands(hands, true);
-}
-
 UClass* UFPAnimationStateSlide::Update(float aDT)
 {
 	Super::Update(aDT);

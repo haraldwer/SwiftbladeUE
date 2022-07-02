@@ -32,19 +32,19 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDied();
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class USceneComponent* myCollider;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class USceneComponent* myMeshParent;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class USceneComponent* myAnimationParent;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class USceneComponent* myDamageHitboxParent;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UEnemyBehaviour* myBehaviour;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UObjectAnimator* myObjectAnimator;
 
 	UPROPERTY(EditDefaultsOnly)

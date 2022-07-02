@@ -42,8 +42,8 @@ void UFPCamera::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		DeltaTime,
 		myCameraHeightSmoothing);
 	
-	const float height = myHeight * myOriginalHeight - GetCapsule().GetScaledCapsuleHalfHeight();
-	camera.SetRelativeLocation(FVector(0, 0, height + myStepUpOffset));
+	const float height = myHeight * myOriginalHeight + myStepUpOffset - GetCapsule().GetScaledCapsuleHalfHeight();
+	camera.SetRelativeLocation(FVector(0, 0, height));
 
 	// FOV
 	camera.AddAdditiveOffset(myOffset, myAdditiveFov);

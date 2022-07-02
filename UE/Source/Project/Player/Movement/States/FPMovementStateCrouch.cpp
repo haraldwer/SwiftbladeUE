@@ -30,7 +30,9 @@ UClass* UFPMovementStateCrouch::Input(EFPMovementInputAction anAction, float aVa
 	Super::Input(anAction, aValue);
 
 	if (anAction == EFPMovementInputAction::CROUCH_PRESSED)
+	{
 		myIsHoldingCrouch = true;
+	}
 	if (anAction == EFPMovementInputAction::CROUCH_RELEASED)
 	{
 		myIsHoldingCrouch = false;
@@ -87,6 +89,6 @@ UClass* UFPMovementStateCrouch::CheckCrouch(const bool aLanded) const
 		if (movement.GetLastUpdateVelocity().Size2D() > movement.MaxWalkSpeedCrouched)
 			return UFPMovementStateSlide::StaticClass();
 	}
-	
+
 	return StaticClass();
 }

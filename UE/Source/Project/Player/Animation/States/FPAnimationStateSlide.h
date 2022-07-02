@@ -10,9 +10,7 @@ class PROJECT_API UFPAnimationStateSlide : public UFPAnimationStateBase
 	GENERATED_BODY()
 
 public:
-
-	virtual void Enter() override;
-	virtual void Exit() override;
+	
 	virtual UClass* Update(float aDT) override;
 
 protected:

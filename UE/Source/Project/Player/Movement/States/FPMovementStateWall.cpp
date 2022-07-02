@@ -47,7 +47,6 @@ UClass* UFPMovementStateWall::Update(float aDT)
 	{
 	case SIT:
 		{
-			LOG("Sit");
 			animator.TryOverrideState(animator.GetState<UFPAnimationStateWallrun>());
 
 			// Limit max speed
@@ -72,7 +71,6 @@ UClass* UFPMovementStateWall::Update(float aDT)
 
 	case RUN:
 		{
-			LOG("Run");
 			animator.TryOverrideState(animator.GetState<UFPAnimationStateWallrun>());
 
 			// Limit max speed
@@ -98,7 +96,6 @@ UClass* UFPMovementStateWall::Update(float aDT)
 		
 	case CLIMB:
 		{
-			LOG("Climb");
 			animator.TryOverrideState(animator.GetState<UFPAnimationStateWallclimb>());
 			movement.SetPlaneConstraintEnabled(false);
 			movement.Velocity = FVector(0, 0, myWallClimbSpeed);
@@ -108,24 +105,15 @@ UClass* UFPMovementStateWall::Update(float aDT)
 	
 	// Stopping
 	if (inputVector.Size() < myWallMinVelocity)
-	{
-		LOG("Stopping");
 		return UFPMovementStateInAir::StaticClass();
-	}
 		
 	// Moving away
 	if (movementForwardDot > myWallExitDot)
-	{
-		LOG("Moving away");
 		return UFPMovementStateInAir::StaticClass();
-	}
 	
 	// No longer touching wall
 	if (!GetIsOverlapping())
-	{
-		LOG("No longer touching wall");
 		return UFPMovementStateInAir::StaticClass();
-	}
 
 	return nullptr;
 }
