@@ -13,12 +13,13 @@ class PROJECT_API UEnemyStateAttackNecromancer : public UEnemyStateAttackRangedB
 public:
 	
 	virtual void PerformAttack(AActor* aTarget) override;
+	virtual void Recover(const float aDT) override;
 
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AEnemy> myEnemy;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TArray<USceneComponent*> mySpawnLocations;
 };
