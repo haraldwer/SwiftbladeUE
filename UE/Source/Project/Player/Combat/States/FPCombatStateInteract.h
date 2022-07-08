@@ -29,7 +29,7 @@ protected:
 	float myRadius = 200.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myAcceptableDot = 0.5f;
+	float myAcceptableDot = 0.3f;
 	
 private:
 

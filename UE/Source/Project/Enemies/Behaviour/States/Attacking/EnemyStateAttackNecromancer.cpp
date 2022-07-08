@@ -23,5 +23,4 @@ void UEnemyStateAttackNecromancer::PerformAttack(AActor* aTarget)
 void UEnemyStateAttackNecromancer::Recover(const float aDT)
 {
 	SetState(UEnemyStateMove::StaticClass());
-	//SetSubState(EEnemyAttackState::CHARGE);
 }

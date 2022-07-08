@@ -51,6 +51,9 @@ protected:
 	float myAttackTime = -1.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float myRecoverTime = -1.0f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	bool myCanAbortAttack = true;
 
 private:
 	

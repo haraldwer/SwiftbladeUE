@@ -24,7 +24,7 @@ UClass* UFPCombatStateNoSword::Update(float aDT)
 		if (myTimer > mySwordPickupTimer)
 		{
 			// Pickup sword
-			combat.SetHasSword(true);
+			combat.PickupSword(); 
 			return UFPCombatStateIdle::StaticClass();
 		}
 	}

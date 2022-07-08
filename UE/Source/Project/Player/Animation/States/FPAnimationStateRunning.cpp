@@ -1,6 +1,7 @@
 ﻿#include "FPAnimationStateRunning.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Project/Player/FPCharacter.h"
 
 UClass* UFPAnimationStateRunning::Update(float aDT)
 {
@@ -10,8 +11,22 @@ UClass* UFPAnimationStateRunning::Update(float aDT)
 
 	// Calculate speed
 	const float speed = GetCharacterMovement().Velocity.Length() / myStepSize;
+
+	const float previousCos = FMath::Cos(myDist); 
 	myDist += speed * aDT;
-	const float cos = FMath::Cos(myDist); 
+	const float cos = FMath::Cos(myDist);
+
+	// Footsteps
+	float cosDiff = cos - previousCos;
+	bool increasing = cosDiff < 0;
+	if (increasing != myCosIncreasing)
+	{
+		myCosIncreasing = increasing; 
+		// Shift step
+		FTransform footstepTrans = increasing ? myLeftFoot : myRightFoot;
+		auto& character = GetCharacter();
+		character.CreateEffect(myFootstepBP, footstepTrans * character.GetTransform());
+	}
 	
 	// Lerp to camera
 	const auto lerpTrans = LerpTransWeight(

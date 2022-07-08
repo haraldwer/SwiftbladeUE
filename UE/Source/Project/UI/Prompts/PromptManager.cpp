@@ -22,18 +22,20 @@ UPromptBase* APromptManager::CreatePrompt(const EPromptType aPrompt)
 	CHECK_RETURN_LOG(!instance, "Could not create or find prompt instance", nullptr);
 	instance->OnCreate();
 	instance->AddToCamera();
+	myOpenPrompts.Add(instance); 
 	return instance; 
 }
 
 void APromptManager::DestroyPrompt(const EPromptType aPrompt)
 {
-	for (int i = 0; i < myOpenPrompts.Num(); i++)
+ 	CHECK_RETURN(!myOpenPrompts.Num());
+	for (int i = myOpenPrompts.Num() - 1; i >= 0; i--)
 	{
 		const auto prompt = myOpenPrompts[i];
+		CHECK_CONTINUE(!prompt); 
 		CHECK_CONTINUE(prompt->GetPromptType() != aPrompt);
 		prompt->OnDestroy();
 		prompt->RemoveFromCamera();
-		prompt->Destroy();
 		myOpenPrompts.RemoveAt(i);
 	}
 }

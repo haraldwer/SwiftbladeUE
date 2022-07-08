@@ -1,9 +1,7 @@
 ﻿#include "EnemyStateMove.h"
 
-#include "DrawDebugHelpers.h"
 #include "Attacking/EnemyStateAttackBase.h"
 #include "EnemyStateIdle.h"
-#include "Project/Enemies/Enemy.h"
 #include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 
 UEnemyStateMove::UEnemyStateMove()
@@ -20,9 +18,7 @@ void UEnemyStateMove::Update(const float aDT)
 {
 	Super::Update(aDT);
 
-	auto& self = GetSelf();
-	auto& behaviour = GetBehaviour();
-	
+	auto& behaviour = GetBehaviour();	
 	if (!behaviour.CheckTargetVisibility())
 	{
 		behaviour.SetTarget(nullptr);

@@ -34,6 +34,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float myVelocityCameraTilt = 2.0f;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AEffect> myFootstepBP;
+	UPROPERTY(EditDefaultsOnly)
+	FTransform myLeftFoot;
+	UPROPERTY(EditDefaultsOnly)
+	FTransform myRightFoot;
+
 private:
 	float myDist = 0.0f;
+	bool myCosIncreasing = false;
 };

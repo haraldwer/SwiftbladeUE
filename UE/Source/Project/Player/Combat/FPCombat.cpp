@@ -7,6 +7,8 @@
 #include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Player/Animation/States/FPAnimationStateBase.h"
 #include "Project/Player/Movement/FPMovement.h"
+#include "Project/UI/Prompts/PromptManager.h"
+#include "Project/Utility/MainSingelton.h"
 #include "States/FPCombatStateBase.h"
 #include "States/FPCombatStateIdle.h"
 #include "States/FPCombatStateNoSword.h"
@@ -70,6 +72,7 @@ void UFPCombat::PickupSword()
 	LOG("PickupSword");
 	sword->SetPlayer(&GetCharacter());
 	SetState<UFPCombatStateIdle>();
+	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::INTRO);
 }
 
 void UFPCombat::ReturnSword()

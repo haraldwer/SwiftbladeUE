@@ -22,8 +22,7 @@ void UEnemyStateIdle::Update(const float aDT)
 	{
 		myLastTargetCheckTime = time;
 		auto& behaviour = GetBehaviour();
-		AActor* target = behaviour.FindTarget();
-		if (target)
+		if (AActor* target = behaviour.FindTarget())
 		{
 			behaviour.SetTarget(target);
 			SetState(UEnemyStateMove::StaticClass());

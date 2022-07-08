@@ -99,17 +99,8 @@ bool UEnemyBehaviour::CanAttackTarget() const
 	const auto owner = GetOwner();
 	CHECK_RETURN_LOG(!owner, "Invalid owner", false);
 	const FVector location = owner->GetActorLocation();
-	const FVector forward = owner->GetActorForwardVector();
 	const auto pos = myCurrentTarget->GetActorLocation();
-	const auto diff = pos - location;
-	const auto dist = diff.Size();
-	if (dist > myAttackDistance)
-		return false;
-	const auto dot = FVector::DotProduct(diff.GetSafeNormal(), forward);
-	if (dot < myLookDot)
-		return false;
-	// TODO: Trace? 
-	return true;
+	return (pos - location).Size() <= myAttackDistance;
 }
 
 void UEnemyBehaviour::MoveTowards(AActor* aTarget, const float aMovementSpeed, const float aForwardWeight, const float aDT) const
@@ -172,18 +163,33 @@ void UEnemyBehaviour::RotateTowards(AActor* aTarget, const float aRotationSpeed,
 
 bool UEnemyBehaviour::CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVector& aLocation, const FVector& aForward) const
 {
-	CHECK_RETURN_LOG(!anActor.IsValid(), "Invalid actor", false);
-	const auto pos = anActor->GetActorLocation();
+	auto actor = anActor.Get();
+	CHECK_RETURN_LOG(!actor, "Invalid actor", false);
+	const auto pos = actor->GetActorLocation();
 	const auto diff = pos - aLocation;
 	const auto dist = diff.Size();
-	if (dist < myHearDistance)
-		return true;
+
+	// In the right direction? 
 	const auto dot = FVector::DotProduct(diff.GetSafeNormal(), aForward);
 	if (dot < myLookDot)
-		return false;
-	const auto validDist = myCurrentTarget == anActor ? myLookDistance : myTargetDistance;
+	{
+		// Hear distance
+		if (dist >= myHearDistance)
+			return false;
+	}
+
+	// Within distance? 
+	const auto validDist = myCurrentTarget == actor ? myLookDistance : myTargetDistance;
 	if (dist >= validDist)
 		return false;
+
+	FHitResult result;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(actor);
+	params.AddIgnoredActor(GetOwner());
+	if (GetWorld()->LineTraceSingleByChannel(result, aLocation, pos, ECC_WorldStatic, params))
+		return false;
+	
 	return true;
 }
 

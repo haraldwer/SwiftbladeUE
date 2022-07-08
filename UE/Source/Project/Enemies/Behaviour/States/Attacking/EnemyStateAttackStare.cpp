@@ -65,7 +65,6 @@ void UEnemyStateAttackStare::Attack(const float aDT)
 	const float rotChangedDot = myTargetPreviousRotation.Vector().Dot(targetRot.Vector());
 	const float rotChanged = 1.0f - (rotChangedDot + 1.0f) * 0.5f;
 	myStareValue -= rotChanged * myStarePullMul;
-	LOG("Stare value" + FString::SanitizeFloat(myStareValue));
 	
 	// Release if pull fast enough
 	if (myStareValue < 0)
@@ -85,7 +84,6 @@ void UEnemyStateAttackStare::Attack(const float aDT)
 	// Interp speed 
 	const float starePart = (myStareValue / myAttackTime);
 	const float interpSpeed = FMath::Lerp(myStareRotInterpStart, myStareRotInterpEnd, starePart);
-	LOG("Interp speed" + FString::SanitizeFloat(interpSpeed));
 	
 	// Stare, apply on rotation
 	const auto lookAtRotation =
@@ -123,12 +121,4 @@ void UEnemyStateAttackStare::PerformAttack(AActor* aTarget)
 	const auto controller = GetSelf().GetController();
 	UGameplayStatics::ApplyDamage(aTarget, 1.0f, controller, &self, UDamageType::StaticClass());	 
 	Super::PerformAttack(aTarget);
-}
-
-void UEnemyStateAttackStare::OnSubStateChanged(EEnemyAttackState aPreviousState)
-{
-	if (aPreviousState == EEnemyAttackState::ATTACK &&
-		GetSubState() != EEnemyAttackState::ATTACK)
-	{
-	}
 }

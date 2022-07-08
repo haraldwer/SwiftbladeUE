@@ -2,6 +2,7 @@
 
 #include "Project/Enemies/Behaviour/States/EnemyStateMove.h"
 #include "Project/Enemies/Behaviour/EnemyBehaviour.h"
+#include "Project/Enemies/Behaviour/States/EnemyStateIdle.h"
 
 UEnemyStateAttackBase::UEnemyStateAttackBase()
 {
@@ -23,6 +24,14 @@ void UEnemyStateAttackBase::Update(const float aDT)
 {
 	Super::Update(aDT);
 
+	auto& behaviour = GetBehaviour();
+	if (!behaviour.CheckTargetVisibility() && myCanAbortAttack)
+	{
+		behaviour.SetTarget(nullptr);
+		SetState(UEnemyStateIdle::StaticClass());
+		return;
+	}
+	
 	switch (mySubState)
 	{
 	case EEnemyAttackState::CHARGE:  Charge(aDT); break;

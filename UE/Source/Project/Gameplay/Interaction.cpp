@@ -21,6 +21,8 @@ void UInteraction::BeginPlay()
 	for (const auto& child : children)
 		if (const auto hand = Cast<UInteractionHand>(child))
 			myHandComponents.Add(hand);
+	myHandComponents.Sort([](const UInteractionHand& aFirst, const UInteractionHand& aSecond)
+		{ return aFirst.GetName() < aSecond.GetName(); });
 }
 
 void UInteraction::BeginInteract(AFPCharacter* aCharacter)

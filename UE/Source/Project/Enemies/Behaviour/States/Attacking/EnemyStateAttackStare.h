@@ -17,8 +17,7 @@ protected:
 	void Attack(const float aDT) override;
 	void Recover(const float aDT) override;
 	virtual void PerformAttack(AActor* aTarget) override;
-	virtual void OnSubStateChanged(EEnemyAttackState aPreviousState) override;
-
+	
 	UPROPERTY(EditDefaultsOnly)
 	float myStareRotationSpeed = 30.0f;
 	
