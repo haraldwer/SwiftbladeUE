@@ -11,6 +11,7 @@
 #include "Combat/FPCombat.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -42,23 +43,29 @@ AFPCharacter::AFPCharacter()
 	
 	myFPMovement = CreateDefaultSubobject<UFPMovement>("FPMovement");
 	CHECK_ASSERT(!myFPMovement, "Failed to create movement component");
+	//myFPMovement->SetupAttachment(RootComponent);
 	
 	myFPAnimator = CreateDefaultSubobject<UFPAnimatorNew>("FPAnimator");
 	CHECK_ASSERT(!myFPAnimator, "Failed to create animator component");
+	//myFPAnimator->SetupAttachment(RootComponent);
 	
 	myFPCombat = CreateDefaultSubobject<UFPCombat>("FPCombat");
 	CHECK_ASSERT(!myFPCombat, "Failed to create combat component");
+	//myFPCombat->SetupAttachment(RootComponent);
 
-	if(const auto capsule = GetCapsuleComponent())
-	{
-		myWallDetection = CreateDefaultSubobject<UCapsuleComponent>("WallDetection");
-		CHECK_ASSERT(!myWallDetection, "Failed to create wall detection component");
-		float radius, halfHeight;
-		capsule->GetUnscaledCapsuleSize(radius, halfHeight);
-		myWallDetection->InitCapsuleSize(radius + 10, halfHeight + 10);
-		myWallDetection->SetupAttachment(RootComponent);
-		myWallDetection->SetGenerateOverlapEvents(true);
-	}
+	myInteractionCollider = CreateDefaultSubobject<USphereComponent>("InteractionCollider");
+	CHECK_ASSERT(!myInteractionCollider, "Failed to create interaction collider");
+	myInteractionCollider->SetupAttachment(myCamera);
+
+	const auto capsule = GetCapsuleComponent();
+	CHECK_ASSERT(!capsule, "No capsule component");
+	myWallDetection = CreateDefaultSubobject<UCapsuleComponent>("WallDetection");
+	CHECK_ASSERT(!myWallDetection, "Failed to create wall detection component");
+	float radius, halfHeight;
+	capsule->GetUnscaledCapsuleSize(radius, halfHeight);
+	myWallDetection->InitCapsuleSize(radius + 10, halfHeight + 10);
+	myWallDetection->SetupAttachment(RootComponent);
+	myWallDetection->SetGenerateOverlapEvents(true);
 }
 
 void AFPCharacter::BeginPlay()
@@ -90,7 +97,7 @@ void AFPCharacter::BeginPlay()
 			myLeftHand = GetWorld()->SpawnActor<AHand>(myHandBP, params);
 			myLeftHand->AttachToActor(this,
 				FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-			myLeftHand->SetActorRelativeScale3D(FVector(1, -1, 1));
+			myLeftHand->SetActorRelativeTransform(GetActorTransform());
 		}
 	}
 

@@ -50,6 +50,9 @@ protected:
 	int myNumbArenas = 0;
 
 	UPROPERTY(EditDefaultsOnly)
+	bool myEnableOverlapEvents = false; 
+	
+	UPROPERTY(EditDefaultsOnly)
 	TMap<EGeneratedObstacleType, FRandomObjectContainer> myPlaceableActors;
 	
 private:

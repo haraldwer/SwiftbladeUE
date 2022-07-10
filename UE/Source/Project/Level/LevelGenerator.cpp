@@ -232,6 +232,9 @@ void ALevelGenerator::GenerateObject(const ALevelGeneratedObject* aSpawner)
 
 void ALevelGenerator::EnableOverlapEvents() const
 {
+	if (!myEnableOverlapEvents)
+		return;
+	
 	LOG("Enabling overlap events");
 
 	TArray<AActor*> actors;

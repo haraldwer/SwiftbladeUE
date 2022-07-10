@@ -51,7 +51,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsInteracting() const { return myInteracting; }
 
-	bool GetHand(int32 index, FTransform& aTrans, EHandState& aHandState);
+	bool GetHand(int32 anIndex, FTransform& aTrans, EHandState& aHandState);
 	bool GetLeft(FTransform& aTrans, EHandState& aHandState) { return GetHand(0, aTrans, aHandState); }
 	bool GetRight(FTransform& aTrans, EHandState& aHandState) { return GetHand(1, aTrans, aHandState); }
 
@@ -73,8 +73,10 @@ protected:
 	FOnClickInteraction myOnClickInteraction;
 	
 private:
+
+	UPROPERTY()
+	TArray<UInteractionHand*> myHandComponents;
 	
-	TArray<TWeakObjectPtr<UInteractionHand>> myHandComponents;
 	bool myFinished = false;
 	bool myInteracting = false;
 };

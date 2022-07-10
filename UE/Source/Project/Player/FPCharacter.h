@@ -43,6 +43,8 @@ public:
 	class UFPCombat* GetCombat() const					{ return myFPCombat; }
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UCapsuleComponent* GetWallDetection() const	{ return myWallDetection; }
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
+	class USphereComponent* GetInteractionCollider() const{ return myInteractionCollider; }
 
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class AHand* GetRightHand() const					{ return myRightHand; }
@@ -102,6 +104,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Components")
 	UCapsuleComponent* myWallDetection;
+	UPROPERTY(EditDefaultsOnly, Category="Components")
+	USphereComponent* myInteractionCollider;
 	
 	// Hands
 	UPROPERTY(EditDefaultsOnly, Category = "Hands")

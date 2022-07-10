@@ -2,11 +2,14 @@
 
 #include "FPCombatStateIdle.h"
 #include "FPCombatStateNoSword.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Enemies/Enemy.h"
 #include "Project/Gameplay/Checkpoint.h"
+#include "Project/Gameplay/Breakable/Breakable.h"
+#include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Animation/States/FPAnimationStateIdle.h"
@@ -21,37 +24,63 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 	if (timeDiff > myStrikeDamageDuration)
 		return nullptr;
 
-	const auto sword = GetSword();
-	CHECK_RETURN(!sword, UFPCombatStateNoSword::StaticClass());
+	if (myHasHit)
+		return nullptr;
 
-	// Checkpoints
-	for (const auto& c : sword->GetOverlaps(ACheckpoint::StaticClass()))
+	const auto sword = GetSword();
+	CHECK_RETURN_LOG(!sword, "No sword", UFPCombatStateNoSword::StaticClass()); 
+
+	const auto& character = GetCharacter();
+	const auto collider = character.GetInteractionCollider();
+	CHECK_RETURN_LOG(!collider, "No interaction collider", UFPCombatStateIdle::StaticClass());
+
+	auto overlaps = collider->GetOverlapInfos();
+	for (auto& overlap : overlaps)
 	{
-		const auto checkpoint = Cast<ACheckpoint>(c);
-		CHECK_CONTINUE_LOG(!checkpoint, "Not a checkpoint")
-		if (GetController().TrySetCheckpoint(checkpoint))
+		const auto component = overlap.OverlapInfo.Component.Get();
+		CHECK_CONTINUE(!component);
+		AActor* owner = component->GetOwner();
+		CHECK_CONTINUE(!owner);
+		CHECK_CONTINUE(owner == &character);
+		
+		// Checkpoints
+		if (const auto checkpoint = Cast<ACheckpoint>(owner))
 		{
-			sword->CreateHitEffect(checkpoint);
+			if (GetController().TrySetCheckpoint(checkpoint))
+			{
+				const auto hitTrans = sword->GetHitTransform(checkpoint);
+				sword->CreateHitEffect(hitTrans);
+			}
+			myHasHit = true;
 			break;
 		}
-	}
 
-	// Enemies
-	// Only hit one enemy per strike
-	CHECK_RETURN(myHasHit, nullptr);
-	for (const auto& e : sword->GetOverlaps(AEnemy::StaticClass()))
-	{
-		const auto enemy = Cast<AEnemy>(e);
-		CHECK_CONTINUE_LOG(!sword, "Sword nullptr");
-		UGameplayStatics::ApplyDamage(
-			enemy,
-			1.0f,
-			&GetController(),
-			sword,
-			UDamageType::StaticClass());
-		sword->CreateHitEffect(enemy); 
-		myHasHit = true; 
-		break;
+		// Enemies
+		if (const auto enemy = Cast<AEnemy>(owner))
+		{
+			UGameplayStatics::ApplyDamage(
+				enemy,
+				1.0f,
+				&GetController(),
+				sword,
+				UDamageType::StaticClass());
+			const auto hitTrans = sword->GetHitTransform(enemy);
+			sword->CreateHitEffect(hitTrans); 
+			myHasHit = true;
+			LOG("Apply damage");
+			break;
+		}
+		
+		// Breakable stuff
+		if (const auto breakable = Cast<UBreakable>(owner->GetComponentByClass(UBreakable::StaticClass())))
+		{
+			const auto hitTrans = sword->GetHitTransform(owner);
+			sword->CreateHitEffect(hitTrans);
+			const auto position = sword->GetActorLocation();
+			const auto normal = sword->GetActorForwardVector(); 
+			breakable->Break(position, normal);
+			break; 
+		}
 	}
 	
 	return nullptr;

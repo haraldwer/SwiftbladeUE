@@ -15,6 +15,7 @@ UClass* UFPAnimationStateIdle::Update(float aDT)
 	FFPAnimationHandPositions hands;
 	hands.myRight = lerpTrans;
 	hands.myLeft = FlipRightToLeft(hands.myRight);
+	
 	hands.myPosInterpSpd = 5.0f;
     hands.myRotInterpSpd = 5.0f;
 

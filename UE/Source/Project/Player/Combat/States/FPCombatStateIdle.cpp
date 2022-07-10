@@ -6,7 +6,7 @@
 
 UClass* UFPCombatStateIdle::Update(float aDT)
 {
-	if (!GetCombat().HasSword())
+	if (!GetCombat().GetSword())
 		return UFPCombatStateNoSword::StaticClass();
 	return nullptr;
 }

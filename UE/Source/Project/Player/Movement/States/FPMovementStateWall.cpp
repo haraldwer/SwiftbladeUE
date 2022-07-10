@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/WorldSettings.h"
 #include "Project/Gameplay/AbilityBlocker.h"
+#include "Project/Gameplay/Sticky.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
@@ -195,15 +196,12 @@ bool UFPMovementStateWall::GetIsOverlapping() const
 		const auto overlapInfo = capsule->GetOverlapInfos();
 		for (auto& it : overlapInfo)
 		{
-			if (it.OverlapInfo.GetActor() == GetOwner())
-				continue;
-
-			if (it.OverlapInfo.GetActor()->IsA(ASword::StaticClass()))
-				continue;
-
-			if (it.OverlapInfo.GetActor()->IsA(AAbilityBlocker::StaticClass()))
-				continue;
-
+			const auto actor = it.OverlapInfo.GetActor();
+			CHECK_CONTINUE(!actor);
+			CHECK_CONTINUE(actor == GetOwner())
+			CHECK_CONTINUE(actor->IsA(ASword::StaticClass()));
+			CHECK_CONTINUE(actor->IsA(AAbilityBlocker::StaticClass()));
+			CHECK_CONTINUE(!actor->GetComponentByClass(USticky::StaticClass()));
 			return true;
 		}
 	}
@@ -252,9 +250,7 @@ bool UFPMovementStateWall::FindWallInfo(FVector& aNormal, float& aDistance) cons
 	for (auto& sweep : sweeps)
 	{
 		const auto result = Sweep(sweep.Key, sweep.Value, mySweepRadius);
-		//DrawDebugLine(GetWorld(), sweep.Key, sweep.Value, FColor(0, 255, 0), false, 5.0f);
 		CHECK_CONTINUE(!IsValidHit(result));
-		//DrawDebugSphere(GetWorld(), result.Location, mySweepRadius, 8, FColor(255, 0, 0), false, 5.0f);
 		
 		hits++;
 
@@ -281,10 +277,18 @@ bool UFPMovementStateWall::IsValidHit(const FHitResult& aHit)
 {
 	CHECK_RETURN(!aHit.bBlockingHit, false);
 	CHECK_RETURN(FMath::Abs(aHit.Normal.Z) > 0.5f, false);
+
+	// Require overlap events
+	const auto comp = aHit.GetComponent();
+	CHECK_RETURN(!comp, false);
+	CHECK_RETURN(!comp->GetGenerateOverlapEvents(), false);
 		
 	const auto actor = aHit.GetActor();
 	CHECK_RETURN(!actor, false);
 	CHECK_RETURN(actor->IsA(AAbilityBlocker::StaticClass()), false);
+
+	// Is sticky? 
+	CHECK_RETURN(!actor->GetComponentByClass(USticky::StaticClass()), false);
 
 	return true; 
 }

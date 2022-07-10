@@ -11,17 +11,6 @@ ASword::ASword()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-TArray<AActor*> ASword::GetOverlaps(UClass* aClass) const
-{
-	TArray<AActor*> result;
-
-	if (!myPlayer.IsValid())
-		return result;
-	
-	GetOverlappingActors(result, aClass);
-	return result;
-}
-
 void ASword::SetPlayer(AFPCharacter* aPlayer)
 {
 	if (!aPlayer)
@@ -40,9 +29,9 @@ void ASword::Return()
 	myPlayer = nullptr;
 }
 
-void ASword::CreateHitEffect(const AActor* anActor) const
+FTransform ASword::GetHitTransform(const AActor* anActor) const
 {
-	CHECK_RETURN(!myPlayer.IsValid());
+	CHECK_RETURN(!myPlayer.IsValid(), FTransform());
 	FTransform trans = GetTransform();
 	
 	const FVector base = trans.GetLocation() + GetActorForwardVector() * 20.0f;
@@ -52,8 +41,12 @@ void ASword::CreateHitEffect(const AActor* anActor) const
 		FMath::ClosestPointOnLine(start, end, anActor->GetActorLocation()) :
 		FMath::Lerp(start, end, 0.5f);
 	trans.SetLocation(point);
-	
-	myPlayer->CreateEffect(myHitEffectBP, trans);
+	return trans; 
+}
+
+void ASword::CreateHitEffect(const FTransform& aTrans) const
+{
+	myPlayer->CreateEffect(myHitEffectBP, aTrans);
 }
 
 // Called when the game starts or when spawned

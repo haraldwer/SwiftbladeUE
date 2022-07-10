@@ -64,10 +64,10 @@ void UInteraction::FinishInteraction()
 	myFinished = true;
 }
 
-bool UInteraction::GetHand(int32 index, FTransform& aTrans, EHandState& aHandState)
+bool UInteraction::GetHand(const int32 anIndex, FTransform& aTrans, EHandState& aHandState)
 {
-	CHECK_RETURN(!myHandComponents.IsValidIndex(index), false);
-	const auto hand = myHandComponents[index].Get();
+	CHECK_RETURN(!myHandComponents.IsValidIndex(anIndex), false);
+	const auto hand = myHandComponents[anIndex];
 	CHECK_RETURN(!hand, false)
 	aTrans = hand->GetComponentTransform();
 	aHandState = hand->GetHandState();

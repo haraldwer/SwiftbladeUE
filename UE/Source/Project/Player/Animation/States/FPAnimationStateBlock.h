@@ -27,10 +27,10 @@ protected:
 	float myHandWobbleSpeed = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myOnBlockCameraTilt = 0.5f;
+	float myOnBlockCameraTilt = 0.3f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myOnBlockForce = 0.5f;
+	float myOnBlockForce = 50.0f;
 	
 private:
 

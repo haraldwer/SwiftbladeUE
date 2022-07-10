@@ -30,7 +30,7 @@ void AProjectile::Tick(float DeltaTime)
 	
 	if (currentTime > myStartTime + myLifetime + myInitialDelay)
 	{
-		// TODO: Never reaches this, don't know why
+		myOutOfRange = true;
 		Destroy();
 		return;
 	}
@@ -51,18 +51,14 @@ void AProjectile::Tick(float DeltaTime)
 		{
 			if (!hit.bBlockingHit)
 				continue;
-			if (const auto sword = Cast<ASword>(hit.GetActor()))
+			if (Cast<ASword>(hit.GetActor()))
 				continue;
-			if (const auto hand = Cast<AHand>(hit.GetActor()))
+			if (Cast<AHand>(hit.GetActor()))
 				continue;
 			
 			if (const auto character = Cast<AFPCharacter>(hit.GetActor()))
 			{
 				UGameplayStatics::ApplyDamage(character, 1.0f, nullptr, GetOwner(), UDamageType::StaticClass());
-				//LOG("damage");
-				//DrawDebugSphere(GetWorld(), trans.GetLocation(), 12.0f, 12, FColor(255, 0, 0), true);
-				//DrawDebugLine(GetWorld(), trans.GetLocation(), myPreviousLocation, FColor(255, 0, 0), true);
-				CreateHitEffects();
 				Destroy();
 			}
 		}
@@ -71,15 +67,17 @@ void AProjectile::Tick(float DeltaTime)
 	if (GetWorld()->LineTraceMultiByChannel(hits, trans.GetLocation(), myPreviousLocation, ECC_WorldStatic, params))
 	{
 		for (const auto& hit : hits)
-		{
 			if (hit.bBlockingHit)
-			{
-				CreateHitEffects();
 				Destroy();
-			}
-		}
 	}
 
 	myPreviousLocation = trans.GetLocation();
+}
+
+void AProjectile::Destroyed()
+{
+	if (!myOutOfRange)
+		CreateHitEffects();
+	Super::Destroyed();
 }
 

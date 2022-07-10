@@ -16,11 +16,11 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	TArray<AActor*> GetOverlaps(UClass* aClass) const;
 	void SetPlayer(class AFPCharacter* aPlayer);
 	void Return();
-	
-	void CreateHitEffect(const AActor* anActor) const;
+
+	FTransform GetHitTransform(const AActor* anActor) const;
+	void CreateHitEffect(const FTransform& aTrans) const;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetCrystalsActive(int32 aCrystalCount, bool aShowEffect);

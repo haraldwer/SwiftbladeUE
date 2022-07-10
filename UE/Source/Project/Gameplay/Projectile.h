@@ -14,6 +14,7 @@ public:
 	AProjectile();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetInstigator(AActor* anInstigator) { myInstigator = anInstigator; }
@@ -34,6 +35,7 @@ protected:
 
 private:
 
+	bool myOutOfRange = false;
 	float myStartTime = 0.0f;
 	FVector myPreviousLocation = FVector::ZeroVector;
 	TWeakObjectPtr<AActor> myInstigator;

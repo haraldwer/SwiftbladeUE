@@ -26,14 +26,13 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float myBlockDuration = 0.2f;
+	float myBlockDuration = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myBlockCooldown = 0.2f;
 
 private:
-
-	bool myHasBlocked = false; 
+ 
 	float myBlockTimestamp = 0.0f; 
 	
 };
