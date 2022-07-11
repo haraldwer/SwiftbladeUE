@@ -103,7 +103,7 @@ bool UEnemyBehaviour::CanAttackTarget() const
 	return (pos - location).Size() <= myAttackDistance;
 }
 
-void UEnemyBehaviour::MoveTowards(AActor* aTarget, const float aMovementSpeed, const float aForwardWeight, const float aDT) const
+void UEnemyBehaviour::MoveTowards(const AActor* aTarget, const float aMovementSpeed, const float aForwardWeight, const float aDT) const
 {
 	CHECK_RETURN_LOG(!aTarget, "Target nullptr");
 	
@@ -122,10 +122,10 @@ void UEnemyBehaviour::MoveTowards(AActor* aTarget, const float aMovementSpeed, c
 	if (const auto collider = self->GetCollider())
 	{
 		collider->AddForce(dir * aMovementSpeed, NAME_None, true);
-		DrawDebugLine(GetWorld(),
-			collider->GetComponentLocation(),
-			collider->GetComponentLocation() + collider->GetComponentVelocity(),
-			FColor(0, 255, 0, 255));
+		//DrawDebugLine(GetWorld(),
+		//	collider->GetComponentLocation(),
+		//	collider->GetComponentLocation() + collider->GetComponentVelocity(),
+		//	FColor(0, 255, 0, 255));
 	}
 }
 
@@ -154,10 +154,10 @@ void UEnemyBehaviour::RotateTowards(AActor* aTarget, const float aRotationSpeed,
 	{
 		collider->AddTorqueInRadians(cross * aRotationSpeed, NAME_None, true);
 		collider->AddTorqueInRadians(rightCross * 20.0f, NAME_None, true);
-		DrawDebugLine(GetWorld(),
-			collider->GetComponentLocation(),
-			collider->GetComponentLocation() + rightCross * 100.0f,
-			FColor(0, 0, 255, 255));
+		//DrawDebugLine(GetWorld(),
+		//	collider->GetComponentLocation(),
+		//	collider->GetComponentLocation() + rightCross * 100.0f,
+		//	FColor(0, 0, 255, 255));
 	}
 }
 

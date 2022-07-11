@@ -31,7 +31,7 @@ public:
 	void SetTarget(AActor* aTarget) { myCurrentTarget = aTarget; }
 	AActor* GetTarget() const { return myCurrentTarget.Get(); }
 
-	void MoveTowards(AActor* aTarget, float aMovementSpeed, float aForwardWeight, float aDT) const;
+	void MoveTowards(const AActor* aTarget, float aMovementSpeed, float aForwardWeight, float aDT) const;
 	void RotateTowards(AActor* aTarget, float aRotationSpeed, float aDT) const;
 	
 protected:
