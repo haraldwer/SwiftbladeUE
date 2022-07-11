@@ -1,0 +1,130 @@
+/*
+
+https://openprocessing.org/sketch/564686
+Voronoi pattern generator
+
+v1.0 06/2018
+Written by Fabian Kober
+fabian-kober@gmx.net
+ */
+
+
+// the amount of cells to generate
+let numOfCells = 400;
+// factor for the brighntess of the pattern
+let brightnessFactor = 3;
+let resolution = 1024;
+
+// use gaussian ditribution to seed the cells
+let useRandomGaussian = false;
+
+// the means for x and y if using gaussian
+let gaussianMeanX;
+let gaussianMeanY;
+
+// standard deviaton for x and y if using gaussian
+let gaussianSdX;
+let gaussianSdY;
+
+// menu to change a bunch of values
+let menu;
+
+function setup() {
+    // setup canvas
+    createCanvas(resolution, resolution);
+    background(0);
+
+    // setup gaussian values
+    gaussianMeanX = width / 2;
+    gaussianMeanY = height / 2;
+    gaussianSdX = width / 4;
+    gaussianSdY = height / 4;
+
+    // create menu and hide it
+    menu = new Menu(10, 10);
+    menu.toggle();
+    
+    // generate
+    generateVoronoi();
+}
+
+// generates a voronoi pattern
+function generateVoronoi() {
+    // first we need to create a bunch of points as "seeds" for our cells
+    let points = [];
+    for (let i = 0; i < numOfCells; ++i) {
+        let point;
+        // choose the position of the point either by using gaussian distribution to get more (ergo smaller) cells at a defined point or by using standart noise
+        if (useRandomGaussian) {
+            point = createVector(randomGaussian(gaussianMeanX, gaussianSdX), randomGaussian(gaussianMeanY, gaussianSdY));
+        } else {
+            point = createVector(random(width), random(height));
+        }
+
+        // save the point
+        points.push(point);
+			
+				//make tilable. This is really slow, maybe I can come up with a better way some time
+				let tiledUp = createVector(point.x, point.y - height);
+				let tiledDown = createVector(point.x, point.y + height);
+				let tiledLeft = createVector(point.x - width, point.y);
+				let tiledRight = createVector(point.x + width, point.y);
+				let tiledUpRight = createVector(point.x + width, point.y-height);
+				let tiledDownRight = createVector(point.x + width, point.y+height);
+				let tiledUpLeft = createVector(point.x - width, point.y-height);
+				let tiledDownLeft = createVector(point.x - width, point.y+height);
+			
+				points.push(tiledUp);
+				points.push(tiledDown);
+				points.push(tiledLeft);
+				points.push(tiledRight);
+				points.push(tiledUpRight);
+				points.push(tiledUpLeft);
+				points.push(tiledDownRight);
+				points.push(tiledDownLeft);
+    }
+
+    // now create the voronoi pattern from the cell seeds by going through all pixels and getting the distance of that pixel to the closest seed point and using that distance as a color
+    loadPixels();
+		let closestDist = Infinity;
+		let x = 0;
+		let y = 0;
+		let dx = 0;
+		let dy = 0;
+		let d = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+        // get x and y position of the pixel
+        x = floor((i * 0.25) / width);
+     	  y = floor((i * 0.25) % width);
+        
+        // calculate the distance to the closest point
+        closestDist = Infinity;
+        for (let j = 0; j < points.length; ++j) {
+						dx = x-points[j].x;
+						dy = y-points[j].y;
+						d = (dx*dx)+(dy*dy);
+            closestDist = min(closestDist, d);
+        }
+
+        // calculate a brightness from the distance value and set it as the pixel color
+        pixels[i] = Math.sqrt(closestDist) * brightnessFactor;
+        pixels[i + 1] = 0;
+        pixels[i + 2] = 0;
+        pixels[i + 3] = 255;
+    }
+    updatePixels();
+}
+
+// handle key presses
+function keyPressed() {
+    switch (key) {
+        case ' ':
+            menu.toggle();
+            break;
+            
+        case 'S':
+						// for some reason the file name is messed up on OpenProcessing, this works locally but not on here. It saves the image though, it just has a weird name
+            saveCanvas('Voronoi.png', 'png');
+            break;
+    }
+}
