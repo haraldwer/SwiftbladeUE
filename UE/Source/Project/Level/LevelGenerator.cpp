@@ -45,15 +45,15 @@ void ALevelGenerator::GenerateLevelOrder(const int aSeed)
 	
 	FMath::RandInit(aSeed);
 
-	TArray<FString> easy = GetLevelPool("Easy", myNumbEasyLevels);
-	TArray<FString> arena = GetLevelPool("Arena", myNumbArenas);
+	TArray<FString> easy = GetLevelPool("SL_Easy", myNumbEasyLevels);
+	TArray<FString> arena = GetLevelPool("SL_Arena", myNumbArenas);
 
 	TArray<TArray<FString>> total;
-	total.Add(GetLevelPool("Medium", myNumbMediumLevels));
-	total.Add(GetLevelPool("Hard", myNumbHardLevels));
+	total.Add(GetLevelPool("SL_Medium", myNumbMediumLevels));
+	total.Add(GetLevelPool("SL_Hard", myNumbHardLevels));
 
 	myLevels.Reset();
-	myLevels.Add("Start"); // Start of game
+	myLevels.Add("SL_Start"); // Start of game
 	
 	TArray<FString> pool = easy;
 	while (pool.Num() != 0)
@@ -77,7 +77,7 @@ void ALevelGenerator::GenerateLevelOrder(const int aSeed)
 			pool.RemoveAt(index);
 	}
 
-	myLevels.Add("End"); // End of game
+	myLevels.Add("SL_End"); // End of game
 
 	if (arena.Num() > 0)
 	{
@@ -86,9 +86,9 @@ void ALevelGenerator::GenerateLevelOrder(const int aSeed)
 		for (int i = 0; i < arena.Num(); i++)
 		{
 			const int32 index = FMath::Clamp(arenaStep * (i + 1), 1, myLevels.Num() - 1);
-			myLevels.Insert("Section_Start", index);
+			myLevels.Insert("SL_Section_Start", index);
 			myLevels.Insert(arena[i], index);
-			myLevels.Insert("Section_End", index);
+			myLevels.Insert("SL_Section_End", index);
 			myArenaIndices.Add(index + 1);		
 		}
 	}
@@ -239,13 +239,10 @@ void ALevelGenerator::EnableOverlapEvents() const
 
 	TArray<AActor*> actors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), actors);
-	for(auto& it : actors)
+	for(const auto& it : actors)
 	{
-		const auto comp = it->GetComponentByClass(UStaticMeshComponent::StaticClass());
-		if (!comp)
-			continue;
-		const auto staticMesh = Cast<UStaticMeshComponent>(comp);
-		staticMesh->SetGenerateOverlapEvents(true);
+		if (const auto comp = Cast<UStaticMeshComponent>(it->GetComponentByClass(UStaticMeshComponent::StaticClass())))
+			comp->SetGenerateOverlapEvents(true);
 	}
 }
 

@@ -10,8 +10,8 @@ struct FFPAnimationHandPositions
 {
 	GENERATED_BODY()
 	
-	FTransform myRight;
-	FTransform myLeft;
+	FTransform myRight = FTransform::Identity;
+	FTransform myLeft = FTransform::Identity;
 
 	EHandState myRightHandState = EHandState::OPEN;
 	EHandState myLeftHandState = EHandState::OPEN;
@@ -19,11 +19,11 @@ struct FFPAnimationHandPositions
 	float myPosInterpSpd = 10.0f;
 	float myRotInterpSpd = 10.0f;
 	
-	static FFPAnimationHandPositions Interp(const FFPAnimationHandPositions& aCurrent, const FFPAnimationHandPositions& aTarget, const float aDT)
+	static FFPAnimationHandPositions Interp(const FFPAnimationHandPositions& aCurrent, const FFPAnimationHandPositions& aTarget, const float aDT, const float aMaxDist)
 	{
 		FFPAnimationHandPositions result;
-		result.myLeft = LerpTransDelta(aCurrent.myLeft, aTarget.myLeft, aDT, aTarget.myRotInterpSpd, aTarget.myPosInterpSpd);
-		result.myRight = LerpTransDelta(aCurrent.myRight, aTarget.myRight, aDT, aTarget.myRotInterpSpd, aTarget.myPosInterpSpd);
+		result.myLeft = LerpTransDelta(aCurrent.myLeft, aTarget.myLeft, aDT, aTarget.myRotInterpSpd, aTarget.myPosInterpSpd, aMaxDist);
+		result.myRight = LerpTransDelta(aCurrent.myRight, aTarget.myRight, aDT, aTarget.myRotInterpSpd, aTarget.myPosInterpSpd, aMaxDist);
 		result.myLeftHandState = aTarget.myLeftHandState;
 		result.myRightHandState = aTarget.myRightHandState;
 		return result;

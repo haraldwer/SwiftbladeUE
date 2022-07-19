@@ -7,6 +7,7 @@
 #include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 #include "Project/Player/FPCamera.h"
 #include "Project/Player/FPCharacter.h"
+#include "Project/Player/Effects/FPPostProcessing.h"
 
 UEnemyStateAttackStare::UEnemyStateAttackStare()
 {
@@ -103,7 +104,8 @@ void UEnemyStateAttackStare::Attack(const float aDT)
 	mySmoothFov = FMath::FInterpTo(mySmoothFov, fov, aDT, myFovInterpSpeed);
 	if (const auto character = Cast<AFPCharacter>(target))
 	{
-		character->SetPPScalar(PP_EYE, "Strength", starePart);
+		if (const auto pp = character->GetPostProcessing())
+			pp->SetPPScalar(PP_EYE, "Strength", starePart, true);
 		if (const auto camera = character->GetFPCamera())
 			camera->AddAdditiveFov(mySmoothFov);
 	}

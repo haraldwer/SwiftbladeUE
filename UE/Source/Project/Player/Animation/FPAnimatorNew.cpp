@@ -17,7 +17,7 @@ void UFPAnimatorNew::BeginPlay()
 	
 	const auto& character = GetCharacter();
 	AddTickPrerequisiteComponent(Cast<UActorComponent>(character.GetMovement()));
-	AddTickPrerequisiteComponent(Cast<UActorComponent>(character.GetCombat()));
+	AddTickPrerequisiteComponent(Cast<UActorComponent>(character.GetCombat())); 
 }
 
 void UFPAnimatorNew::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -42,7 +42,7 @@ void UFPAnimatorNew::UpdateHands(const float aDT)
 	const auto combat = character.GetCombat();
 	CHECK_RETURN_LOG(!combat, "No combat");
 
-	myRealHands = FFPAnimationHandPositions::Interp(myRealHands, myTargetHands, aDT);
+	myRealHands = FFPAnimationHandPositions::Interp(myRealHands, myTargetHands, aDT, myMaxHandDistance);
 	
 	auto stepUpAdjusted = myRealHands;
 	stepUpAdjusted.myLeft.SetLocation(stepUpAdjusted.myLeft.GetLocation() + FVector::UpVector * myCurrentStepUp);

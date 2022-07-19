@@ -77,7 +77,7 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 			const auto hitTrans = sword->GetHitTransform(owner);
 			sword->CreateHitEffect(hitTrans);
 			const auto position = sword->GetActorLocation();
-			const auto normal = sword->GetActorForwardVector(); 
+			const auto normal = sword->GetActorRightVector(); 
 			breakable->Break(position, normal);
 			break; 
 		}

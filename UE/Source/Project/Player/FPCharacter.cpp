@@ -3,6 +3,7 @@
 
 #include "FPCamera.h"
 #include "FPController.h"
+#include "Effects/FPPostProcessing.h"
 #include "Actors/Hand.h"
 #include "Actors/Sword.h"
 #include "Animation/FPAnimatorNew.h"
@@ -53,6 +54,9 @@ AFPCharacter::AFPCharacter()
 	CHECK_ASSERT(!myFPCombat, "Failed to create combat component");
 	//myFPCombat->SetupAttachment(RootComponent);
 
+	myPP = CreateDefaultSubobject<UFPPostProcessing>("FPPostProcessing");
+	CHECK_ASSERT(!myPP, "Failed to create pp component");
+	
 	myInteractionCollider = CreateDefaultSubobject<USphereComponent>("InteractionCollider");
 	CHECK_ASSERT(!myInteractionCollider, "Failed to create interaction collider");
 	myInteractionCollider->SetupAttachment(myCamera);
@@ -97,11 +101,10 @@ void AFPCharacter::BeginPlay()
 			myLeftHand = GetWorld()->SpawnActor<AHand>(myHandBP, params);
 			myLeftHand->AttachToActor(this,
 				FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-			myLeftHand->SetActorRelativeTransform(GetActorTransform());
 		}
 	}
 
-	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "Base")
+	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "ML_Base")
 	{
 		if (const auto controller = GetFPController())
 			controller->LoadState();	
@@ -132,8 +135,6 @@ void AFPCharacter::BeginDestroy()
 void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunction& ThisTickFunction)
 {
 	Super::TickActor(DeltaTime, Tick, ThisTickFunction);
-
-	UpdatePP(DeltaTime);
 	
 	const float lowestPoint = UMainSingelton::GetLevelGenerator().GetLowestEnd();
 	if (GetActorLocation().Z < lowestPoint + myKillZ)
@@ -267,36 +268,4 @@ void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 {
 	if (myFPMovement)
 		myFPMovement->OnHit(Hit);
-}
-
-void AFPCharacter::SetPPScalar(const EFPPostProcess aPP, const FName aName, const float aValue)
-{
-	const auto find = myPPEntries.FindByPredicate([&](const PPEntry& entry) {
-		return (entry.aPP == aPP && entry.aName == aName);
-	});
-
-	if (!find)
-	{
-		myPPEntries.Add({aPP, aName, aValue, 0.0f});
-		// TODO: Add pp
-		return;
-	}
-
-	find->aTargetValue = aValue;	
-}
-
-void AFPCharacter::UpdatePP(float aDT)
-{
-	for (auto& it : myPPEntries)
-	{
-		// Interp current
-		UpdatePPScalar(it.aPP, it.aName, it.aCurrentValue);
-		it.aCurrentValue = FMath::FInterpTo(it.aCurrentValue, it.aTargetValue, aDT, myPPInterpSpeed);
-		// Decrease target
-		it.aTargetValue = FMath::FInterpTo(it.aTargetValue, 0.0f, aDT, myPPInterpSpeed);
-		if (FMath::Abs(it.aCurrentValue - it.aTargetValue) < KINDA_SMALL_NUMBER && FMath::Abs(it.aTargetValue) < KINDA_SMALL_NUMBER)
-		{
-			// TODO: Remove pp
-		}
-	}
 }

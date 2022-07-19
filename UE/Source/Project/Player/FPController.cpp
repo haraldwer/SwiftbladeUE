@@ -152,14 +152,14 @@ void AFPController::EnterSection()
 {
 	myState.myInArena = false;
 	SaveState();
-	UGameplayStatics::OpenLevel(GetWorld(), "Base");
+	UGameplayStatics::OpenLevel(GetWorld(), "ML_Base");
 }
 
 void AFPController::EnterArena()
 {
 	myState.myInArena = true;
 	SaveState();
-	UGameplayStatics::OpenLevel(GetWorld(), "Base");
+	UGameplayStatics::OpenLevel(GetWorld(), "ML_Base");
 }
 
 void AFPController::SetupInputComponent()

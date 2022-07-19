@@ -34,10 +34,13 @@ protected:
 	FTransform myDefaultSwordTransform;
 
 	UPROPERTY(EditDefaultsOnly)
+	float myMaxHandDistance = 500.0f; 
+	
+	UPROPERTY(EditDefaultsOnly)
 	float myStepUpLerpSpeed = 20.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myMaxStepUp = 20.0f;
+	float myMaxStepUp = 40.0f;
 	
 private:
 	class AFPCharacter& GetCharacter() const;

@@ -48,9 +48,10 @@ UClass* UFPCombatStateInteract::Input(const EFPCombatInput anAction)
 {
 	if (anAction == EFPCombatInput::INTERACT)
 	{
-		CheckConditions();
+		const auto result = CheckConditions();
 		if (const auto interaction = myInteraction.Get())
 			interaction->ClickInteraction(&GetCharacter());
+		return result; 
 	}
 	return nullptr;
 }

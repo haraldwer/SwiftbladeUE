@@ -36,9 +36,9 @@ protected:
 	TSubclassOf<class AMenuManager> myMenuManagerBlueprint;
 	UPROPERTY(EditDefaultsOnly, Category="UI")
 	TSubclassOf<class APromptManager> myPromptManagerBlueprint;
-	UPROPERTY(EditDefaultsOnly, Category="UI")
+	UPROPERTY(EditDefaultsOnly, Category="Enemies")
 	TSubclassOf<class AEnemyManager> myEnemyManagerBlueprint;
-	UPROPERTY(EditDefaultsOnly, Category="UI")
+	UPROPERTY(EditDefaultsOnly, Category="Levels")
 	TSubclassOf<class ALevelGenerator> myLevelGeneratorBlueprint;
 
 private:
