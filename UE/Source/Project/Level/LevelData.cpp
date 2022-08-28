@@ -35,12 +35,11 @@ void ALevelData::GenerateLevel()
 	myGeneratedObjects.Reset();
 
 	// Set seed
-	FMath::RandInit(config->mySeed);
-
+	FMath::RandInit(mySeed);
+	
 	// Faces from noise
 	TMap<int32, FLevelDataFace> faces;
-	TArray<FLevelDataEdge> edges;
-	ConstructFaces(faces, edges);
+	ConstructFaces(faces);
 
 	// Path from faces
 	const TArray<int32> path = GeneratePath(faces);
@@ -66,7 +65,7 @@ void ALevelData::AddGeneratedObject(UObject* anObject)
 TArray<FVector2D> ALevelData::GeneratePoints() const
 {
 	const auto config = GetConfig();
-	CHECK_RETURN_LOG(!config, "No config");
+	CHECK_RETURN_LOG(!config, "No config", {});
 	
 	TArray<FVector2D> points;
 	for (int32 i = 0; i < config->myCells; i++)
@@ -74,7 +73,7 @@ TArray<FVector2D> ALevelData::GeneratePoints() const
 	return points; 
 }
 
-void ALevelData::ConstructFaces(TMap<int32, FLevelDataFace>& someFaces, TArray<FLevelDataEdge>& someEdges) const
+void ALevelData::ConstructFaces(TMap<int32, FLevelDataFace>& someFaces) const
 {
 	// Is closest point
 	auto isClosest = [](const TArray<FVector2D>& somePoints, const float aDist, const FVector2D& aPoint, const int32 aI, const int32 aJ)
@@ -125,7 +124,6 @@ void ALevelData::ConstructFaces(TMap<int32, FLevelDataFace>& someFaces, TArray<F
 			face.edges.FindOrAdd(j) = { normal, middle };
 			someFaces.FindOrAdd(j).edges.FindOrAdd(i) = { -normal, middle };
 			
-			someEdges.Add({ normal, middle });
 			FVector2D dir = FVector2D(-normal.Y, normal.X);
 			const FVector2D start = middle + dir * 30.0f;
 			const FVector2D end = middle - dir * 30.0f;
@@ -214,26 +212,29 @@ void ALevelData::GenerateVertices(TMap<int32, FLevelDataFace>& someFaces) const
             FVector2D rightPoint = point;
 
         	// Loop through your neighbors          
-        	for (const auto& secondNeighbor : face.Value.edges)
+        	for (const auto& neighbor : face.Value.edges)
         	{
-        		CHECK_CONTINUE(secondNeighbor.Key == edge.Key);
+        		CHECK_CONTINUE(neighbor.Key == edge.Key);
 
-        		const FVector2D secondPoint = secondNeighbor.Value.location;
-        		const FVector2D secondDir = FVector2D(-secondNeighbor.Value.normal.Y, secondNeighbor.Value.normal.X);
+        		const FVector2D secondPoint = neighbor.Value.location;
+        		const FVector2D secondDir = FVector2D(-neighbor.Value.normal.Y, neighbor.Value.normal.X);
         		checkIntersect(leftDist, leftPoint, point, dir, secondPoint, secondDir);
         		checkIntersect(rightDist, rightPoint, point, -dir, secondPoint, secondDir);
         	}
         	
-            // Loop through neighbors neighbors 
-            for (const auto& secondNeighbor : someFaces[edge.Key].edges)
-            {
-                CHECK_CONTINUE(secondNeighbor.Key == face.Key);
+            // Loop through neighbors neighbors
+        	if (const auto faceFind = someFaces.Find(edge.Key))
+        	{
+        		for (const auto& secondNeighbor : faceFind->edges)
+        		{
+        			CHECK_CONTINUE(secondNeighbor.Key == face.Key);
 
-                const FVector2D secondPoint = secondNeighbor.Value.location;
-                const FVector2D secondDir = FVector2D(-secondNeighbor.Value.normal.Y, secondNeighbor.Value.normal.X);
-                checkIntersect(leftDist, leftPoint, point, dir, secondPoint, secondDir);
-                checkIntersect(rightDist, rightPoint, point, -dir, secondPoint, secondDir);
-            }
+        			const FVector2D secondPoint = secondNeighbor.Value.location;
+        			const FVector2D secondDir = FVector2D(-secondNeighbor.Value.normal.Y, secondNeighbor.Value.normal.X);
+        			checkIntersect(leftDist, leftPoint, point, dir, secondPoint, secondDir);
+        			checkIntersect(rightDist, rightPoint, point, -dir, secondPoint, secondDir);
+        		}
+        	}
         	
             // Only add if not duplicate
             if (verts.Num() <= 0 || FVector2D::DistSquared(verts.Last(), rightPoint) > SMALL_NUMBER)
@@ -276,7 +277,7 @@ void ALevelData::GenerateVertices(TMap<int32, FLevelDataFace>& someFaces) const
 TArray<int32> ALevelData::GeneratePath(TMap<int32, FLevelDataFace>& someFaces) const
 {
 	const auto config = GetConfig();
-	CHECK_RETURN_LOG(!config, "No config");
+	CHECK_RETURN_LOG(!config, "No config", {});
 	
 	// Find first face
 	int32 currFace = -1;
@@ -303,10 +304,10 @@ TArray<int32> ALevelData::GeneratePath(TMap<int32, FLevelDataFace>& someFaces) c
 		path.Add(currFace);
 
 		// Set previous edge as path
-		if (prevEdge >= 0)
-			if (const auto prevEdgePtr = face->edges.Find(prevEdge))
-				prevEdgePtr->isPath = true;
+		if (const auto prevEdgePtr = face->edges.Find(prevEdge))
+			prevEdgePtr->isPath = true;
 
+		prevEdge = currFace; 
 		currFace = -1; 
 		for (auto& edge : face->edges)
 		{
@@ -314,7 +315,6 @@ TArray<int32> ALevelData::GeneratePath(TMap<int32, FLevelDataFace>& someFaces) c
 			CHECK_CONTINUE(dot < 0.0f);
 			
 			// Set new edge as path
-			prevEdge = currFace; 
 			currFace = edge.Key;
 			edge.Value.isPath = true;
 			break;
@@ -326,33 +326,36 @@ TArray<int32> ALevelData::GeneratePath(TMap<int32, FLevelDataFace>& someFaces) c
 FVector ALevelData::AdjustConnectingFaces(const TArray<int32>& aPath, TMap<int32, FLevelDataFace>& someFaces) const
 {
 	const auto config = GetConfig();
-	CHECK_RETURN_LOG(!config, "No config");
+	CHECK_RETURN_LOG(!config, "No config", FVector::ZeroVector);
 	CHECK_RETURN_LOG(!aPath.Num(), "No path", FVector::ZeroVector);
 	
 	// Find first edge
 	FLevelDataFace& firstFace = someFaces[aPath[0]];
-	FLevelDataEdge firstEdge;
+	int32 firstEdge = -1;
 	for (const auto& edge : firstFace.edges)
-		if (firstEdge.normal == FVector2D::ZeroVector || edge.Value.location.Y < firstEdge.location.Y)
-			firstEdge = edge.Value;
-
+		if (firstEdge == -1 || edge.Value.location.Y < firstFace.edges[firstEdge].location.Y)
+			firstEdge = edge.Key;
+	
 	// Find last edge
 	FLevelDataFace& lastFace = someFaces[aPath.Last()];
-	FLevelDataEdge lastEdge;
+	int32 lastEdge = -1;
 	for (const auto& edge : lastFace.edges)
-		if (lastEdge.normal == FVector2D::ZeroVector || edge.Value.location.Y > lastEdge.location.Y)
-			lastEdge = edge.Value;
-
+		if (lastEdge == -1 || edge.Value.location.Y > lastFace.edges[lastEdge].location.Y)
+			lastEdge = edge.Key;
+	
+	CHECK_RETURN_LOG(firstEdge == -1, "No first edge", FVector::ZeroVector);
+	CHECK_RETURN_LOG(lastEdge == -1, "No last edge", FVector::ZeroVector);
+	
 	// Adjust vertices
-	const float startY = firstEdge.location.Y - config->myConnectionPadding;
-	const float endY = lastEdge.location.Y + config->myConnectionPadding;
+	const float startY = firstFace.edges[firstEdge].location.Y - config->myConnectionPadding;
+	const float endY = lastFace.edges[lastEdge].location.Y + config->myConnectionPadding;
 	for (auto& index : aPath)
 		for (auto& vert : someFaces[index].vertices)
 			vert.Y = FMath::Min(endY, FMath::Max(startY, vert.Y));
 
 	// Adjust edge connections
 	for (const int32 index : aPath) 
-		for (auto edge : someFaces[index].edges)
+		for (auto& edge : someFaces[index].edges)
 			edge.Value.hasWall = !(edge.Value.isPath || aPath.Contains(edge.Key));
 	
 	const FVector startOffset = -FVector(firstFace.location.X, startY, 0.0f); 

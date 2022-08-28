@@ -5,7 +5,7 @@
 
 inline UProceduralMeshComponent* CreateFaceMesh(ALevelData* aLevelData, const FLevelDataFace& aFace, const FVector& anOffset, float aHeight, UMaterialInterface* aMaterial)
 {
-	CHECK_RETURN_LOG(!aLevelData, "No level data");
+	CHECK_RETURN_LOG(!aLevelData, "No level data", nullptr);
 	CHECK_RETURN_LOG(aFace.vertices.Num() < 3, "Can't generate mesh from less than three vertices", nullptr);
 	
 	UProceduralMeshComponent* meshComp = NewObject<UProceduralMeshComponent>(aLevelData);
@@ -46,7 +46,7 @@ inline UProceduralMeshComponent* CreateFaceMesh(ALevelData* aLevelData, const FL
 	// Add bottom face
 	for (auto& flatVert : aFace.vertices)
 	{
-		vertices.Add(FVector(flatVert.X, flatVert.Y, aHeight));
+		vertices.Add(FVector(flatVert.X, flatVert.Y, -aHeight));
 		uvs.Add(FVector2D(0, 0));
 		normals.Add(FVector::DownVector);
 		vertexColors.Add(FLinearColor(1, 1, 1));

@@ -21,12 +21,15 @@ public:
 	
 protected:
 
-	UPROPERTY(EditAnywhere, Category="Generation | Noise")
+	UPROPERTY(EditAnywhere, Category="Generation")
 	bool myDebugDrawNoise = false;
+
+	UPROPERTY(EditAnywhere, Category="Generation")
+	int32 mySeed = 0;
 	
-	UPROPERTY(EditAnywhere, Category="Generation | Faces")
+	UPROPERTY(EditAnywhere, Category="Generation")
 	TMap<ELevelType, TSubclassOf<ULevelDataConfig>> myConfigs;
-	UPROPERTY(EditAnywhere, Category="Generation | Faces")
+	UPROPERTY(EditAnywhere, Category="Generation")
 	ELevelType myType = ELevelType::NONE;
 	
 	UFUNCTION(CallInEditor, Category="Generation")
@@ -38,7 +41,7 @@ protected:
 private:
 
 	TArray<FVector2D> GeneratePoints() const;
-	void ConstructFaces(TMap<int32, FLevelDataFace>& someFaces, TArray<FLevelDataEdge>& someEdges) const;
+	void ConstructFaces(TMap<int32, FLevelDataFace>& someFaces) const;
 	void GenerateVertices(TMap<int32, FLevelDataFace>& someFaces) const;
 	TArray<int32> GeneratePath(TMap<int32, FLevelDataFace>& someFaces) const;
 	FVector AdjustConnectingFaces(const TArray<int32>& aPath, TMap<int32, FLevelDataFace>& someFaces) const;

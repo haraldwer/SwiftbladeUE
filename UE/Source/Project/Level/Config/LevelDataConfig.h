@@ -15,8 +15,6 @@ class ULevelDataConfig : public UObject
 public:
 
 	UPROPERTY(EditAnywhere, Category="Generation")
-	int32 mySeed = 0;
-	UPROPERTY(EditAnywhere, Category="Generation")
 	int32 myCells = 10;
 	UPROPERTY(EditAnywhere, Category="Generation")
 	float myNoiseRadius = 2000.0f;
@@ -49,6 +47,6 @@ public:
 	virtual void PopulateFace(ALevelData* aLevelData, const FLevelDataFace& aFace, const FVector& anOffset);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void CreateWall(ALevelData* aLevelData, const TArray<FVector2D>& someVertices, float wallOffset, float wallHeight);
+	void CreateWall(ALevelData* aLevelData, const TArray<FVector2D>& someVertices, const FVector& anOffset, float aWallOffset, float aWallHeight);
 	
 };
