@@ -3,7 +3,7 @@
 #include "LevelData.h"
 #include "ProceduralMeshComponent.h"
 
-inline UProceduralMeshComponent* CreateFaceMesh(ALevelData* aLevelData, const FLevelDataFace& aFace, const FVector& anOffset, float aHeight, UMaterialInterface* aMaterial)
+inline UProceduralMeshComponent* CreateFaceMesh(ALevelData* aLevelData, const FLevelDataRoom& aFace, const FVector& anOffset, float aHeight, UMaterialInterface* aMaterial)
 {
 	CHECK_RETURN_LOG(!aLevelData, "No level data", nullptr);
 	CHECK_RETURN_LOG(aFace.vertices.Num() < 3, "Can't generate mesh from less than three vertices", nullptr);

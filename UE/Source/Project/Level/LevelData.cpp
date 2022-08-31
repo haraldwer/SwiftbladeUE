@@ -12,45 +12,285 @@ ALevelData::ALevelData()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
+void ALevelData::BeginPlay()
+{
+	Super::BeginPlay();
+	GenerateLevel();
+}
+
 void ALevelData::GenerateLevel()
 {
 	const auto config = GetConfig();
 	CHECK_RETURN_LOG(!config, "No config");
 
+	Clear();
+
+	// Set seed
+	if (mySeed)
+		FMath::RandInit(mySeed);
+
+	// Create a number of sections, one at a time
+	// Each section is a point
+	// Random number of vertices
+	// Random distribution
+	// Select edge when creating next room
+	
+	constexpr auto lineIntersection = [](
+		const FVector2D& aSegmentStartA, const FVector2D& aSegmentEndA,
+		const FVector2D& aSegmentStartB, const FVector2D& aSegmentEndB,
+		FVector2D& anIntersect)
+	{
+		const FVector2D vectorA = aSegmentEndA - aSegmentStartA;
+		const FVector2D vectorB = aSegmentEndB - aSegmentStartB;
+
+		const FVector::FReal s = (-vectorA.Y * (aSegmentStartA.X - aSegmentStartB.X) + vectorA.X *
+			(aSegmentStartA.Y - aSegmentStartB.Y)) / (-vectorB.X * vectorA.Y + vectorA.X * vectorB.Y);
+		const FVector::FReal t = (vectorB.X * (aSegmentStartA.Y - aSegmentStartB.Y) - vectorB.Y *
+			(aSegmentStartA.X - aSegmentStartB.X)) / (-vectorB.X * vectorA.Y + vectorA.X * vectorB.Y);
+
+		const bool bIntersects = (s >= 0 && s <= 1 && t >= 0 && t <= 1);
+
+		if (bIntersects)
+		{
+			anIntersect.X = aSegmentStartA.X + (t * vectorA.X);
+			anIntersect.Y = aSegmentStartA.Y + (t * vectorA.Y);
+		}
+
+		return bIntersects;
+	};
+	
+	struct AllEdge
+	{
+		FVector2D start;
+		FVector2D end;
+	};
+	
+	TArray<FLevelDataRoom> rooms;
+	TArray<AllEdge> allEdges;
+	while(rooms.Num() < config->myNumRooms)
+	{
+		const float roomRadius = FMath::RandRange(config->myMinRoomRadius, config->myMaxRoomRadius);
+		
+		FVector2D srcEdgeStart;
+		FVector2D srcEdgeEnd;
+		FVector2D roomLoc;
+		
+		if (rooms.Num())
+		{
+			// Use prev room
+			auto& prev = rooms.Last();
+
+			// Select edge
+			int32 edgeIndex = -1;
+			if (config->mySnakePath)
+			{
+				// Select random edge within threshold
+				for (int i = 0; i < 50; i++)
+				{
+					const int32 index = FMath::RandRange(0, prev.edges.Num() - 1);
+					if (prev.edges[index].normal.Y < config->mySnakePathY)
+						continue;
+					edgeIndex = index;
+					break;
+				}
+			}
+			if (!config->mySnakePath || edgeIndex == -1)
+			{
+				// Select the straightest edge
+				float normalY = 0.0f;
+				for (int i = 0; i < prev.edges.Num(); i++)
+				{
+					if (prev.edges[i].normal.Y > normalY)
+					{
+						normalY = prev.edges[i].normal.Y;
+						edgeIndex = i;
+					}
+				}
+				if (edgeIndex == -1)
+					edgeIndex = 0; 
+			}
+
+			auto& edge = prev.edges[edgeIndex];
+			srcEdgeStart = prev.vertices[edge.startIndex];
+			srcEdgeEnd = prev.vertices[edge.endIndex];
+			edge.isPath = true;
+
+			// TODO: Calculate location in sphere
+			const float dist = FVector2D::Distance(srcEdgeStart, srcEdgeEnd) * 0.5f;
+			const float d2 = dist * dist;
+			const float r2 = roomRadius * roomRadius;
+			const float l = FMath::Sqrt(r2 - d2);
+			roomLoc = (srcEdgeStart + srcEdgeEnd) * 0.5f + edge.normal * l;
+		}
+		else
+		{
+			// Is start
+			srcEdgeStart = FVector2d(roomRadius, 0.0f);
+			srcEdgeEnd = FVector2d(-roomRadius, 0.0f);
+			roomLoc = FVector2d(0.0f, 1.0f);
+		}
+
+		const FVector2D srcEdgeLoc = (srcEdgeStart + srcEdgeEnd) * 0.5f;
+		
+		auto& room = rooms.Emplace_GetRef();
+		room.location = roomLoc;
+		room.radius = roomRadius;
+		room.vertices.Add(srcEdgeStart);
+		room.vertices.Add(srcEdgeEnd);
+		if (myDebugDrawNoise)
+			DrawDebugSphere(GetWorld(), FVector(roomLoc.X, roomLoc.Y, 0.0f), 10.0f, 8, FColor(255, 0, 0), true);
+
+		const FVector2D middle = (srcEdgeStart + srcEdgeEnd) * 0.5f;
+		const FVector2D srcDir = (srcEdgeEnd - srcEdgeStart).GetSafeNormal();
+		const FVector2D srcEdgeStartExt = middle - srcDir * 10000.0f;
+		const FVector2D srcEdgeEndExt = middle + srcDir * 10000.0f;
+		
+		// Create vertices
+		const int32 numVerts = FMath::RandRange(config->myMinNumVerts, config->myMaxNumVerts);
+		while (room.vertices.Num() < numVerts)
+		{
+			// Check line intersect
+			FVector2D intersect;
+			FVector2D vert = FMath::RandPointInCircle(1.0f).GetSafeNormal() * roomRadius + roomLoc;
+			if (lineIntersection(roomLoc, vert,
+				srcEdgeStartExt, srcEdgeEndExt, intersect))
+				continue;
+
+			// Push vertices inwards, to prevent clipping
+			for (const auto& edge : allEdges)
+				if (lineIntersection(roomLoc, vert,
+					edge.start, edge.end, intersect))
+					vert = intersect;
+
+			// Edge case for last room, flatten
+			if (rooms.Num() == config->myNumRooms)
+				vert.Y = FMath::Min(roomLoc.Y + 0.01f, vert.Y);
+			
+			room.vertices.Add(vert);
+		}
+
+		// Edge case for last room, make sure there is an exit
+		if (rooms.Num() == config->myNumRooms)
+			room.vertices.Add(roomLoc + FVector2D(0, 0.01f));
+
+		// Sort clockwise
+		room.vertices.Sort([&](const FVector2D& aFirst, const FVector2D& aSecond)
+		{
+			const FVector2D firstDiff = (aFirst - roomLoc).GetSafeNormal();
+			const FVector2D secondDiff = (aSecond - roomLoc).GetSafeNormal();
+			return FMath::Atan2(firstDiff.Y, firstDiff.X) < FMath::Atan2(secondDiff.Y, secondDiff.X);
+		});
+		
+		// Create edges from vertices and calculate center
+		for (int32 i = 0; i < room.vertices.Num(); i++)
+		{
+			const int32 startI = i;
+			const int32 endI = (i + 1) % room.vertices.Num(); 
+			const FVector2D start = room.vertices[startI];
+			const FVector2D end = room.vertices[endI];
+			const FVector2D dir = (end - start).GetSafeNormal();
+			const FVector2D normal = { dir.Y, -dir.X }; 
+			const FVector2D edgeLoc = (start + end) * 0.5f;
+			const bool isPath = FVector2D::DistSquared(edgeLoc, srcEdgeLoc) < SMALL_NUMBER;
+			
+			const FLevelDataEdge edge = {
+				startI, endI,
+				normal,
+				edgeLoc,
+				isPath
+			};
+			
+			room.edges.Add(edge);			 
+			allEdges.Add({
+				start, end
+			});
+
+			room.center += start;
+		}
+		room.center *= 1.0f / static_cast<float>(room.vertices.Num());
+	}
+
+	const FVector2D lastRoomLoc = rooms.Last().location;
+	TArray<AActor*> levelEnds;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALevelEndLocation::StaticClass(), levelEnds);
+	for (AActor* actor : levelEnds)
+		if (const auto levelEnd = Cast<ALevelEndLocation>(actor))
+			levelEnd->SetActorLocation(FVector(lastRoomLoc.X, lastRoomLoc.Y, 0.0f));
+
+	// Generate walls
+	for (auto& room : rooms)
+	{
+		// Find connections
+		TArray<FVector2D> pathEdgeLocations;
+		for (auto& edge : room.edges)
+			if (edge.isPath)
+				pathEdgeLocations.Add(edge.location);
+
+		auto isConnection = [&](const FVector2D aCurr, const FVector2D aNext)
+		{
+			for (const auto& edge : pathEdgeLocations)
+			{
+				const float dist = FMath::PointDistToSegmentSquared(
+					FVector(edge.X, edge.Y, 0.0f),
+					FVector(aCurr.X, aCurr.Y, 0.0f),
+					FVector(aNext.X, aNext.Y, 0.0f));
+				if (dist < SMALL_NUMBER)
+					return true;
+			}
+			return false;
+		};
+	
+		// Find wall vertices
+		room.walls.Emplace();
+		for (int32 i = 0; i < room.vertices.Num(); i++)
+		{
+			auto& curr = room.vertices[i % room.vertices.Num()];
+			auto& next = room.vertices[(i + 1) % room.vertices.Num()];
+			const bool noWall = isConnection(curr, next);
+
+			if (myDebugDrawNoise)
+				DrawDebugLine(GetWorld(),
+					FVector(curr.X, curr.Y, 0.0f),
+					FVector(next.X, next.Y, 0.0f),
+					noWall ? FColor(255, 0, 0) : FColor(0, 255, 0),
+					true);
+
+			auto& section = room.walls.Last(); 
+			if (noWall)
+			{
+				if (section.verts.Num())
+					room.walls.Emplace(); 
+				continue;
+			}
+
+			if (!section.verts.Num())
+				section.verts.Add(curr);
+			section.verts.Add(next);
+		}
+	}
+
+	config->Populate(this, rooms);
+}
+
+void ALevelData::Clear()
+{
 	// Destroy existing objects
 	for (auto& type : myGeneratedObjects)
 	{
 		for (auto& obj : type.Value)
 		{
 			if (const auto comp = Cast<UActorComponent>(obj))
-			{
-				comp->UnregisterComponent();
 				comp->DestroyComponent();
-			}
-
 			if (const auto actor = Cast<AActor>(obj))
 				actor->Destroy();
 		}
 	}
 	myGeneratedObjects.Reset();
-
-	// Set seed
-	FMath::RandInit(mySeed);
-	
-	// Faces from noise
-	TMap<int32, FLevelDataFace> faces;
-	ConstructFaces(faces);
-
-	// Path from faces
-	const TArray<int32> path = GeneratePath(faces);
-	const FVector offset = AdjustConnectingFaces(path, faces);
-
-	config->Populate(this, faces, path, offset);
 }
 
-AActor* ALevelData::SpawnGeneratedActor(const TSubclassOf<AActor> anActorType)
+AActor* ALevelData::SpawnGeneratedActor(const TSubclassOf<AActor>& anActorType, const FTransform& aTrans)
 {
-	AActor* actor = GetWorld()->SpawnActor(anActorType);
+	AActor* actor = GetWorld()->SpawnActor(anActorType, &aTrans);
 	if (actor)
 		AddGeneratedObject(actor);
 	return actor;
@@ -60,313 +300,6 @@ void ALevelData::AddGeneratedObject(UObject* anObject)
 {
 	CHECK_RETURN_LOG(!anObject, "Invalid object");
 	myGeneratedObjects.FindOrAdd(anObject->GetClass()).Add(anObject);
-}
-
-TArray<FVector2D> ALevelData::GeneratePoints() const
-{
-	const auto config = GetConfig();
-	CHECK_RETURN_LOG(!config, "No config", {});
-	
-	TArray<FVector2D> points;
-	for (int32 i = 0; i < config->myCells; i++)
-		points.Add(FMath::RandPointInCircle(config->myNoiseRadius));
-	return points; 
-}
-
-void ALevelData::ConstructFaces(TMap<int32, FLevelDataFace>& someFaces) const
-{
-	// Is closest point
-	auto isClosest = [](const TArray<FVector2D>& somePoints, const float aDist, const FVector2D& aPoint, const int32 aI, const int32 aJ)
-	{
-		for (int32 k = 0; k < somePoints.Num(); k++)
-		{
-			CHECK_CONTINUE(k == aI);
-			CHECK_CONTINUE(k == aJ);
-			if (FVector2D::DistSquared(somePoints[k], aPoint) < (aDist * aDist))
-				return false;
-		}
-		return true;
-	};
-	
-	// Create voronoi pattern
-	const TArray<FVector2D> points = GeneratePoints();
-	
-	for (int32 i = 0; i < points.Num(); i++)
-	{
-		auto& face = someFaces.FindOrAdd(i);
-		face.location = points[i];
-		
-		if (myDebugDrawNoise)
-		{
-			DrawDebugSphere(GetWorld(), FVector(face.location.X, face.location.Y, 0.0f), 10.0f, 8, FColor(255, 0, 0), true);
-		}
-		
-		// Loop though every other point
-		for (int32 j = 0; j < points.Num(); j++)
-		{
-			CHECK_CONTINUE(i == j);
-
-			// Face already added
-			CHECK_CONTINUE(face.edges.Contains(j));
-			
-			// Find middle
-			const FVector2D middle = (face.location + points[j]) * 0.5f;
-			const FVector2D diff = points[j] - face.location;
-			const float dist = diff.Length() * 0.5f;
-			
-			// If another point is closer to the middle
-			CHECK_CONTINUE(!isClosest(points, dist, middle, i, j));
-			// Discard
-
-			// i and j are facing each other
-			// Edge is middle
-			const FVector2d normal = diff.GetSafeNormal();
-			face.edges.FindOrAdd(j) = { normal, middle };
-			someFaces.FindOrAdd(j).edges.FindOrAdd(i) = { -normal, middle };
-			
-			FVector2D dir = FVector2D(-normal.Y, normal.X);
-			const FVector2D start = middle + dir * 30.0f;
-			const FVector2D end = middle - dir * 30.0f;
-			if (myDebugDrawNoise)
-			{
-				DrawDebugLine(GetWorld(), FVector(start.X, start.Y, 0.0f), FVector(end.X, end.Y, 0.0f), FColor(255, 255, 255), true);
-				DrawDebugSphere(GetWorld(), FVector(middle.X, middle.Y, 0.0f), 10.0f, 8, FColor(0, 255, 0), true);
-			}
-		}
-	}
-
-	GenerateVertices(someFaces);
-}
-
-void ALevelData::GenerateVertices(TMap<int32, FLevelDataFace>& someFaces) const
-{
-	// Math functions for checking intersections
-	constexpr auto checkIntersect = [](
-		float& aResultDist, FVector2D& aResultPoint,
-		const FVector2D& aFirstLoc, const FVector2D& aFirstDir,
-		const FVector2D& aSecondLoc, const FVector2D& aSecondDir)
-	{
-		constexpr auto lineIntersection = [](
-			const FVector2D& aSegmentStartA, const FVector2D& aSegmentEndA,
-			const FVector2D& aSegmentStartB, const FVector2D& aSegmentEndB,
-			FVector2D& anIntersect)
-		{
-			const FVector2D vectorA = aSegmentEndA - aSegmentStartA;
-			const FVector2D vectorB = aSegmentEndB - aSegmentStartB;
-
-			const FVector::FReal s = (-vectorA.Y * (aSegmentStartA.X - aSegmentStartB.X) + vectorA.X *
-				(aSegmentStartA.Y - aSegmentStartB.Y)) / (-vectorB.X * vectorA.Y + vectorA.X * vectorB.Y);
-			const FVector::FReal t = (vectorB.X * (aSegmentStartA.Y - aSegmentStartB.Y) - vectorB.Y *
-				(aSegmentStartA.X - aSegmentStartB.X)) / (-vectorB.X * vectorA.Y + vectorA.X * vectorB.Y);
-
-			const bool bIntersects = (s >= 0 && s <= 1 && t >= 0 && t <= 1);
-
-			if (bIntersects)
-			{
-				anIntersect.X = aSegmentStartA.X + (t * vectorA.X);
-				anIntersect.Y = aSegmentStartA.Y + (t * vectorA.Y);
-			}
-
-			return bIntersects;
-		};
-		
-		constexpr float checkDist = 1000.0f; 
-		FVector2D intersect;
-		if (lineIntersection(
-			aFirstLoc,
-			aFirstLoc - aFirstDir * checkDist,
-			aSecondLoc - aSecondDir * checkDist,
-			aSecondLoc + aSecondDir * checkDist,
-			intersect))
-		{
-			const float dist = FVector2D::DistSquared(intersect, aFirstLoc);
-			if (dist < aResultDist || aResultDist < 0)
-			{
-				aResultDist = dist;
-				aResultPoint = intersect;
-			}
-		}
-		else if (aResultDist < 0)
-		{
-			aResultDist = checkDist * checkDist;
-			aResultPoint = aFirstLoc - aFirstDir * checkDist; 
-		}
-	};
-	
-	// Generate mesh
-    for (auto& face : someFaces)
-    {
-        auto& verts = face.Value.vertices;   
-        for (const auto& edge : face.Value.edges)
-        {
-            // Every neighbor has a face
-            // Every face has two intersection points
-            // One on each side
-
-            const FVector2D point = edge.Value.location;
-            const FVector2D dir = FVector2D(-edge.Value.normal.Y, edge.Value.normal.X);
-            
-            float leftDist = -1.0f;
-            float rightDist = -1.0f;
-            FVector2D leftPoint = point;
-            FVector2D rightPoint = point;
-
-        	// Loop through your neighbors          
-        	for (const auto& neighbor : face.Value.edges)
-        	{
-        		CHECK_CONTINUE(neighbor.Key == edge.Key);
-
-        		const FVector2D secondPoint = neighbor.Value.location;
-        		const FVector2D secondDir = FVector2D(-neighbor.Value.normal.Y, neighbor.Value.normal.X);
-        		checkIntersect(leftDist, leftPoint, point, dir, secondPoint, secondDir);
-        		checkIntersect(rightDist, rightPoint, point, -dir, secondPoint, secondDir);
-        	}
-        	
-            // Loop through neighbors neighbors
-        	if (const auto faceFind = someFaces.Find(edge.Key))
-        	{
-        		for (const auto& secondNeighbor : faceFind->edges)
-        		{
-        			CHECK_CONTINUE(secondNeighbor.Key == face.Key);
-
-        			const FVector2D secondPoint = secondNeighbor.Value.location;
-        			const FVector2D secondDir = FVector2D(-secondNeighbor.Value.normal.Y, secondNeighbor.Value.normal.X);
-        			checkIntersect(leftDist, leftPoint, point, dir, secondPoint, secondDir);
-        			checkIntersect(rightDist, rightPoint, point, -dir, secondPoint, secondDir);
-        		}
-        	}
-        	
-            // Only add if not duplicate
-            if (verts.Num() <= 0 || FVector2D::DistSquared(verts.Last(), rightPoint) > SMALL_NUMBER)
-	            verts.Add(rightPoint);
-            if (verts.Num() <= 0 || FVector2D::DistSquared(verts.Last(), leftPoint) > SMALL_NUMBER)
-	            verts.Add(leftPoint);
-        }
-
-        if (verts.Num())
-        {
-            // Sort vertices based on direction
-            verts.Sort([&](const FVector2D& aFirst, const FVector2D& aSecond)
-            {
-                const FVector2D firstDiff = aFirst - face.Value.location;
-                const float firstAtan = FMath::Atan2(firstDiff.Y, firstDiff.X);
-                const FVector2D secondDiff = aSecond - face.Value.location;
-                const float secondAtan = FMath::Atan2(secondDiff.Y, secondDiff.X); 
-                return firstAtan < secondAtan;
-            });
-
-        	if (myDebugDrawNoise)
-        	{
-        		// Debug draw
-        		const FColor c = FColor(FMath::RandRange(0, 255), FMath::RandRange(0, 255), FMath::RandRange(0, 255));
-        		for (int32 i = 0; i < verts.Num(); i++)
-        		{
-        			const int32 curr = i;
-        			const int32 next = (i + 1) % verts.Num();
-
-        			DrawDebugLine(GetWorld(),
-						FVector(verts[curr].X, verts[curr].Y, 0.0f),
-						FVector(verts[next].X, verts[next].Y, 0.0f),
-						c, true);
-        		}
-        	}
-        }
-    }
-}
-
-TArray<int32> ALevelData::GeneratePath(TMap<int32, FLevelDataFace>& someFaces) const
-{
-	const auto config = GetConfig();
-	CHECK_RETURN_LOG(!config, "No config", {});
-	
-	// Find first face
-	int32 currFace = -1;
-	int32 prevEdge = -1;
-	float currEdgeY = 0.0f;
-	for (auto& face : someFaces)
-	{
-		for (const auto& edge : face.Value.edges)
-		{
-			if (currFace > -1 && edge.Value.location.Y >= currEdgeY)
-				continue;
-			currFace = face.Key;
-			prevEdge = edge.Key;
-			currEdgeY = edge.Value.location.Y;
-		}
-	}
-	
-	// Generate path
-	TArray<int32> path;
-	while (currFace >= 0)
-	{
-		const auto face = someFaces.Find(currFace);
-		CHECK_RETURN_LOG(!face, "Could not find face", {});
-		path.Add(currFace);
-
-		// Set previous edge as path
-		if (const auto prevEdgePtr = face->edges.Find(prevEdge))
-			prevEdgePtr->isPath = true;
-
-		prevEdge = currFace; 
-		currFace = -1; 
-		for (auto& edge : face->edges)
-		{
-			const float dot = FVector2D::DotProduct(FVector2D(0.0f, 1.0f), edge.Value.normal);
-			CHECK_CONTINUE(dot < 0.0f);
-			
-			// Set new edge as path
-			currFace = edge.Key;
-			edge.Value.isPath = true;
-			break;
-		}
-	}
-	return path;
-}
-
-FVector ALevelData::AdjustConnectingFaces(const TArray<int32>& aPath, TMap<int32, FLevelDataFace>& someFaces) const
-{
-	const auto config = GetConfig();
-	CHECK_RETURN_LOG(!config, "No config", FVector::ZeroVector);
-	CHECK_RETURN_LOG(!aPath.Num(), "No path", FVector::ZeroVector);
-	
-	// Find first edge
-	FLevelDataFace& firstFace = someFaces[aPath[0]];
-	int32 firstEdge = -1;
-	for (const auto& edge : firstFace.edges)
-		if (firstEdge == -1 || edge.Value.location.Y < firstFace.edges[firstEdge].location.Y)
-			firstEdge = edge.Key;
-	
-	// Find last edge
-	FLevelDataFace& lastFace = someFaces[aPath.Last()];
-	int32 lastEdge = -1;
-	for (const auto& edge : lastFace.edges)
-		if (lastEdge == -1 || edge.Value.location.Y > lastFace.edges[lastEdge].location.Y)
-			lastEdge = edge.Key;
-	
-	CHECK_RETURN_LOG(firstEdge == -1, "No first edge", FVector::ZeroVector);
-	CHECK_RETURN_LOG(lastEdge == -1, "No last edge", FVector::ZeroVector);
-	
-	// Adjust vertices
-	const float startY = firstFace.edges[firstEdge].location.Y - config->myConnectionPadding;
-	const float endY = lastFace.edges[lastEdge].location.Y + config->myConnectionPadding;
-	for (auto& index : aPath)
-		for (auto& vert : someFaces[index].vertices)
-			vert.Y = FMath::Min(endY, FMath::Max(startY, vert.Y));
-
-	// Adjust edge connections
-	for (const int32 index : aPath) 
-		for (auto& edge : someFaces[index].edges)
-			edge.Value.hasWall = !(edge.Value.isPath || aPath.Contains(edge.Key));
-	
-	const FVector startOffset = -FVector(firstFace.location.X, startY, 0.0f); 
-	
-	TArray<AActor*> levelEnds;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALevelEndLocation::StaticClass(), levelEnds);
-	for (AActor* actor : levelEnds)
-		if (const auto levelEnd = Cast<ALevelEndLocation>(actor))
-			levelEnd->SetActorLocation(startOffset + FVector(lastFace.location.X, endY, 0.0f));
-
-	return startOffset; 
 }
 
 ULevelDataConfig* ALevelData::GetConfig() const

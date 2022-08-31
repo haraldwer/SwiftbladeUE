@@ -15,10 +15,16 @@ class PROJECT_API ALevelData : public AActor
 public:
 	
 	ALevelData();
+	virtual void BeginPlay() override;
 
+	bool GetDrawDebug() const { return myDebugDrawNoise; }
+	
 	UFUNCTION(BlueprintCallable)
 	void AddGeneratedObject(UObject* anObject);
-	
+
+	UFUNCTION(BlueprintCallable)
+	AActor* SpawnGeneratedActor(const TSubclassOf<AActor>& anActorType, const FTransform& aTrans);
+
 protected:
 
 	UPROPERTY(EditAnywhere, Category="Generation")
@@ -35,19 +41,13 @@ protected:
 	UFUNCTION(CallInEditor, Category="Generation")
 	void GenerateLevel();
 
-	UFUNCTION(BlueprintCallable)
-	AActor* SpawnGeneratedActor(TSubclassOf<AActor> anActorType);
+	UFUNCTION(CallInEditor, Category="Generation")
+	void Clear();
 	
 private:
-
-	TArray<FVector2D> GeneratePoints() const;
-	void ConstructFaces(TMap<int32, FLevelDataFace>& someFaces) const;
-	void GenerateVertices(TMap<int32, FLevelDataFace>& someFaces) const;
-	TArray<int32> GeneratePath(TMap<int32, FLevelDataFace>& someFaces) const;
-	FVector AdjustConnectingFaces(const TArray<int32>& aPath, TMap<int32, FLevelDataFace>& someFaces) const;
-
+	
 	ULevelDataConfig* GetConfig() const;
-
+	
 	TMap<UClass*, TArray<TWeakObjectPtr<UObject>>> myGeneratedObjects;
 	
 };
