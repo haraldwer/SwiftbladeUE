@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Project/Level/LevelGenerator.h"
+#include "Project/LevelGen/Level/LevelGenerator.h"
 #include "MainSingelton.generated.h"
 
 UCLASS()

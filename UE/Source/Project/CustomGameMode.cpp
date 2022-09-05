@@ -2,7 +2,7 @@
 
 #include "CustomGameInstance.h"
 #include "Enemies/EnemyManager.h"
-#include "Level/LevelGenerator.h"
+#include "LevelGen/Level/LevelGenerator.h"
 #include "UI/Menus/MenuManager.h"
 #include "UI/Prompts/PromptManager.h"
 #include "Utility/MainSingelton.h"

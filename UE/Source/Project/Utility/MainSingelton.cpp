@@ -5,7 +5,7 @@
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
 #include "Project/CustomGameMode.h"
-#include "Project/Level/LevelGenerator.h"
+#include "Project/LevelGen/Level/LevelGenerator.h"
 
 AMenuManager* UMainSingelton::GetMenuMangerPtr()
 {
