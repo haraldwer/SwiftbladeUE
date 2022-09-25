@@ -13,6 +13,6 @@ public:
 	ALevelEndLocation();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnEndLocationSet();
+	void OnEndLocationSet(class ASectionGenerator* aGenerator);
 	
 };

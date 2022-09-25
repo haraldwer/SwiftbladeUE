@@ -4,27 +4,23 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project/LevelGen/Section/SectionGenerator.h"
 
 ALevelGenerator::ALevelGenerator()
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ALevelGenerator::BeginPlay()
-{
-	Super::BeginPlay();
-	EnableOverlapEvents();
-}
-
 void ALevelGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(myStaticInvalid)
+	if(myLoadCount == 0)
 	{
+		myLoadCount = -1;
+		
 		SetupLevels();
 		EnableOverlapEvents();
-		myStaticInvalid = false;
 		SetActorTickEnabled(false);
 	}
 }
@@ -32,7 +28,7 @@ void ALevelGenerator::Tick(float DeltaTime)
 void ALevelGenerator::LevelLoaded()
 {
 	LOG("Level loaded");
-	myStaticInvalid = true;
+	myLoadCount--;
 	SetActorTickEnabled(true);
 }
 
@@ -51,6 +47,7 @@ void ALevelGenerator::GenerateLevelOrder(const int aSeed)
 
 	myLevels.Reset();
 	myLevels.Add("SL_Start"); // Start of game
+	myLevels.Add("SL_Proc"); // Procedural levels
 	
 	TArray<FString> pool = easy;
 	while (pool.Num() != 0)
@@ -140,11 +137,14 @@ void ALevelGenerator::LoadLevels(TArray<FString> someLevelsToLoad)
 		uuid++;
 		loadInfo.UUID = uuid;
 		UGameplayStatics::LoadStreamLevel(this, *it, true, true, loadInfo);
+		if (myLoadCount < 0)
+			myLoadCount = 0; 
+		myLoadCount++;
 
 		if (const auto streamingLevel = UGameplayStatics::GetStreamingLevel(this, *it))
 		{
 			streamingLevel->SetShouldBeLoaded(true);
-			streamingLevel->SetShouldBeVisible(true);
+			streamingLevel->SetShouldBeVisible(true); 
 		}
 		
 		myLoadedLevels.Add(LoadedLevelData{FVector(), it, nullptr, index});
@@ -181,9 +181,20 @@ void ALevelGenerator::SetupLevels()
 	{
 		const auto ptr = level.myPtr.Get();
 		CHECK_RETURN(!ptr);
+
+		// Set offset
 		ptr->ApplyWorldOffset(previousPosition, false);
-		LOG("Apply offset: " + level.myName + " " + FString::SanitizeFloat(previousPosition.X) + " Previous offset: " + FString::SanitizeFloat(level.myOffset.X));
-		level.myOffset = previousPosition;
+		level.myOffset = previousPosition;		
+		
+		// Generate
+		AActor** sectionGen = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ASectionGenerator::StaticClass()); });
+		if (sectionGen && *sectionGen)
+		{
+			if (const auto sectionGenPtr = Cast<ASectionGenerator>(*sectionGen))
+				sectionGenPtr->Generate();
+		}
+		
+		// Get level end
 		AActor** end = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ALevelEndLocation::StaticClass()); });
 		if (end && *end)
 		{

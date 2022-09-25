@@ -18,30 +18,22 @@ struct FSectionProp
 	float myPadding = 0.0f;
 };
 
-UCLASS(Blueprintable)
-class USectionPropConfig : public UObject
+UCLASS()
+class PROJECT_API USectionPropComponent : public USectionComponentBase
 {
 	GENERATED_BODY()
 
 public:
 	
+	virtual void PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom) override;
+
+protected:
+
 	UPROPERTY(EditDefaultsOnly)
 	float myMinFillRate = 0.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float myMaxFillRate = 10.0f;
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FSectionProp> myProps;
-	
-};
-
-UCLASS()
-class PROJECT_API USectionPropComponent : public USectionComponentBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<USectionPropConfig> myPropConfig;
-
-	virtual void Populate(ASectionGenerator* aGenerator, const FProcSection& aSection) override;
 	
 };

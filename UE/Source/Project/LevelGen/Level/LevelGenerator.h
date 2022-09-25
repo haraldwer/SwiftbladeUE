@@ -13,10 +13,9 @@ class PROJECT_API ALevelGenerator : public AActor
 	
 public:	
 	ALevelGenerator();
-	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable, Category = Game)
+	UFUNCTION()
 	void LevelLoaded();
 
 	void GenerateLevelOrder(int aSeed);
@@ -64,6 +63,6 @@ private:
 	};
 	
 	TArray<LoadedLevelData> myLoadedLevels;
-	bool myStaticInvalid = false;
+	int32 myLoadCount = -1;
 	float myLowestEnd = 0.0f; 
 };

@@ -50,6 +50,8 @@ struct FProcRoom
 	float groundOffset = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
 	float ceilHeight = 0.0f;
+	UPROPERTY(BlueprintReadOnly)
+	TArray<class USectionComponentBase*> components;
 };
 
 USTRUCT(BlueprintType)

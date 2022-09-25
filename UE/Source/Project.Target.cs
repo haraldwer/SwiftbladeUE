@@ -11,8 +11,5 @@ public class ProjectTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
 		ExtraModuleNames.AddRange( new string[] { "Project" } );
-
-		MinFilesUsingPrecompiledHeader = 1;
-		bUseUnityBuild = false; 
 	}
 }

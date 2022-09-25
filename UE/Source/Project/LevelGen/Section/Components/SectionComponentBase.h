@@ -12,13 +12,31 @@ class PROJECT_API USectionComponentBase : public UObject
 	GENERATED_BODY()
 
 public:
-	
-	virtual void Populate(ASectionGenerator* aGenerator, const FProcSection& aSection)
-	{
-		BPPopulate(aGenerator, aSection);
-	}
 
+	// Return array of rooms to populate
+	virtual TArray<int32> PopulateSection(ASectionGenerator* aGenerator, const FProcSection& aSection);
+
+	// Populate a specific room
+	virtual void PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom);
+
+protected:
+
+	// For defining components in BP
 	UFUNCTION(BlueprintImplementableEvent)
-	void BPPopulate(ASectionGenerator* aGenerator, const FProcSection& aSection);
+	void BPPopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom);
+
+	UPROPERTY(EditAnywhere)
+	float myRoomChance = 100.0f;
+
+	template <class T>
+	static T* GetRoomComp(const FProcRoom& aRoom)
+	{
+		for (auto& comp : aRoom.components)
+		{
+			if (comp->IsA(T::StaticClass()))
+				return Cast<T>(comp);
+		}
+		return nullptr;
+	}
 	
 };

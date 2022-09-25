@@ -14,7 +14,7 @@ class USectionDataConfig : public UObject
 public:
 	
 	UPROPERTY(EditDefaultsOnly)
-	int32 myNumRooms = 10;
+	int32 myNumRooms = 4;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Vertices")
 	int32 myMinNumVerts = 4;
@@ -28,7 +28,7 @@ public:
 
 	// Smallest possible distance between vertices
 	UPROPERTY(EditDefaultsOnly)
-	float myMinVertDist = 100.0f;
+	float myMinVertDist = 150.0f;
 	// If should generate snake or choose straightest path
 	UPROPERTY(EditDefaultsOnly, Category="Path")
 	bool mySnakePath = true;
@@ -36,10 +36,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Path")
 	float mySnakePathY = 0.2f; 
 
-	// Height difference between rooms
+	UPROPERTY(EditDefaultsOnly, Category="Ground")
+	float myGroundOffsetChance = 50.0f;
 	UPROPERTY(EditDefaultsOnly, Category="Ground")
 	float myGroundMinOffset = -500.0f;
-	// Height difference between rooms
 	UPROPERTY(EditDefaultsOnly, Category="Ground")
 	float myGroundMaxOffset = 500.0f;
 	

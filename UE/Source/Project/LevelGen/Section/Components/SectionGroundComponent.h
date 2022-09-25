@@ -3,22 +3,21 @@
 #include "SectionComponentBase.h"
 #include "SectionGroundComponent.generated.h"
 
-UCLASS(BlueprintType)
+UCLASS()
 class PROJECT_API USectionGroundComponent : public USectionComponentBase
 {
 	GENERATED_BODY()
 
 public:
 	
-	UPROPERTY(EditAnywhere)
-	bool myHasGround = true;
-	
+	virtual void PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom) override;
+
+protected:
+
 	UPROPERTY(EditAnywhere, meta=(EditCondition=myHasGround))
 	float myGroundThickness = 5000.0f;
 	
 	UPROPERTY(EditAnywhere, meta=(EditCondition=myHasGround))
 	UMaterialInterface* myGroundMaterial;
-	
-	virtual void Populate(ASectionGenerator* aGenerator, const FProcSection& aSection) override;
 	
 };

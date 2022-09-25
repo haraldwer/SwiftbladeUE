@@ -11,7 +11,7 @@ inline UProceduralMeshComponent* CreateFaceMesh(ASectionGenerator* aLevelData, c
 	UProceduralMeshComponent* meshComp = NewObject<UProceduralMeshComponent>(aLevelData);
 	aLevelData->AddGeneratedObject(meshComp);
 	meshComp->AttachToComponent(aLevelData->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	meshComp->SetRelativeLocation(anOffset);
+	meshComp->SetWorldLocation(anOffset);
 	meshComp->RegisterComponent();
 
 	const int32 numVertices = aFace.vertices.Num();
@@ -84,11 +84,11 @@ inline UProceduralMeshComponent* CreateFaceMesh(ASectionGenerator* aLevelData, c
 		const FVector2D second = aFace.vertices[nextI];
 		const FVector2D diff = (second - first).GetSafeNormal();
 		FVector2D flatNormal = -FVector2D(-diff.Y, diff.X);
-		if (flatNormal.Dot(aFace.location - (first + second) * 0.5f) < 0.0f)
+		if (true)//flatNormal.Dot(aFace.location - (first + second) * 0.5f) < 0.0f)
 		{
 			triangles.Add(currIndex);
 			triangles.Add(nextIndex);
-			triangles.Add(nextIndex + 2);
+			triangles.Add(nextIndex + 2); // +2 for bottom vert
 		
 			triangles.Add(currIndex);
 			triangles.Add(nextIndex + 2);
@@ -135,5 +135,6 @@ inline UProceduralMeshComponent* CreateFaceMesh(ASectionGenerator* aLevelData, c
 
 	meshComp->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs, vertexColors, tangents, true);
 	meshComp->SetMaterial(0, aMaterial);
+	
 	return meshComp;
 }

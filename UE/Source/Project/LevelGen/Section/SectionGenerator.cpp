@@ -6,6 +6,7 @@
 #include "SectionDataConfig.h"
 #include "SectionDataStructs.h"
 #include "Components/SectionComponentBase.h"
+#include "Kismet/GameplayStatics.h"
 
 ASectionGenerator::ASectionGenerator()
 {
@@ -15,26 +16,40 @@ ASectionGenerator::ASectionGenerator()
 void ASectionGenerator::BeginPlay()
 {
 	Super::BeginPlay();
+
 	Generate();
 }
 
 void ASectionGenerator::Generate()
 {
-	const USectionDataConfig* const config = GetConfig();
-	CHECK_RETURN_LOG(!config, "No config");
-
+	LOG("Generate");
+	
 	Clear();
 
+	FlushPersistentDebugLines(GetWorld());
+	
 	// Set seed
 	if (mySeed)
 		FMath::RandInit(mySeed);
 
-	FProcSection section;
-	GenerateSection(section, *config);
-	GenerateLastEdge(section, *config);
-	GenerateWalls(section, *config);
-	GenerateGroundCeil(section, *config);
-	Populate(section, *config);
+	const FVector levelLoc = GetActorLocation();
+	FVector2D lastSectionEnd = FVector2D(levelLoc.X, levelLoc.Y);
+	float lastSectionHeight = levelLoc.Z;
+	for (int i = 0; i < myNumSections; i++)
+	{
+		const USectionDataConfig* const config = GetRandomConfig();
+		CHECK_RETURN_LOG(!config, "No config");
+		
+		FProcSection section;
+		GenerateSection(section, *config, lastSectionEnd);
+		GenerateLastEdge(section, *config);
+		GenerateWalls(section, *config);
+		GenerateGroundCeil(section, *config, lastSectionHeight);
+		Populate(section, *config);
+		
+		lastSectionEnd = section.lastEdgeLoc;
+		lastSectionHeight = section.rooms.Last().groundOffset;
+	}
 }
 
 void ASectionGenerator::Clear()
@@ -55,10 +70,12 @@ void ASectionGenerator::Clear()
 
 AActor* ASectionGenerator::SpawnGeneratedActor(const TSubclassOf<AActor>& anActorType, const FTransform& aTrans)
 {
-	AActor* actor = GetWorld()->SpawnActor(anActorType, &aTrans);
-	if (actor)
+	if (AActor* actor = GetWorld()->SpawnActor(anActorType, &aTrans))
+	{
 		AddGeneratedObject(actor);
-	return actor;
+		return actor;
+	}
+	return nullptr;
 }
 
 void ASectionGenerator::AddGeneratedObject(UObject* anObject)
@@ -67,17 +84,17 @@ void ASectionGenerator::AddGeneratedObject(UObject* anObject)
 	myGeneratedObjects.FindOrAdd(anObject->GetClass()).Add(anObject);
 }
 
-USectionDataConfig* ASectionGenerator::GetConfig() const
+USectionDataConfig* ASectionGenerator::GetRandomConfig() const
 {
-	const auto configPtr = &myConfig;// myConfigs.Find(myType);
-	CHECK_RETURN_LOG(!configPtr, "No config for face type", nullptr);
-	const auto configType = *configPtr;
-	const auto config = configType.GetDefaultObject();
+	CHECK_RETURN_LOG(!myConfigs.Num(), "No configs", nullptr);
+	const int32 index = FMath::RandRange(0, myConfigs.Num() - 1);
+	const auto configClass = myConfigs[index];
+	const auto config = configClass.GetDefaultObject();
 	CHECK_RETURN_LOG(!config, "No config for face type", nullptr);
 	return config;
 }
 
-void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDataConfig& aConfig) const
+void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDataConfig& aConfig, const FVector2D& aStartLocation) const
 {
 	// Create a number of sections, one at a time
 	// Each section is a point
@@ -134,8 +151,11 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 		FVector2D srcEdgeStart;
 		FVector2D srcEdgeEnd;
 		FVector2D roomLoc;
+
+		const bool isFirstRoom = aSection.rooms.Num() == 0;
+		const bool isLastRoom = aSection.rooms.Num() == aConfig.myNumRooms - 1;
 		
-		if (aSection.rooms.Num())
+		if (!isFirstRoom)
 		{
 			// Use prev room
 			auto& prev = aSection.rooms.Last();
@@ -175,7 +195,7 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 			srcEdgeEnd = prev.vertices[edge.endIndex];
 			edge.isPath = true;
 
-			// TODO: Calculate location in sphere
+			// Calculate distance
 			const float dist = FVector2D::Distance(srcEdgeStart, srcEdgeEnd) * 0.5f;
 			const float d2 = dist * dist;
 			const float r2 = roomRadius * roomRadius;
@@ -185,9 +205,9 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 		else
 		{
 			// Is start
-			srcEdgeStart = FVector2d(roomRadius, 0.0f);
-			srcEdgeEnd = FVector2d(-roomRadius, 0.0f);
-			roomLoc = FVector2d(0.0f, 1.0f);
+			roomLoc = aStartLocation;
+			srcEdgeStart = roomLoc + FVector2d(roomRadius, -0.1f);
+			srcEdgeEnd = roomLoc + FVector2d(-roomRadius, -0.1f);
 		}
 
 		const FVector2D srcEdgeLoc = (srcEdgeStart + srcEdgeEnd) * 0.5f;
@@ -198,47 +218,70 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 		room.vertices.Add(srcEdgeStart);
 		room.vertices.Add(srcEdgeEnd);
 		if (myDebugDrawNoise)
-			DrawDebugSphere(GetWorld(), FVector(roomLoc.X, roomLoc.Y, 0.0f), 10.0f, 8, FColor(255, 0, 0), true);
+			DrawDebugSphere(GetWorld(),
+				FVector(roomLoc.X, roomLoc.Y, 200.0f),
+				10.0f, 8,
+				FColor(255, 0, 0),
+				true);
 
 		const FVector2D middle = (srcEdgeStart + srcEdgeEnd) * 0.5f;
 		const FVector2D srcDir = (srcEdgeEnd - srcEdgeStart).GetSafeNormal();
 		const FVector2D srcEdgeStartExt = middle - srcDir * 10000.0f;
 		const FVector2D srcEdgeEndExt = middle + srcDir * 10000.0f;
 
+		if (isFirstRoom)
+			allEdges.Add({ srcEdgeStartExt, srcEdgeEndExt });
+		
+		if (isLastRoom)
+		{
+			room.vertices.Add(roomLoc + FVector2D(roomRadius, 100.0f));
+			room.vertices.Add(roomLoc + FVector2D(-roomRadius, 100.0f));
+			
+			allEdges.Add({
+				roomLoc - FVector2D(10000.0f, 100.0f),
+				roomLoc + FVector2D(10000.0f, 100.0f)
+			});
+		}
+		
 		// Create vertices
 		int32 vertItr = 0;
 		const int32 numVerts = FMath::RandRange(aConfig.myMinNumVerts, aConfig.myMaxNumVerts);
-		while (room.vertices.Num() < numVerts && vertItr < numVerts * 3)
+		while (room.vertices.Num() < numVerts && vertItr < numVerts * 10)
 		{
 			vertItr++;
 			
-			// Check line intersect
 			FVector2D intersect;
 			FVector2D vert = FMath::RandPointInCircle(1.0f).GetSafeNormal() * roomRadius + roomLoc;
+			
+			// Edge case for last room, to make final wall simpler
+			if (isLastRoom)
+				if (vert.Y > roomLoc.Y + 100.0f)
+					continue;
+
+			// Check line intersect
 			if (lineIntersection(roomLoc, vert,
 				srcEdgeStartExt, srcEdgeEndExt, intersect))
-				continue;
+					continue;
 
+			bool discard = false;
+			for (const auto& edge : allEdges)
+			{
+				if (lineIntersection(roomLoc, vert,
+				   edge.start, edge.end, intersect))
+				{
+					discard = true;
+					break;
+				}
+			}
+			if (discard)
+				break;
+			
 			// Check distance
 			if (checkDist(room.vertices, vert, aConfig.myMinVertDist))
 				continue;
-
-			// Push vertices inwards, to prevent clipping
-			for (const auto& edge : allEdges)
-				if (lineIntersection(roomLoc, vert,
-					edge.start, edge.end, intersect))
-					vert = intersect;
-
-			// Edge case for last room, flatten
-			if (aSection.rooms.Num() == aConfig.myNumRooms)
-				vert.Y = FMath::Min(roomLoc.Y + 0.01f, vert.Y);
 			
 			room.vertices.Add(vert);
 		}
-
-		// Edge case for last room, make sure there is an exit
-		if (aSection.rooms.Num() == aConfig.myNumRooms)
-			room.vertices.Add(roomLoc + FVector2D(0, 0.01f));
 
 		// Sort clockwise
 		room.vertices.Sort([&](const FVector2D& aFirst, const FVector2D& aSecond)
@@ -296,20 +339,16 @@ void ASectionGenerator::GenerateWalls(FProcSection& aSection, const USectionData
 	for (auto& room : aSection.rooms)
 	{
 		// Find connections
-		TArray<FVector2D> pathEdgeLocations;
+		TArray<FProcEdge*> pathEdgeLocations;
 		for (auto& edge : room.edges)
 			if (edge.isPath)
-				pathEdgeLocations.Add(edge.location);
+				pathEdgeLocations.Add(&edge);
 
-		auto isConnection = [&](const FVector2D aCurr, const FVector2D aNext)
+		auto isConnection = [&](const int32 aCurr, const int32 aNext)
 		{
 			for (const auto& edge : pathEdgeLocations)
 			{
-				const float dist = FMath::PointDistToSegmentSquared(
-					FVector(edge.X, edge.Y, 0.0f),
-					FVector(aCurr.X, aCurr.Y, 0.0f),
-					FVector(aNext.X, aNext.Y, 0.0f));
-				if (dist < SMALL_NUMBER)
+				if (edge->startIndex == aCurr && edge->endIndex == aNext)
 					return true;
 			}
 			return false;
@@ -319,14 +358,16 @@ void ASectionGenerator::GenerateWalls(FProcSection& aSection, const USectionData
 		room.walls.Emplace();
 		for (int32 i = 0; i < room.vertices.Num(); i++)
 		{
-			auto& curr = room.vertices[i % room.vertices.Num()];
-			auto& next = room.vertices[(i + 1) % room.vertices.Num()];
-			const bool noWall = isConnection(curr, next);
+			const int32 currI = i % room.vertices.Num();
+			const int32 nextI = (i + 1) % room.vertices.Num();
+			const bool noWall = isConnection(currI, nextI);
 
+			auto& curr = room.vertices[currI];
+			auto& next = room.vertices[nextI];
 			if (myDebugDrawNoise)
 				DrawDebugLine(GetWorld(),
-					FVector(curr.X, curr.Y, 0.0f),
-					FVector(next.X, next.Y, 0.0f),
+					FVector(curr.X, curr.Y, 200.0f),
+					FVector(next.X, next.Y, 200.0f),
 					noWall ? FColor(255, 0, 0) : FColor(0, 255, 0),
 					true);
 
@@ -345,21 +386,32 @@ void ASectionGenerator::GenerateWalls(FProcSection& aSection, const USectionData
 	}
 }
 
-void ASectionGenerator::GenerateGroundCeil(FProcSection& aSection, const USectionDataConfig& aConfig) const
+void ASectionGenerator::GenerateGroundCeil(FProcSection& aSection, const USectionDataConfig& aConfig, const float aStartHeight) const
 {
 	// Set room ground and ceil height 
-	float prevRoomHeight = 0.0f;
-	for (auto& room : aSection.rooms)
+	float prevRoomHeight = aStartHeight;
+	for (int i = 0; i < aSection.rooms.Num(); i++)
 	{
-		room.groundOffset = prevRoomHeight + FMath::RandRange(aConfig.myGroundMinOffset, aConfig.myGroundMaxOffset);
+		auto& room = aSection.rooms[i];
+		const bool applyGroundOffset = i != 0 && FMath::RandRange(0.0f, 100.0f) < aConfig.myGroundOffsetChance;
+		room.groundOffset = prevRoomHeight + FMath::RandRange(aConfig.myGroundMinOffset, aConfig.myGroundMaxOffset) * applyGroundOffset;
 		room.ceilHeight = FMath::RandRange(aConfig.myCeilingMinHeight, aConfig.myCeilingMaxHeight);
 		prevRoomHeight = room.groundOffset; 
 	}
 }
 
-void ASectionGenerator::Populate(const FProcSection& aSection, const USectionDataConfig& aConfig)
+void ASectionGenerator::Populate(FProcSection& aSection, const USectionDataConfig& aConfig)
 {
+	// First, figure out which components in what room
 	for (auto& comp : aConfig.myComponents)
 		if (const auto compPtr = Cast<USectionComponentBase>(comp->GetDefaultObject()))
-			compPtr->Populate(this, aSection);
+			for (const auto roomIndex : compPtr->PopulateSection(this, aSection))
+				if (aSection.rooms.IsValidIndex(roomIndex))
+					aSection.rooms[roomIndex].components.Add(compPtr);
+	
+	// Then, populate
+	for (const auto& room : aSection.rooms)
+		for (const auto& comp : room.components)
+			if (const auto compPtr = Cast<USectionComponentBase>(comp))
+				compPtr->PopulateRoom(this, aSection, room);
 }

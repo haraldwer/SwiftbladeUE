@@ -5,6 +5,7 @@
 
 struct FProcSection;
 class USectionDataConfig;
+class ALevelEndLocation;
 
 UCLASS()
 class PROJECT_API ASectionGenerator : public AActor
@@ -16,6 +17,13 @@ public:
 	ASectionGenerator();
 	virtual void BeginPlay() override;
 
+	UFUNCTION(CallInEditor, Category="Generation")
+	void Generate();
+
+	UFUNCTION(CallInEditor, Category="Generation")
+	void Clear();
+	
+	ALevelEndLocation* GetLevelEnd() const { return myLevelEnd.Get(); }
 	bool GetDrawDebug() const { return myDebugDrawNoise; }
 	
 	UFUNCTION(BlueprintCallable)
@@ -23,6 +31,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	AActor* SpawnGeneratedActor(const TSubclassOf<AActor>& anActorType, const FTransform& aTrans);
+	
 
 protected:
 
@@ -31,25 +40,26 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Generation")
 	int32 mySeed = 0;
-	
-	UPROPERTY(EditAnywhere, Category="Generation")
-	TSubclassOf<USectionDataConfig> myConfig;
-	
-	UFUNCTION(CallInEditor, Category="Generation")
-	void Generate();
 
-	UFUNCTION(CallInEditor, Category="Generation")
-	void Clear();
+	UPROPERTY(EditAnywhere, Category="Generation")
+	int myNumSections = 3;
+	
+	// Different configs depending on difficulty? 
+	UPROPERTY(EditAnywhere, Category="Generation")
+	TArray<TSubclassOf<USectionDataConfig>> myConfigs;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<ALevelEndLocation> myLevelEnd;
 	
 private:
 
-	USectionDataConfig* GetConfig() const;
+	USectionDataConfig* GetRandomConfig() const;
 	
-	void GenerateSection(FProcSection& aSection, const USectionDataConfig& aConfig) const;
+	void GenerateSection(FProcSection& aSection, const USectionDataConfig& aConfig, const FVector2D& aStartLocation) const;
 	void GenerateLastEdge(FProcSection& aSection, const USectionDataConfig& aConfig) const;
 	void GenerateWalls(FProcSection& aSection, const USectionDataConfig& aConfig) const;
-	void GenerateGroundCeil(FProcSection& aSection, const USectionDataConfig& aConfig) const;
-	void Populate(const FProcSection& aSection, const USectionDataConfig& aConfig);
+	void GenerateGroundCeil(FProcSection& aSection, const USectionDataConfig& aConfig, const float aStartHeight) const;
+	void Populate(FProcSection& aSection, const USectionDataConfig& aConfig);
 	
 	TMap<UClass*, TArray<TWeakObjectPtr<UObject>>> myGeneratedObjects;
 	

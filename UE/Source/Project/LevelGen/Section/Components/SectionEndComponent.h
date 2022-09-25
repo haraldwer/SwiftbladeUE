@@ -11,6 +11,6 @@ class PROJECT_API USectionEndComponent : public USectionComponentBase
 
 public:
 
-	virtual void Populate(ASectionGenerator* aGenerator, const FProcSection& aSection) override;
+	virtual TArray<int32> PopulateSection(ASectionGenerator* aGenerator, const FProcSection& aSection) override;
 	
 };
