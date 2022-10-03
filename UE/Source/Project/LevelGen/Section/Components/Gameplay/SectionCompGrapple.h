@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../SectionComponentBase.h"
-#include "SectionGrappleComponent.generated.h"
+#include "../SectionCompBase.h"
+#include "SectionCompGrapple.generated.h"
 
 class USectionPropConfig;
 
 UCLASS(Abstract)
-class PROJECT_API USectionGrappleComponent : public USectionComponentBase
+class PROJECT_API USectionCompGrapple : public USectionCompBase
 {
 	GENERATED_BODY()
 

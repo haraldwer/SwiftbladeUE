@@ -3,7 +3,9 @@
 #include "CoreMinimal.h"
 #include "SectionGenerator.generated.h"
 
+class USectionCompBase;
 struct FProcSection;
+struct FProcRoom;
 class USectionDataConfig;
 class ALevelEndLocation;
 
@@ -60,6 +62,9 @@ private:
 	void GenerateWalls(FProcSection& aSection, const USectionDataConfig& aConfig) const;
 	void GenerateGroundCeil(FProcSection& aSection, const USectionDataConfig& aConfig, const float aStartHeight) const;
 	void Populate(FProcSection& aSection, const USectionDataConfig& aConfig);
+	
+	static TArray<USectionCompBase*> FilterSortRoomComponents(const FProcRoom& aRoom);
+	static void AddSortedComponent(const TArray<USectionCompBase*>& aBase, TArray<USectionCompBase*>& aResult, USectionCompBase* aComp, const int32 aDepth);
 	
 	TMap<UClass*, TArray<TWeakObjectPtr<UObject>>> myGeneratedObjects;
 	

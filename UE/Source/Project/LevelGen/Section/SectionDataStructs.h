@@ -51,7 +51,7 @@ struct FProcRoom
 	UPROPERTY(BlueprintReadOnly)
 	float ceilHeight = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
-	TArray<class USectionComponentBase*> components;
+	TArray<class USectionCompBase*> components;
 };
 
 USTRUCT(BlueprintType)

@@ -1,6 +1,6 @@
-#include "SectionWallComponent.h"
+#include "SectionCompWall.h"
 
-void USectionWallComponent::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
+void USectionCompWall::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
 {
 	// Create wall
 	const int32 numWalls = FMath::RandRange(myMinNumWalls, myMaxNumWalls);

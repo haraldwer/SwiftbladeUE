@@ -1,9 +1,9 @@
-#include "SectionSpikeLineComponent.h"
+#include "SectionCompSpikeLine.h"
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
-void USectionSpikeLineComponent::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
+void USectionCompSpikeLine::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
 {
 	FVector2D first;
 	FVector2D second;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SectionComponentBase.h"
-#include "SectionPropComponent.generated.h"
+#include "SectionCompBase.h"
+#include "SectionCompProp.generated.h"
 
 USTRUCT()
 struct FSectionProp
@@ -19,7 +19,7 @@ struct FSectionProp
 };
 
 UCLASS()
-class PROJECT_API USectionPropComponent : public USectionComponentBase
+class PROJECT_API USectionCompProp : public USectionCompBase
 {
 	GENERATED_BODY()
 

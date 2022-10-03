@@ -1,12 +1,12 @@
 #pragma once
 
-#include "SectionComponentBase.h"
-#include "SectionWallComponent.generated.h"
+#include "SectionCompBase.h"
+#include "SectionCompWall.generated.h"
 
 class USectionPropConfig;
 
 UCLASS(Abstract)
-class PROJECT_API USectionWallComponent : public USectionComponentBase
+class PROJECT_API USectionCompWall : public USectionCompBase
 {
 	GENERATED_BODY()
 

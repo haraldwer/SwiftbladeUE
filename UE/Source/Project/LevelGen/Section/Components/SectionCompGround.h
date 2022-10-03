@@ -1,10 +1,10 @@
 #pragma once
 
-#include "SectionComponentBase.h"
-#include "SectionGroundComponent.generated.h"
+#include "SectionCompBase.h"
+#include "SectionCompGround.generated.h"
 
 UCLASS()
-class PROJECT_API USectionGroundComponent : public USectionComponentBase
+class PROJECT_API USectionCompGround : public USectionCompBase
 {
 	GENERATED_BODY()
 

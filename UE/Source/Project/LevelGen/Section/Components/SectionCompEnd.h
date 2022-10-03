@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SectionComponentBase.h"
-#include "SectionEndComponent.generated.h"
+#include "SectionCompBase.h"
+#include "SectionCompEnd.generated.h"
 
 UCLASS()
-class PROJECT_API USectionEndComponent : public USectionComponentBase
+class PROJECT_API USectionCompEnd : public USectionCompBase
 {
 	GENERATED_BODY()
 

@@ -1,9 +1,9 @@
-#include "SectionKnifeWallComponent.h"
+#include "SectionCompKnifeWall.h"
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
-void USectionKnifeWallComponent::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
+void USectionCompKnifeWall::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
 {
 	CHECK_RETURN(!aRoom.walls.Num());
 	

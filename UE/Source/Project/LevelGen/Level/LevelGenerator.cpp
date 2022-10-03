@@ -21,6 +21,7 @@ void ALevelGenerator::Tick(float DeltaTime)
 		
 		SetupLevels();
 		EnableOverlapEvents();
+		OptimizeObjectRendering(); 
 		SetActorTickEnabled(false);
 	}
 }
@@ -219,6 +220,22 @@ void ALevelGenerator::EnableOverlapEvents() const
 	{
 		if (const auto comp = Cast<UStaticMeshComponent>(it->GetComponentByClass(UStaticMeshComponent::StaticClass())))
 			comp->SetGenerateOverlapEvents(true);
+	}
+}
+
+void ALevelGenerator::OptimizeObjectRendering() const
+{
+	LOG("Setting draw distance for all primitives");
+	
+	TArray<AActor*> actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), actors);
+	for(const auto& it : actors)
+	{
+		CHECK_CONTINUE(!it);
+		TArray<UPrimitiveComponent*> comps;
+		it->GetComponents<UPrimitiveComponent>(comps);
+		for (const auto& comp : comps)
+			if (comp) comp->SetCullDistance(myRenderDistance);
 	}
 }
 

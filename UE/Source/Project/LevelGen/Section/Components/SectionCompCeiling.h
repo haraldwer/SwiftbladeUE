@@ -1,10 +1,10 @@
 #pragma once
 
-#include "SectionComponentBase.h"
-#include "SectionCeilingComponent.generated.h"
+#include "SectionCompBase.h"
+#include "SectionCompCeiling.generated.h"
 
 UCLASS()
-class PROJECT_API USectionCeilingComponent : public USectionComponentBase
+class PROJECT_API USectionCompCeiling : public USectionCompBase
 {
 	GENERATED_BODY()
 

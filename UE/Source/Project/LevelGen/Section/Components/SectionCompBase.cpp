@@ -1,14 +1,17 @@
-#include "SectionComponentBase.h"
+#include "SectionCompBase.h"
 
-TArray<int32> USectionComponentBase::PopulateSection(ASectionGenerator* aGenerator, const FProcSection& aSection)
+TArray<int32> USectionCompBase::PopulateSection(ASectionGenerator* aGenerator, const FProcSection& aSection)
 {
 	const int32 numRooms = aSection.rooms.Num();
-	const int32 numPopulatedRooms = FMath::Min(FMath::CeilToInt(numRooms * (myRoomChance / 100.0f)), numRooms);
-	
+
 	TArray<int32> pool;
 	for (int32 i = 0; i < numRooms; i++)
 		pool.Add(i);
 
+	if (myRoomChance > 99.0f)
+		return pool; 
+	
+	const int32 numPopulatedRooms = FMath::Min(FMath::CeilToInt(numRooms * (myRoomChance / 100.0f)), numRooms);
 	TArray<int32> populateRooms;
 	for (int32 i = 0; i < numPopulatedRooms; i++)
 	{
@@ -21,7 +24,7 @@ TArray<int32> USectionComponentBase::PopulateSection(ASectionGenerator* aGenerat
 	return populateRooms;
 }
 
-void USectionComponentBase::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
+void USectionCompBase::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
 {
 	BPPopulateRoom(aGenerator, aSection, aRoom);
 }

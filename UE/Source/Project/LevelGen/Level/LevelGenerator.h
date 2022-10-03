@@ -37,7 +37,10 @@ protected:
 	int myNumbArenas = 0;
 
 	UPROPERTY(EditDefaultsOnly)
-	bool myEnableOverlapEvents = false; 
+	bool myEnableOverlapEvents = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myRenderDistance = 5000.0f; 
 	
 private:
 
@@ -46,6 +49,7 @@ private:
 	// On levels loaded 
 	void SetupLevels();
 	void EnableOverlapEvents() const;
+	void OptimizeObjectRendering() const;
 	
 	int FindLevelIndex(const ULevel* aLevel);
 	int FindLevelIndex(const FString& aLevelName);

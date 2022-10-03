@@ -5,7 +5,7 @@
 #include "ProceduralMeshComponent.h"
 #include "SectionDataConfig.h"
 #include "SectionDataStructs.h"
-#include "Components/SectionComponentBase.h"
+#include "Components/SectionCompBase.h"
 #include "Kismet/GameplayStatics.h"
 
 ASectionGenerator::ASectionGenerator()
@@ -146,7 +146,7 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 	{
 		roomItr++;
 		
-		const float roomRadius = FMath::RandRange(aConfig.myMinRoomRadius, aConfig.myMaxRoomRadius);
+		float roomRadius = FMath::RandRange(aConfig.myMinRoomRadius, aConfig.myMaxRoomRadius);
 		
 		FVector2D srcEdgeStart;
 		FVector2D srcEdgeEnd;
@@ -197,6 +197,11 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 
 			// Calculate distance
 			const float dist = FVector2D::Distance(srcEdgeStart, srcEdgeEnd) * 0.5f;
+			
+			// Adjust room radius
+			roomRadius = FMath::Max(dist + 1.0f, roomRadius);  
+
+			// Calculate room location
 			const float d2 = dist * dist;
 			const float r2 = roomRadius * roomRadius;
 			const float l = FMath::Sqrt(r2 - d2);
@@ -205,9 +210,16 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 		else
 		{
 			// Is start
-			roomLoc = aStartLocation;
-			srcEdgeStart = roomLoc + FVector2d(roomRadius, -0.1f);
-			srcEdgeEnd = roomLoc + FVector2d(-roomRadius, -0.1f);
+
+			float sin = 0.0f;
+			float cos = 0.0f;
+			float angle = FMath::DegreesToRadians(45);
+			FMath::SinCos(&sin, &cos, angle);
+			const FVector2D loc = FVector2D(cos, -sin) * roomRadius;
+			
+			roomLoc = aStartLocation + FVector2D(0.0f, -loc.Y);
+			srcEdgeStart = roomLoc + loc;
+			srcEdgeEnd = roomLoc + loc * FVector2D(-1.0f, 1.0f);
 		}
 
 		const FVector2D srcEdgeLoc = (srcEdgeStart + srcEdgeEnd) * 0.5f;
@@ -229,17 +241,43 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 		const FVector2D srcEdgeStartExt = middle - srcDir * 10000.0f;
 		const FVector2D srcEdgeEndExt = middle + srcDir * 10000.0f;
 
-		if (isFirstRoom)
-			allEdges.Add({ srcEdgeStartExt, srcEdgeEndExt });
-		
 		if (isLastRoom)
 		{
-			room.vertices.Add(roomLoc + FVector2D(roomRadius, 100.0f));
-			room.vertices.Add(roomLoc + FVector2D(-roomRadius, 100.0f));
+			float sin = 0.0f;
+			float cos = 0.0f;
+			float angle = FMath::DegreesToRadians(45);
+			FMath::SinCos(&sin, &cos, angle);
+
+			FVector2D loc = FVector2D(cos, sin) * roomRadius;
+
+			// Adjust location for srcEdge
+			const FVector2D worldLoc = roomLoc + loc; 
+			if (worldLoc.Y < srcEdgeStart.Y || worldLoc.Y < srcEdgeEnd.Y)
+			{
+				// Select closest edge
+				const FVector2D newLoc = srcEdgeStart.Y > srcEdgeEnd.Y ? srcEdgeStart : srcEdgeEnd;
+
+				// Convert to room space
+				loc = newLoc - roomLoc;
+
+				// TODO: Risk of tight opening here
+
+				if (myDebugDrawNoise)
+					DrawDebugSphere(GetWorld(),
+						FVector(newLoc.X, newLoc.Y, 200.0f),
+						50.0f, 8,
+						FColor(255, 255, 255),
+						true);
+				
+				LOG("Adjusted for src");
+			}
+			
+			room.vertices.Add(roomLoc + loc);
+			room.vertices.Add(roomLoc + loc * FVector2D(-1.0f, 1.0f));
 			
 			allEdges.Add({
-				roomLoc - FVector2D(10000.0f, 100.0f),
-				roomLoc + FVector2D(10000.0f, 100.0f)
+				roomLoc + FVector2D(10000.0f, loc.Y),
+				roomLoc + FVector2D(-10000.0f, loc.Y)
 			});
 		}
 		
@@ -251,13 +289,8 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 			vertItr++;
 			
 			FVector2D intersect;
-			FVector2D vert = FMath::RandPointInCircle(1.0f).GetSafeNormal() * roomRadius + roomLoc;
+			const FVector2D vert = FMath::RandPointInCircle(1.0f).GetSafeNormal() * roomRadius + roomLoc;
 			
-			// Edge case for last room, to make final wall simpler
-			if (isLastRoom)
-				if (vert.Y > roomLoc.Y + 100.0f)
-					continue;
-
 			// Check line intersect
 			if (lineIntersection(roomLoc, vert,
 				srcEdgeStartExt, srcEdgeEndExt, intersect))
@@ -274,7 +307,7 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 				}
 			}
 			if (discard)
-				break;
+				continue;
 			
 			// Check distance
 			if (checkDist(room.vertices, vert, aConfig.myMinVertDist))
@@ -298,6 +331,14 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 			const int32 endI = (i + 1) % room.vertices.Num(); 
 			const FVector2D start = room.vertices[startI];
 			const FVector2D end = room.vertices[endI];
+
+			// Not a valid edge
+			if (FVector2D::DistSquared(start, end) < SMALL_NUMBER)
+			{
+				LOG("Small edge detected");
+				continue;
+			}
+			
 			const FVector2D dir = (end - start).GetSafeNormal();
 			const FVector2D normal = { dir.Y, -dir.X }; 
 			const FVector2D edgeLoc = (start + end) * 0.5f;
@@ -338,6 +379,8 @@ void ASectionGenerator::GenerateWalls(FProcSection& aSection, const USectionData
 	// Generate walls
 	for (auto& room : aSection.rooms)
 	{
+		const int32 blue = FMath::RandRange(0, 255);
+		
 		// Find connections
 		TArray<FProcEdge*> pathEdgeLocations;
 		for (auto& edge : room.edges)
@@ -368,7 +411,7 @@ void ASectionGenerator::GenerateWalls(FProcSection& aSection, const USectionData
 				DrawDebugLine(GetWorld(),
 					FVector(curr.X, curr.Y, 200.0f),
 					FVector(next.X, next.Y, 200.0f),
-					noWall ? FColor(255, 0, 0) : FColor(0, 255, 0),
+					noWall ? FColor(255, 0, blue) : FColor(0, 255, blue),
 					true);
 
 			auto& wallSection = room.walls.Last(); 
@@ -401,17 +444,88 @@ void ASectionGenerator::GenerateGroundCeil(FProcSection& aSection, const USectio
 }
 
 void ASectionGenerator::Populate(FProcSection& aSection, const USectionDataConfig& aConfig)
-{
-	// First, figure out which components in what room
+{	
+	// Apply component chance for each room
 	for (auto& comp : aConfig.myComponents)
-		if (const auto compPtr = Cast<USectionComponentBase>(comp->GetDefaultObject()))
+		if (auto compPtr = comp.Get())
 			for (const auto roomIndex : compPtr->PopulateSection(this, aSection))
 				if (aSection.rooms.IsValidIndex(roomIndex))
 					aSection.rooms[roomIndex].components.Add(compPtr);
-	
-	// Then, populate
-	for (const auto& room : aSection.rooms)
-		for (const auto& comp : room.components)
-			if (const auto compPtr = Cast<USectionComponentBase>(comp))
+
+	for (auto& room : aSection.rooms)
+	{
+		// Sort and filter room components
+		auto comps = FilterSortRoomComponents(room);
+		room.components = comps;
+
+		// Then, populate
+		for (const auto& comp : comps)
+			if (const auto compPtr = Cast<USectionCompBase>(comp))
 				compPtr->PopulateRoom(this, aSection, room);
+	}
+}
+
+TArray<USectionCompBase*> ASectionGenerator::FilterSortRoomComponents(const FProcRoom& aRoom)
+{
+	const auto& comps = aRoom.components;
+	CHECK_RETURN_LOG(!comps.Num(), "No components in room", {});
+
+	// Sort components based on requirements
+	// Any requirement means that the required component has to come before
+	
+	TArray<USectionCompBase*> sortedComps;
+	for (const auto comp : comps)
+		AddSortedComponent(comps, sortedComps, comp, 0);
+	
+	// Filter out blocked components
+	const auto isBlocked = [&](const USectionCompBase& aComp)
+	{
+		const auto& blockingComps = aComp.GetBlockingComps();
+		for (auto& blockingComp : blockingComps)
+		{
+			const auto find = sortedComps.FindByPredicate(
+				[&blockingComp, &aComp] (const USectionCompBase* aCompare)
+				{
+					if (aCompare != &aComp)
+					 	return aCompare->IsA(blockingComp);
+					return false;
+				});
+			
+			if (find && *find)
+				return true;
+		}
+		return false; 
+	};
+	TArray<USectionCompBase*> filteredComps;
+	for (auto& comp : sortedComps)
+	{
+		CHECK_CONTINUE_LOG(!comp, "Component null");
+		if (!isBlocked(*comp))
+			filteredComps.Add(comp);
+	}
+	
+	return filteredComps;
+}
+
+void ASectionGenerator::AddSortedComponent(const TArray<USectionCompBase*>& aBase, TArray<USectionCompBase*>& aResult, USectionCompBase* aComp, const int32 aDepth)
+{
+	CHECK_RETURN_LOG(!aComp, "Component null");
+	CHECK_RETURN_LOG(aDepth > 10, "Recursive component dependency found, exiting loop");
+	CHECK_RETURN(aResult.Contains(aComp));
+		
+	// This component requires these components to be prioritized above it
+	const auto& requiredComps = aComp->GetReqiredComps();
+	for (auto& requiredComp : requiredComps)
+	{	
+		// Add required comp before current comp
+		// We've only got the type, find the actual object
+		const auto objFind = aBase.FindByPredicate(
+			[&requiredComp](const USectionCompBase* aCompare)
+			{ return aCompare->IsA(requiredComp); });
+		CHECK_RETURN_LOG(!objFind || !(*objFind), "Could not find required component in config components");
+		AddSortedComponent(aBase, aResult, *objFind, aDepth + 1);
+	}
+
+	// Add this comp
+	aResult.Add(aComp);
 }

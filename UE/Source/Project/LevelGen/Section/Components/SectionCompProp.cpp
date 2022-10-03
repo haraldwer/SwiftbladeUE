@@ -1,8 +1,10 @@
-#include "SectionPropComponent.h"
+#include "SectionCompProp.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
-void USectionPropComponent::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
+void USectionCompProp::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
 {
+	return;
+	
 	float totalWeight = 0.0f;
 	for (const auto& prop : myProps)
 		totalWeight += prop.mySpawnWeight;

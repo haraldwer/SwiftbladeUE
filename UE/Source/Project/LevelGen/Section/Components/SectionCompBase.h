@@ -2,15 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "Project/LevelGen/Section/SectionDataStructs.h"
-#include "SectionComponentBase.generated.h"
+#include "SectionCompBase.generated.h"
 
 class ASectionGenerator;
 
-UCLASS(Blueprintable)
-class PROJECT_API USectionComponentBase : public UObject
+UCLASS(Abstract, Blueprintable, EditInlineNew)
+class PROJECT_API USectionCompBase : public UObject
 {
 	GENERATED_BODY()
-
+	
 public:
 
 	// Return array of rooms to populate
@@ -19,6 +19,9 @@ public:
 	// Populate a specific room
 	virtual void PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom);
 
+	const TArray<TSubclassOf<USectionCompBase>>& GetReqiredComps() const { return myRequiredComponents; }
+	const TArray<TSubclassOf<USectionCompBase>>& GetBlockingComps() const { return myBlockingComponents; }
+	
 protected:
 
 	// For defining components in BP
@@ -27,6 +30,14 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float myRoomChance = 100.0f;
+
+	// Requirements
+	
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<USectionCompBase>> myRequiredComponents;
+
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<USectionCompBase>> myBlockingComponents;
 
 	template <class T>
 	static T* GetRoomComp(const FProcRoom& aRoom)

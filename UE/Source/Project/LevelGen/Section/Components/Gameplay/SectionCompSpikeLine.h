@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../SectionComponentBase.h"
-#include "SectionSpikeLineComponent.generated.h"
+#include "../SectionCompBase.h"
+#include "SectionCompSpikeLine.generated.h"
 
 UCLASS()
-class PROJECT_API USectionSpikeLineComponent : public USectionComponentBase
+class PROJECT_API USectionCompSpikeLine : public USectionCompBase
 {
 	GENERATED_BODY()
 

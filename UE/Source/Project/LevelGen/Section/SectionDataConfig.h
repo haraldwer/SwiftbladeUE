@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "SectionDataConfig.generated.h"
 
-class USectionComponentBase;
+class USectionCompBase;
 class ASectionGenerator;
 
 UCLASS(Blueprintable)
@@ -48,7 +48,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Ceiling")
 	float myCeilingMaxHeight = 500.0f;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Components")
-	TArray<TSubclassOf<USectionComponentBase>> myComponents;
+	UPROPERTY(Instanced, EditDefaultsOnly, Category="Components")
+	TArray<TObjectPtr<USectionCompBase>> myComponents;
 	
 };
