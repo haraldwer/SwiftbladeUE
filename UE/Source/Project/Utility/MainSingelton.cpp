@@ -58,7 +58,7 @@ ALevelGenerator& UMainSingelton::GetLevelGenerator()
 AFPController* UMainSingelton::GetLocalController()
 {
 	const auto& instance = GetGameInstance();
-	return Cast<AFPController>(instance.GetPrimaryPlayerController());
+	return Cast<AFPController>(instance.GetFirstLocalPlayerController());
 }
 
 AFPCharacter* UMainSingelton::GetLocalPlayer()
