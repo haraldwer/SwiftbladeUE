@@ -125,4 +125,13 @@ void UFPAnimatorNew::SetCamera(const FFPAnimationCameraData& someCameraData, con
 		myRealCamera = someCameraData;
 }
 
+void UFPAnimatorNew::OnCrouch(const bool aStartedCrouch, const float aHalfHeightAdjust)
+{
+	if (!aStartedCrouch)
+	{
+		myRealHands.myRight.SetLocation(myRealHands.myRight.GetLocation() - FVector::UpVector * aHalfHeightAdjust);
+		myRealHands.myLeft.SetLocation(myRealHands.myLeft.GetLocation() - FVector::UpVector * aHalfHeightAdjust);
+	}
+}
+
 

@@ -36,8 +36,9 @@ void ALevelGenerator::LevelLoaded()
 void ALevelGenerator::GenerateLevelOrder(const int aSeed)
 {
 	LOG("Generating levels");
-	
-	FMath::RandInit(aSeed);
+
+	if (aSeed)
+		FMath::RandInit(aSeed);
 
 	TArray<FString> easy = GetLevelPool("SL_Easy", myNumbEasyLevels);
 	TArray<FString> arena = GetLevelPool("SL_Arena", myNumbArenas);

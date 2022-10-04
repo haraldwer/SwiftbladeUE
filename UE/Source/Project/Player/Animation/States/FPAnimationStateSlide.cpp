@@ -14,15 +14,15 @@ UClass* UFPAnimationStateSlide::Update(float aDT)
 	
 	FFPAnimationHandPositions hands;
 	hands.myRight = lerpTrans;
-	hands.myLeft = FlipRightToLeft(hands.myRight);
-	hands.myPosInterpSpd = 5.0f;
-    hands.myRotInterpSpd = 5.0f;
+	hands.myLeft = FlipRightToLeft(defaultTrans);
+	hands.myPosInterpSpd = 8.0f;
+    hands.myRotInterpSpd = 8.0f;
 	
 	// Apply wobble
 	hands.myRight.SetLocation(hands.myRight.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength));
 	hands.myLeft.SetLocation(hands.myLeft.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength, 1000.0f));
 
-	OverrideSwordData(hands, 0.8f, 0.5f, false);
+	OverrideSwordData(hands, 0.1f, 0.1f, false);
 	OverrideVelocityData(hands, 0.5f, aDT);
 	SetHands(hands);
 

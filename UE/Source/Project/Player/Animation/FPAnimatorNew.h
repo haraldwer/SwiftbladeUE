@@ -26,7 +26,9 @@ public:
 	FFPAnimationCameraData GetTargetCamera() const { return myTargetCamera; }
 	FFPAnimationCameraData GetRealCamera() const { return myRealCamera; }
 
-	FTransform GetDefaultSwordTransform() const { return myDefaultSwordTransform; };
+	FTransform GetDefaultSwordTransform() const { return myDefaultSwordTransform; }
+	
+	void OnCrouch(bool aStartedCrouch, float aHalfHeightAdjust);
 	
 protected:
 

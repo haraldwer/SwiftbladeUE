@@ -17,6 +17,7 @@ public:
 
 	// Override for custom behaviour
 	virtual UClass* Input(EFPMovementInputAction anAction, float aValue);
+	virtual UClass* OnCrouch(bool aStartedCrouch, float aHalfHeightAdjust) { return nullptr; }
 	virtual UClass* OnLanded() { return nullptr; }
 	virtual UClass* OnHit(const FHitResult& aHit) { return nullptr; }
 

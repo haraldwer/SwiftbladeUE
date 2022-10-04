@@ -17,7 +17,7 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> myPlatformClass;
+	TArray<TSubclassOf<AActor>> myPlatformClasses;
 
 	UPROPERTY(EditAnywhere)
 	float myMinHeight = -100.0f;

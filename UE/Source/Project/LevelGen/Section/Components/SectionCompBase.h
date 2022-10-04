@@ -49,5 +49,10 @@ protected:
 		}
 		return nullptr;
 	}
+
+	// Helpers	
+	FVector2D GetBlendVert(const TArray<FVector2D>& someVerts, float anIndex) const;
+	void GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& aFirst, FVector2D& aSecond) const;
+	bool FitIntoRoom(FVector2D& aPosition, float aRadius, const FProcRoom& aRoom, UWorld* world) const;
 	
 };

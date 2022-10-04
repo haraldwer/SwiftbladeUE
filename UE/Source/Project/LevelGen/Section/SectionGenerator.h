@@ -44,7 +44,7 @@ protected:
 	int32 mySeed = 0;
 
 	UPROPERTY(EditAnywhere, Category="Generation")
-	int myNumSections = 3;
+	int myNumSections = 5;
 	
 	// Different configs depending on difficulty? 
 	UPROPERTY(EditAnywhere, Category="Generation")
@@ -60,6 +60,7 @@ private:
 	void GenerateSection(FProcSection& aSection, const USectionDataConfig& aConfig, const FVector2D& aStartLocation) const;
 	void GenerateLastEdge(FProcSection& aSection, const USectionDataConfig& aConfig) const;
 	void GenerateWalls(FProcSection& aSection, const USectionDataConfig& aConfig) const;
+	void GenerateRoomPath(FProcSection& aSection) const;
 	void GenerateGroundCeil(FProcSection& aSection, const USectionDataConfig& aConfig, const float aStartHeight) const;
 	void Populate(FProcSection& aSection, const USectionDataConfig& aConfig);
 	

@@ -38,6 +38,7 @@ struct FProcRoom
 	FVector2D location = FVector2D::ZeroVector;
 	UPROPERTY(BlueprintReadOnly)
 	FVector2D center = FVector2D::ZeroVector;
+	
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FVector2D> vertices;
 	UPROPERTY(BlueprintReadOnly)
@@ -45,11 +46,15 @@ struct FProcRoom
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FProcWall> walls;
 	UPROPERTY(BlueprintReadOnly)
+	TArray<FVector2D> path;
+	
+	UPROPERTY(BlueprintReadOnly)
 	float radius = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
 	float groundOffset = 0.0f;
 	UPROPERTY(BlueprintReadOnly)
 	float ceilHeight = 0.0f;
+	
 	UPROPERTY(BlueprintReadOnly)
 	TArray<class USectionCompBase*> components;
 };

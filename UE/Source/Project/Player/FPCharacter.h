@@ -49,10 +49,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class ASword* GetSword() const;
-	
-	// Crouch size
-	void SetHalfHeight();
-	void SetFullHeight();
 
 	// Effect interface
 	class AEffect* CreateEffect(const TSubclassOf<class AEffect>& aBP, const FTransform& aTransform) const;
@@ -72,11 +68,15 @@ public:
 
 private:
 
+	virtual void OnStartCrouch(float aHalfHeightAdjust, float aScaledHalfHeightAdjust) override;
+	virtual void OnEndCrouch(float aHalfHeightAdjust, float aScaledHalfHeightAdjust) override;
+
 	// Collision callbacks
-	virtual void Landed(const FHitResult& aHit) override;
 	
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+	virtual void Landed(const FHitResult& aHit) override;
 	
 protected:
 

@@ -178,32 +178,6 @@ ASword* AFPCharacter::GetSword() const
 	return myFPCombat ? myFPCombat->GetSword() : nullptr;
 }
 
-void AFPCharacter::SetHalfHeight()
-{
-	const auto capsule = GetCapsuleComponent();
-	if (!capsule)
-		return;
-	if (capsule->GetUnscaledCapsuleHalfHeight() == myFullHeight * 0.5f)
-		return;
-	capsule->SetCapsuleHalfHeight(myFullHeight * 0.5f, false);
-	auto l = GetActorLocation();
-	l.Z -= myFullHeight * 0.5f;
-	SetActorLocation(l);
-}
-
-void AFPCharacter::SetFullHeight()
-{
-	const auto capsule = GetCapsuleComponent();
-	if (!capsule)
-		return;
-	if (capsule->GetUnscaledCapsuleHalfHeight() == myFullHeight)
-		return;
-	capsule->SetCapsuleHalfHeight(myFullHeight, false);
-	auto l = GetActorLocation();
-	l.Z += myFullHeight * 0.5f;
-	SetActorLocation(l);
-}
-
 AEffect* AFPCharacter::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const
 {
 	const auto bp = aBP.Get();
@@ -256,16 +230,30 @@ bool AFPCharacter::HasMagic() const
 	return false;
 }
 
+void AFPCharacter::OnStartCrouch(const float aHalfHeightAdjust, const float aScaledHalfHeightAdjust)
+{
+	Super::OnStartCrouch(aHalfHeightAdjust, aScaledHalfHeightAdjust);
+	if (myFPAnimator)
+		myFPAnimator->OnCrouch(true, aHalfHeightAdjust);
+}
+
+void AFPCharacter::OnEndCrouch(const float aHalfHeightAdjust, const float aScaledHalfHeightAdjust)
+{
+	Super::OnEndCrouch(aHalfHeightAdjust, aScaledHalfHeightAdjust);
+	if (myFPAnimator)
+		myFPAnimator->OnCrouch(false, aHalfHeightAdjust);
+}
+
+void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
+                         FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (myFPMovement)
+		myFPMovement->OnHit(Hit);
+}
+
 void AFPCharacter::Landed(const FHitResult& aHit)
 {
 	Super::Landed(aHit);
 	if (myFPMovement)
 		myFPMovement->OnLanded();
-}
-
-void AFPCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent,
-						 FVector NormalImpulse, const FHitResult& Hit)
-{
-	if (myFPMovement)
-		myFPMovement->OnHit(Hit);
 }

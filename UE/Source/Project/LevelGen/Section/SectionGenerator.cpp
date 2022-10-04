@@ -7,6 +7,7 @@
 #include "SectionDataStructs.h"
 #include "Components/SectionCompBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project/Utility/Math/LineIntersection.h"
 
 ASectionGenerator::ASectionGenerator()
 {
@@ -44,6 +45,7 @@ void ASectionGenerator::Generate()
 		GenerateSection(section, *config, lastSectionEnd);
 		GenerateLastEdge(section, *config);
 		GenerateWalls(section, *config);
+		GenerateRoomPath(section);
 		GenerateGroundCeil(section, *config, lastSectionHeight);
 		Populate(section, *config);
 		
@@ -102,30 +104,6 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 	// Random distribution
 	// Select edge when creating next room
 	
-	constexpr auto lineIntersection = [](
-		const FVector2D& aSegmentStartA, const FVector2D& aSegmentEndA,
-		const FVector2D& aSegmentStartB, const FVector2D& aSegmentEndB,
-		FVector2D& anIntersect)
-	{
-		const FVector2D vectorA = aSegmentEndA - aSegmentStartA;
-		const FVector2D vectorB = aSegmentEndB - aSegmentStartB;
-
-		const FVector::FReal s = (-vectorA.Y * (aSegmentStartA.X - aSegmentStartB.X) + vectorA.X *
-			(aSegmentStartA.Y - aSegmentStartB.Y)) / (-vectorB.X * vectorA.Y + vectorA.X * vectorB.Y);
-		const FVector::FReal t = (vectorB.X * (aSegmentStartA.Y - aSegmentStartB.Y) - vectorB.Y *
-			(aSegmentStartA.X - aSegmentStartB.X)) / (-vectorB.X * vectorA.Y + vectorA.X * vectorB.Y);
-
-		const bool bIntersects = (s >= 0 && s <= 1 && t >= 0 && t <= 1);
-
-		if (bIntersects)
-		{
-			anIntersect.X = aSegmentStartA.X + (t * vectorA.X);
-			anIntersect.Y = aSegmentStartA.Y + (t * vectorA.Y);
-		}
-
-		return bIntersects;
-	};
-
 	auto checkDist = [](const TArray<FVector2D> anArr, const FVector2D& aVec, const float aMinDist)
 	{
 		for (const auto& otherVert : anArr)
@@ -292,14 +270,14 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 			const FVector2D vert = FMath::RandPointInCircle(1.0f).GetSafeNormal() * roomRadius + roomLoc;
 			
 			// Check line intersect
-			if (lineIntersection(roomLoc, vert,
+			if (LineIntersect(roomLoc, vert,
 				srcEdgeStartExt, srcEdgeEndExt, intersect))
 					continue;
 
 			bool discard = false;
 			for (const auto& edge : allEdges)
 			{
-				if (lineIntersection(roomLoc, vert,
+				if (LineIntersect(roomLoc, vert,
 				   edge.start, edge.end, intersect))
 				{
 					discard = true;
@@ -426,6 +404,19 @@ void ASectionGenerator::GenerateWalls(FProcSection& aSection, const USectionData
 				wallSection.verts.Add(curr);
 			wallSection.verts.Add(next);
 		}
+	}
+}
+
+void ASectionGenerator::GenerateRoomPath(FProcSection& aSection) const
+{
+	for (auto& room : aSection.rooms)
+	{
+		for (const auto& it : room.edges)
+			if (it.isPath)
+				room.path.Add(it.location);
+
+		const int32 centerIndex = room.path.Num() ? 1 : 0;
+		room.path.Insert(room.center, centerIndex);
 	}
 }
 
