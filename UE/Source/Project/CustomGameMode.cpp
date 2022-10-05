@@ -2,7 +2,7 @@
 
 #include "CustomGameInstance.h"
 #include "Enemies/EnemyManager.h"
-#include "LevelGen/Level/LevelGenerator.h"
+#include "LevelGen/Level/LevelManager.h"
 #include "UI/Menus/MenuManager.h"
 #include "UI/Prompts/PromptManager.h"
 #include "Utility/MainSingelton.h"
@@ -60,6 +60,6 @@ void ACustomGameMode::CreateLevelGenerator()
 	CHECK_RETURN_LOG(!world, "World nullptr");
 	const auto levelGenerator = world->SpawnActor(instance.GetLevelGeneratorBP().Get());
 	CHECK_RETURN_LOG(!levelGenerator, "PromptActor nullptr");
-	myLevelGenerator = Cast<ALevelGenerator>(levelGenerator);
+	myLevelGenerator = Cast<ALevelManager>(levelGenerator);
 	CHECK_RETURN_LOG(!levelGenerator, "LevelGenerator not of type ALevelGenerator");
 }

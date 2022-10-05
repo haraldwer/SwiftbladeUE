@@ -4,15 +4,15 @@
 
 #include "GameFramework/Actor.h"
 #include "Project/Player/FPController.h"
-#include "LevelGenerator.generated.h"
+#include "LevelManager.generated.h"
 
 UCLASS()
-class PROJECT_API ALevelGenerator : public AActor
+class PROJECT_API ALevelManager : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	ALevelGenerator();
+	ALevelManager();
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
@@ -27,12 +27,6 @@ public:
 
 protected:
 	
-	UPROPERTY(EditDefaultsOnly)
-	int myNumbEasyLevels = 0;
-	UPROPERTY(EditDefaultsOnly)
-	int myNumbMediumLevels = 0;
-	UPROPERTY(EditDefaultsOnly)
-	int myNumbHardLevels = 0;
 	UPROPERTY(EditDefaultsOnly)
 	int myNumbArenas = 0;
 
@@ -53,7 +47,6 @@ private:
 	
 	int FindLevelIndex(const ULevel* aLevel);
 	int FindLevelIndex(const FString& aLevelName);
-	static TArray<FString> GetLevelPool(FString aType, int aNumb);
 
 	TArray<FString> myLevels;
 	TArray<int32> myArenaIndices;

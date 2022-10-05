@@ -27,6 +27,6 @@ private:
 	UPROPERTY();
 	class AEnemyManager* myEnemyManager;
 	UPROPERTY();
-	class ALevelGenerator* myLevelGenerator;
+	class ALevelManager* myLevelGenerator;
 	
 };

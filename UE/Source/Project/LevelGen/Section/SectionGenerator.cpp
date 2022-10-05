@@ -9,30 +9,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Project/Utility/Math/LineIntersection.h"
 
-ASectionGenerator::ASectionGenerator()
-{
-	PrimaryActorTick.bCanEverTick = false;
-}
-
-void ASectionGenerator::BeginPlay()
-{
-	Super::BeginPlay();
-
-	Generate();
-}
-
 void ASectionGenerator::Generate()
 {
-	LOG("Generate");
+	Super::Generate();
 	
-	Clear();
-
-	FlushPersistentDebugLines(GetWorld());
-	
-	// Set seed
-	if (mySeed)
-		FMath::RandInit(mySeed);
-
 	const FVector levelLoc = GetActorLocation();
 	FVector2D lastSectionEnd = FVector2D(levelLoc.X, levelLoc.Y);
 	float lastSectionHeight = levelLoc.Z;
@@ -52,38 +32,6 @@ void ASectionGenerator::Generate()
 		lastSectionEnd = section.lastEdgeLoc;
 		lastSectionHeight = section.rooms.Last().groundOffset;
 	}
-}
-
-void ASectionGenerator::Clear()
-{
-	// Destroy existing objects
-	for (auto& type : myGeneratedObjects)
-	{
-		for (auto& obj : type.Value)
-		{
-			if (const auto comp = Cast<UActorComponent>(obj))
-				comp->DestroyComponent();
-			if (const auto actor = Cast<AActor>(obj))
-				actor->Destroy();
-		}
-	}
-	myGeneratedObjects.Reset();
-}
-
-AActor* ASectionGenerator::SpawnGeneratedActor(const TSubclassOf<AActor>& anActorType, const FTransform& aTrans)
-{
-	if (AActor* actor = GetWorld()->SpawnActor(anActorType, &aTrans))
-	{
-		AddGeneratedObject(actor);
-		return actor;
-	}
-	return nullptr;
-}
-
-void ASectionGenerator::AddGeneratedObject(UObject* anObject)
-{
-	CHECK_RETURN_LOG(!anObject, "Invalid object");
-	myGeneratedObjects.FindOrAdd(anObject->GetClass()).Add(anObject);
 }
 
 USectionDataConfig* ASectionGenerator::GetRandomConfig() const

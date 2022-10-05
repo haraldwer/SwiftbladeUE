@@ -17,7 +17,7 @@ public:
 	TSubclassOf<class AMenuManager> GetMenuManagerBP() const { return myMenuManagerBlueprint; }
 	TSubclassOf<class APromptManager> GetPromptManagerBP() const { return myPromptManagerBlueprint; }
 	TSubclassOf<class AEnemyManager> GetEnemyManagerBP() const { return myEnemyManagerBlueprint; }
-	TSubclassOf<class ALevelGenerator> GetLevelGeneratorBP() const { return myLevelGeneratorBlueprint; }
+	TSubclassOf<class ALevelManager> GetLevelGeneratorBP() const { return myLevelGeneratorBlueprint; }
 
 	void AddPersistentObject(UObject* anObject);
 	void RemovePersistentObject(UObject* anObject);
@@ -39,7 +39,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Enemies")
 	TSubclassOf<class AEnemyManager> myEnemyManagerBlueprint;
 	UPROPERTY(EditDefaultsOnly, Category="Levels")
-	TSubclassOf<class ALevelGenerator> myLevelGeneratorBlueprint;
+	TSubclassOf<class ALevelManager> myLevelGeneratorBlueprint;
 
 private:
 	UPROPERTY()

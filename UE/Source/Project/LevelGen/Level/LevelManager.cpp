@@ -1,4 +1,4 @@
-#include "LevelGenerator.h"
+#include "LevelManager.h"
 
 #include "LevelEndLocation.h"
 #include "Components/StaticMeshComponent.h"
@@ -6,12 +6,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
-ALevelGenerator::ALevelGenerator()
+ALevelManager::ALevelManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ALevelGenerator::Tick(float DeltaTime)
+void ALevelManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -26,71 +26,35 @@ void ALevelGenerator::Tick(float DeltaTime)
 	}
 }
 
-void ALevelGenerator::LevelLoaded()
+void ALevelManager::LevelLoaded()
 {
 	LOG("Level loaded");
 	myLoadCount--;
 	SetActorTickEnabled(true);
 }
 
-void ALevelGenerator::GenerateLevelOrder(const int aSeed)
+void ALevelManager::GenerateLevelOrder(const int aSeed)
 {
 	LOG("Generating levels");
 
 	if (aSeed)
 		FMath::RandInit(aSeed);
 
-	TArray<FString> easy = GetLevelPool("SL_Easy", myNumbEasyLevels);
-	TArray<FString> arena = GetLevelPool("SL_Arena", myNumbArenas);
-
-	TArray<TArray<FString>> total;
-	total.Add(GetLevelPool("SL_Medium", myNumbMediumLevels));
-	total.Add(GetLevelPool("SL_Hard", myNumbHardLevels));
-
 	myLevels.Reset();
 	myLevels.Add("SL_Start"); // Start of game
-	myLevels.Add("SL_Proc"); // Procedural levels
-	
-	TArray<FString> pool = easy;
-	while (pool.Num() != 0)
+	myLevels.Add("SL_Proc");
+	for (int i = 0; i < myNumbArenas; i++)
 	{
-		const int index = FMath::RandRange(0, pool.Num() - 1);
-		myLevels.Add(pool[index]);
-
-		bool found = false;
-		for (auto& list : total)
-		{
-			if (list.Num() != 0)
-			{
-				const int listIndex = FMath::RandRange(0, list.Num() - 1);
-				pool[index] = list[listIndex];
-				list.RemoveAt(listIndex);
-				found = true;
-				break;
-			}
-		}
-		if (!found)
-			pool.RemoveAt(index);
+		myLevels.Add("SL_Section_End");
+		myArenaIndices.Add(myLevels.Num());
+		myLevels.Add("SL_Arena");
+		myLevels.Add("SL_Section_Start");
+		myLevels.Add("SL_Proc"); 
 	}
-
 	myLevels.Add("SL_End"); // End of game
-
-	if (arena.Num() > 0)
-	{
-		myArenaIndices.Reset();
-		const int arenaStep = myLevels.Num() / arena.Num();
-		for (int i = 0; i < arena.Num(); i++)
-		{
-			const int32 index = FMath::Clamp(arenaStep * (i + 1), 1, myLevels.Num() - 1);
-			myLevels.Insert("SL_Section_Start", index);
-			myLevels.Insert(arena[i], index);
-			myLevels.Insert("SL_Section_End", index);
-			myArenaIndices.Add(index + 1);		
-		}
-	}
 }
 
-void ALevelGenerator::LoadSection(const int anArenaIndex)
+void ALevelManager::LoadSection(const int anArenaIndex)
 {
 	CHECK_RETURN_LOG(anArenaIndex < 0, "Arena index out of range");
 	
@@ -110,7 +74,7 @@ void ALevelGenerator::LoadSection(const int anArenaIndex)
 	LoadLevels(levelsToLoad);
 }
 
-void ALevelGenerator::LoadArena(const int anArenaIndex)
+void ALevelManager::LoadArena(const int anArenaIndex)
 {
 	CHECK_RETURN_LOG(anArenaIndex < 0 || anArenaIndex >= myArenaIndices.Num(), "Arena index out of range");
 	const int32 index = myArenaIndices[anArenaIndex];
@@ -118,12 +82,12 @@ void ALevelGenerator::LoadArena(const int anArenaIndex)
 	LoadLevels({myLevels[index]});
 }
 
-void ALevelGenerator::LoadLevelOverride(const FString& aLevelName)
+void ALevelManager::LoadLevelOverride(const FString& aLevelName)
 {
 	LoadLevels({ aLevelName });
 }
 
-void ALevelGenerator::LoadLevels(TArray<FString> someLevelsToLoad)
+void ALevelManager::LoadLevels(TArray<FString> someLevelsToLoad)
 {
 	myLoadedLevels.Reset();
 	
@@ -153,7 +117,7 @@ void ALevelGenerator::LoadLevels(TArray<FString> someLevelsToLoad)
 	}
 }
 
-void ALevelGenerator::SetupLevels()
+void ALevelManager::SetupLevels()
 {
 	LOG("Setting up levels");
 	
@@ -208,7 +172,7 @@ void ALevelGenerator::SetupLevels()
 	}
 }
 
-void ALevelGenerator::EnableOverlapEvents() const
+void ALevelManager::EnableOverlapEvents() const
 {
 	if (!myEnableOverlapEvents)
 		return;
@@ -224,7 +188,7 @@ void ALevelGenerator::EnableOverlapEvents() const
 	}
 }
 
-void ALevelGenerator::OptimizeObjectRendering() const
+void ALevelManager::OptimizeObjectRendering() const
 {
 	LOG("Setting draw distance for all primitives");
 	
@@ -240,12 +204,12 @@ void ALevelGenerator::OptimizeObjectRendering() const
 	}
 }
 
-int ALevelGenerator::FindLevelIndex(const ULevel* aLevel)
+int ALevelManager::FindLevelIndex(const ULevel* aLevel)
 {
 	return FindLevelIndex(aLevel->GetOuter()->GetName());
 }
 
-int ALevelGenerator::FindLevelIndex(const FString& aName)
+int ALevelManager::FindLevelIndex(const FString& aName)
 {
 	for (int32 i = 0; i < myLevels.Num(); i++)
 	{
@@ -253,16 +217,4 @@ int ALevelGenerator::FindLevelIndex(const FString& aName)
 			return i;
 	}
 	return -1; 
-}
-
-TArray<FString> ALevelGenerator::GetLevelPool(const FString aType, int aNumb)
-{
-	TArray<FString> vec;
-	for (int i = 0; i < aNumb; i++)
-	{
-		FString levelName = aType + "_";
-		levelName.AppendInt(i);
-		vec.Add(levelName);
-	}
-	return vec;
 }
