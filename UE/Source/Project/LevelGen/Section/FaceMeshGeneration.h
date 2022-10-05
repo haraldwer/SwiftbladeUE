@@ -1,20 +1,20 @@
 #pragma once
 
-#include "SectionGenerator.h"
+#include "../GeneratorBase.h"
 #include "ProceduralMeshComponent.h"
 
-inline UProceduralMeshComponent* CreateFaceMesh(ASectionGenerator* aLevelData, const FProcRoom& aFace, const FVector& anOffset, float aHeight, UMaterialInterface* aMaterial)
+inline UProceduralMeshComponent* CreateFaceMesh(AGeneratorBase* aGenerator, const TArray<FVector2D>& someVertices, const FVector& anOffset, float aHeight, UMaterialInterface* aMaterial)
 {
-	CHECK_RETURN_LOG(!aLevelData, "No level data", nullptr);
-	CHECK_RETURN_LOG(aFace.vertices.Num() < 3, "Can't generate mesh from less than three vertices", nullptr);
+	CHECK_RETURN_LOG(!aGenerator, "No level data", nullptr);
+	CHECK_RETURN_LOG(someVertices.Num() < 3, "Can't generate mesh from less than three vertices", nullptr);
 	
-	UProceduralMeshComponent* meshComp = NewObject<UProceduralMeshComponent>(aLevelData);
-	aLevelData->AddGeneratedObject(meshComp);
-	meshComp->AttachToComponent(aLevelData->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	UProceduralMeshComponent* meshComp = NewObject<UProceduralMeshComponent>(aGenerator);
+	aGenerator->AddGeneratedObject(meshComp);
+	meshComp->AttachToComponent(aGenerator->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	meshComp->SetWorldLocation(anOffset);
 	meshComp->RegisterComponent();
 
-	const int32 numVertices = aFace.vertices.Num();
+	const int32 numVertices = someVertices.Num();
 	TArray<FVector> vertices;
 	TArray<int32> triangles;
 	TArray<FVector2D> uvs;
@@ -28,7 +28,7 @@ inline UProceduralMeshComponent* CreateFaceMesh(ASectionGenerator* aLevelData, c
 	tangents.Reserve(numVertices * 4);
 
 	// Add top face
-	for (auto& flatVert : aFace.vertices)
+	for (auto& flatVert : someVertices)
 	{
 		vertices.Add(FVector(flatVert.X, flatVert.Y, 0));
 		uvs.Add(FVector2D(0, 0));
@@ -44,7 +44,7 @@ inline UProceduralMeshComponent* CreateFaceMesh(ASectionGenerator* aLevelData, c
 	}
 
 	// Add bottom face
-	for (auto& flatVert : aFace.vertices)
+	for (auto& flatVert : someVertices)
 	{
 		vertices.Add(FVector(flatVert.X, flatVert.Y, -aHeight));
 		uvs.Add(FVector2D(0, 0));
@@ -80,8 +80,8 @@ inline UProceduralMeshComponent* CreateFaceMesh(ASectionGenerator* aLevelData, c
 		const int32 currIndex = indexOffset + currI * 4;
 		const int32 nextIndex = indexOffset + nextI * 4;
 		
-		const FVector2D first = aFace.vertices[currI];
-		const FVector2D second = aFace.vertices[nextI];
+		const FVector2D first = someVertices[currI];
+		const FVector2D second = someVertices[nextI];
 		const FVector2D diff = (second - first).GetSafeNormal();
 		FVector2D flatNormal = -FVector2D(-diff.Y, diff.X);
 		if (true)//flatNormal.Dot(aFace.location - (first + second) * 0.5f) < 0.0f)
