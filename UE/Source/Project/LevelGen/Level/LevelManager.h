@@ -21,7 +21,6 @@ public:
 	void GenerateLevelOrder(int aSeed);
 	void LoadSection(int anArenaIndex);
 	void LoadArena(int anArenaIndex);
-	void LoadLevelOverride(const FString& aLevelName);
 	
 	float GetLowestEnd() const { return myLowestEnd; }
 
@@ -38,15 +37,14 @@ protected:
 	
 private:
 
-	void LoadLevels(TArray<FString> someLevelsToLoad);
+	void LoadLevels(const TArray<int32>& someLevelsToLoad);
+
+	static FString ChopLevelName(const FString& aName);
 
 	// On levels loaded 
 	void SetupLevels();
 	void EnableOverlapEvents() const;
 	void OptimizeObjectRendering() const;
-	
-	int FindLevelIndex(const ULevel* aLevel);
-	int FindLevelIndex(const FString& aLevelName);
 
 	TArray<FString> myLevels;
 	TArray<int32> myArenaIndices;

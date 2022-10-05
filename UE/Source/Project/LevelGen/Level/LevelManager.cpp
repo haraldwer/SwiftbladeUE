@@ -41,17 +41,19 @@ void ALevelManager::GenerateLevelOrder(const int aSeed)
 		FMath::RandInit(aSeed);
 
 	myLevels.Reset();
-	myLevels.Add("SL_Start"); // Start of game
-	myLevels.Add("SL_Proc");
+	myLevels.Add("SL_Start_0"); // Start of game
+	myLevels.Add("SL_Proc_0");
 	for (int i = 0; i < myNumbArenas; i++)
 	{
-		myLevels.Add("SL_Section_End");
+		const FString str = "_" + FString::FromInt(i);
+		
+		myLevels.Add("SL_Section_End" + str);
 		myArenaIndices.Add(myLevels.Num());
-		myLevels.Add("SL_Arena");
-		myLevels.Add("SL_Section_Start");
-		myLevels.Add("SL_Proc"); 
+		myLevels.Add("SL_Arena" + str);
+		myLevels.Add("SL_Section_Start" + str);
+		myLevels.Add("SL_Proc" + str); 
 	}
-	myLevels.Add("SL_End"); // End of game
+	myLevels.Add("SL_End_0"); // End of game
 }
 
 void ALevelManager::LoadSection(const int anArenaIndex)
@@ -67,9 +69,9 @@ void ALevelManager::LoadSection(const int anArenaIndex)
 	CHECK_RETURN_LOG(startIndex < 0 || startIndex > myLevels.Num(), "Level index out of range");
 	
 	// Load all levels before arena index
-	TArray<FString> levelsToLoad;
+	TArray<int32> levelsToLoad;
 	for (int32 i = startIndex; i < endIndex; i++)
-		levelsToLoad.Add(myLevels[i]);
+		levelsToLoad.Add(i);
 	
 	LoadLevels(levelsToLoad);
 }
@@ -79,42 +81,46 @@ void ALevelManager::LoadArena(const int anArenaIndex)
 	CHECK_RETURN_LOG(anArenaIndex < 0 || anArenaIndex >= myArenaIndices.Num(), "Arena index out of range");
 	const int32 index = myArenaIndices[anArenaIndex];
 	CHECK_RETURN_LOG(index < 0 || index >= myLevels.Num(), "Level index out of range");
-	LoadLevels({myLevels[index]});
+	LoadLevels({ index });
 }
 
-void ALevelManager::LoadLevelOverride(const FString& aLevelName)
-{
-	LoadLevels({ aLevelName });
-}
-
-void ALevelManager::LoadLevels(TArray<FString> someLevelsToLoad)
+void ALevelManager::LoadLevels(const TArray<int32>& someLevelsToLoad)
 {
 	myLoadedLevels.Reset();
 	
-	int uuid = 0;
 	FLatentActionInfo loadInfo;
 	loadInfo.CallbackTarget = this;
 	loadInfo.ExecutionFunction = "LevelLoaded";
 	loadInfo.Linkage = 0;
-	for (auto& it : someLevelsToLoad)
+	for (const auto& index : someLevelsToLoad)
 	{
-		const int index = FindLevelIndex(it);
-		CHECK_CONTINUE_LOG(index == -1, "Invalid index");
-		uuid++;
-		loadInfo.UUID = uuid;
-		UGameplayStatics::LoadStreamLevel(this, *it, true, true, loadInfo);
+		CHECK_CONTINUE_LOG(index < 0 || index >= myLevels.Num(), "Level index out of range");
+
+		const FString name = myLevels[index];
+		const FString choppedName = ChopLevelName(name);
+		CHECK_CONTINUE_LOG(choppedName.IsEmpty(), "Invalid name")
+		
+		loadInfo.UUID = index;
+		UGameplayStatics::LoadStreamLevel(this, *choppedName, true, true, loadInfo);
 		if (myLoadCount < 0)
 			myLoadCount = 0; 
 		myLoadCount++;
 
-		if (const auto streamingLevel = UGameplayStatics::GetStreamingLevel(this, *it))
+		if (const auto streamingLevel = UGameplayStatics::GetStreamingLevel(this, *choppedName))
 		{
 			streamingLevel->SetShouldBeLoaded(true);
 			streamingLevel->SetShouldBeVisible(true); 
 		}
 		
-		myLoadedLevels.Add(LoadedLevelData{FVector(), it, nullptr, index});
+		myLoadedLevels.Add(LoadedLevelData{FVector(), name, nullptr, index});
 	}
+}
+
+FString ALevelManager::ChopLevelName(const FString& aName)
+{
+	int32 chopIndex = 0;
+	aName.FindLastChar('_', chopIndex);
+	return aName.Left(chopIndex); // Chop this
 }
 
 void ALevelManager::SetupLevels()
@@ -128,12 +134,14 @@ void ALevelManager::SetupLevels()
 		CHECK_CONTINUE_LOG(!level->IsLevelLoaded(), "Level has not finished loading yet");
 		const auto loadedLevel = level->GetLoadedLevel();
 		CHECK_CONTINUE(!loadedLevel);
-		const int index = FindLevelIndex(loadedLevel);
-		CHECK_CONTINUE(index == -1);
+
+		const FString levelName = loadedLevel->GetOuter()->GetName();
 		LoadedLevelData* data = myLoadedLevels.FindByPredicate([&](const LoadedLevelData& someData)
 		{
-			return someData.myIndex == index;
+			const FString chopped = ChopLevelName(someData.myName);
+			return chopped == levelName;
 		});
+		
 		CHECK_CONTINUE_LOG(!data, "Invalid streaming level");
 		data->myPtr = loadedLevel;
 	}
@@ -202,19 +210,4 @@ void ALevelManager::OptimizeObjectRendering() const
 		for (const auto& comp : comps)
 			if (comp) comp->SetCullDistance(myRenderDistance);
 	}
-}
-
-int ALevelManager::FindLevelIndex(const ULevel* aLevel)
-{
-	return FindLevelIndex(aLevel->GetOuter()->GetName());
-}
-
-int ALevelManager::FindLevelIndex(const FString& aName)
-{
-	for (int32 i = 0; i < myLevels.Num(); i++)
-	{
-		if (myLevels[i] == aName)
-			return i;
-	}
-	return -1; 
 }

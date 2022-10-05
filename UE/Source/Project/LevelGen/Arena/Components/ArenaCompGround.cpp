@@ -8,4 +8,6 @@ void UArenaCompGround::Populate(AArenaGenerator* aArenaGenerator, const FArenaLa
 {
 	const FVector offset = FVector(0, 0, aSubdivision.height);
 	CreateFaceMesh(aArenaGenerator, aSubdivision.vertices, offset, myGroundThickness, myGroundMaterial);
+
+	Super::Populate(aArenaGenerator, aLayer, aSection, aSubdivision);
 }

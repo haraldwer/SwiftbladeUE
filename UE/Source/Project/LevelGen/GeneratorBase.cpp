@@ -1,6 +1,7 @@
 #include "GeneratorBase.h"
 
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 AGeneratorBase::AGeneratorBase()
 {
@@ -10,7 +11,9 @@ AGeneratorBase::AGeneratorBase()
 void AGeneratorBase::BeginPlay()
 {
 	Super::BeginPlay();
-	Generate(); 
+
+	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "ML_Base")
+		Generate(); 
 }
 
 void AGeneratorBase::Generate()
