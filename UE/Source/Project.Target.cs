@@ -10,6 +10,6 @@ public class ProjectTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 
-		ExtraModuleNames.AddRange( new string[] { "Project" } );
+		ExtraModuleNames.AddRange( new string[] { "Project", "GameDatabase" } );
 	}
 }

@@ -1,0 +1,23 @@
+﻿{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "GameDatabase",
+  "Description": "GameDatabase tool",
+  "Category": "Other",
+  "CreatedBy": "Harald Wergeland",
+  "CreatedByURL": "www.haraldwergeland.com",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "CanContainContent": false,
+  "IsBetaVersion": false,
+  "IsExperimentalVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "GameDatabase",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ]
+}

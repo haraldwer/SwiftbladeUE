@@ -2,11 +2,6 @@
 UE/.vs/
 UE/Project.sln.DotSettings.user
 
-# VS Code user specific files
-UE/.vscode/
-UE/.ignore
-UE/Project.code-workspace
-
 # Rider user specific files
 UE/.idea/
 
@@ -88,5 +83,10 @@ UE/Plugins/Developer/RiderLink/*
 
 Builds/*
 
-GitSyncer/GitSyncer/bin/Debug/*
-GitSyncer/GitSyncer/obj/Debug/*
+GitSyncer/GitSyncer/bin/
+GitSyncer/GitSyncer/obj/
+
+GameDatabase/.vs/
+GameDatabase/.idea/
+GameDatabase/bin/
+GameDatabase/obj/
