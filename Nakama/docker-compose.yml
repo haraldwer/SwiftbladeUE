@@ -5,7 +5,7 @@ services:
     command: start-single-node --insecure --store=attrs=ssd,path=/var/lib/cockroach/
     restart: "no"
     volumes:
-      - ./data:/nakama/data
+      - data:/var/lib/cockroach
     expose:
       - "8080"
       - "26257"
@@ -18,8 +18,8 @@ services:
       - "/bin/sh"
       - "-ecx"
       - >
-          /nakama/nakama migrate up --database.address root@cockroachdb:26257 &&
-          /nakama/nakama --config /nakama/data/config.yml        
+        /nakama/nakama migrate up --database.address root@cockroachdb:26257 &&
+        exec /nakama/nakama --name nakama1 --database.address root@cockroachdb:26257 --logger.level DEBUG --session.token_expiry_sec 7200 --metrics.prometheus_port 9100        
     restart: "no"
     links:
       - "cockroachdb:db"
@@ -27,7 +27,7 @@ services:
       - cockroachdb
       - prometheus
     volumes:
-      - /c/Users/haral/projects/docker:/nakama/data
+      - ./data:/nakama/data
     expose:
       - "7349"
       - "7350"
