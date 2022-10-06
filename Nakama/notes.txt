@@ -1,0 +1,11 @@
+
+Nakama console
+http://127.0.0.1:7351
+admin
+password
+
+Docker for hosting
+
+Todo:
+Change default login?
+Setup data tables? 

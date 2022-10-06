@@ -9,13 +9,17 @@ public class GameDatabase : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PublicDependencyModuleNames.AddRange(
-			new string[]
-			{
-				"Core",
-				"CoreUObject",
-				"Engine",
-			}
-			);
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core",
+			"CoreUObject",
+			"Engine",
+		});
+		
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"NakamaUnreal", 
+			"NakamaCore"
+		});
 	}
 }
