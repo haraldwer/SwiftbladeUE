@@ -6,8 +6,21 @@
 
 void UArenaCompWall::Populate(AArenaGenerator* aArenaGenerator, const FArenaLayer& aLayer, const FArenaSection& aSection, const FArenaSubdivision& aSubdivision)
 {
-	const FVector offset = FVector(0, 0, aSubdivision.height);
-	CreateFaceMesh(aArenaGenerator, aSubdivision.vertices, offset, myGroundThickness, myGroundMaterial);
-
-	Super::Populate(aArenaGenerator, aLayer, aSection, aSubdivision);
+	const int32 numVerts = mySubdivideWall ? myWallSubdivisions : 2; 
+	TArray<FVector2D> wallVerts;
+	for (int i = 0; i < numVerts; i++)
+	{
+		float part = i * (1.0f / static_cast<float>(numVerts - 1));
+		const float anglePart = FMath::Lerp(myAnglePadding, 1.0f - myAnglePadding, part);
+		wallVerts.Add(
+			GetSectionLocation(
+				aLayer,
+				aSubdivision,
+				anglePart,
+				myRadiusPart));
+	}
+	
+	const float groundOffset = FMath::RandRange(myMinWallGroundOffset, myMaxWallGroundOffset) + aSubdivision.height;
+	const float height = FMath::RandRange(myMinWallHeight, myMaxWallHeight);
+	CreateWall(aArenaGenerator, wallVerts, groundOffset, height);
 }

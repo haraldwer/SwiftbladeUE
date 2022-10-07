@@ -394,7 +394,7 @@ void ASectionGenerator::Populate(FProcSection& aSection, const USectionDataConfi
 	for (auto& room : aSection.rooms)
 	{
 		// Sort and filter room components
-		auto comps = FilterSortRoomComponents(room);
+		auto comps = GetComponents(room.components);
 		room.components = comps;
 
 		// Then, populate
@@ -402,69 +402,4 @@ void ASectionGenerator::Populate(FProcSection& aSection, const USectionDataConfi
 			if (const auto compPtr = Cast<USectionCompBase>(comp))
 				compPtr->PopulateRoom(this, aSection, room);
 	}
-}
-
-TArray<USectionCompBase*> ASectionGenerator::FilterSortRoomComponents(const FProcRoom& aRoom)
-{
-	const auto& comps = aRoom.components;
-	CHECK_RETURN_LOG(!comps.Num(), "No components in room", {});
-
-	// Sort components based on requirements
-	// Any requirement means that the required component has to come before
-	
-	TArray<USectionCompBase*> sortedComps;
-	for (const auto comp : comps)
-		AddSortedComponent(comps, sortedComps, comp, 0);
-	
-	// Filter out blocked components
-	const auto isBlocked = [&](const USectionCompBase& aComp)
-	{
-		const auto& blockingComps = aComp.GetBlockingComps();
-		for (auto& blockingComp : blockingComps)
-		{
-			const auto find = sortedComps.FindByPredicate(
-				[&blockingComp, &aComp] (const USectionCompBase* aCompare)
-				{
-					if (aCompare != &aComp)
-					 	return aCompare->IsA(blockingComp);
-					return false;
-				});
-			
-			if (find && *find)
-				return true;
-		}
-		return false; 
-	};
-	TArray<USectionCompBase*> filteredComps;
-	for (auto& comp : sortedComps)
-	{
-		CHECK_CONTINUE_LOG(!comp, "Component null");
-		if (!isBlocked(*comp))
-			filteredComps.Add(comp);
-	}
-	
-	return filteredComps;
-}
-
-void ASectionGenerator::AddSortedComponent(const TArray<USectionCompBase*>& aBase, TArray<USectionCompBase*>& aResult, USectionCompBase* aComp, const int32 aDepth)
-{
-	CHECK_RETURN_LOG(!aComp, "Component null");
-	CHECK_RETURN_LOG(aDepth > 10, "Recursive component dependency found, exiting loop");
-	CHECK_RETURN(aResult.Contains(aComp));
-		
-	// This component requires these components to be prioritized above it
-	const auto& requiredComps = aComp->GetReqiredComps();
-	for (auto& requiredComp : requiredComps)
-	{	
-		// Add required comp before current comp
-		// We've only got the type, find the actual object
-		const auto objFind = aBase.FindByPredicate(
-			[&requiredComp](const USectionCompBase* aCompare)
-			{ return aCompare->IsA(requiredComp); });
-		CHECK_RETURN_LOG(!objFind || !(*objFind), "Could not find required component in config components");
-		AddSortedComponent(aBase, aResult, *objFind, aDepth + 1);
-	}
-
-	// Add this comp
-	aResult.Add(aComp);
 }

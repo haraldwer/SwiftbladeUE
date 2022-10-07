@@ -44,6 +44,9 @@ UClass* UFPAnimationStateGrapple::Update(float aDT)
 			const FVector adjusted = (localDirection + myExtendCompensation).GetSafeNormal();
 			hands.myLeft.SetLocation(hands.myLeft.GetLocation() + adjusted * myExtendedDist);
 			hands.myLeft.SetRotation(myExtendedRotation);
+
+			// Set hand material param
+			
 		}
 		else
 		{
@@ -52,6 +55,9 @@ UClass* UFPAnimationStateGrapple::Update(float aDT)
 			hands.myRotInterpSpd = 5.0f;
 			hands.myLeft = FlipRightToLeft(myFinalTransform);
 			hands.myLeftHandState = EHandState::CLOSED;
+
+			// Create particle
+
 		}
 	}
 	

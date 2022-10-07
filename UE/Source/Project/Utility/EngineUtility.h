@@ -16,4 +16,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static bool IsShipping();
+
+	UFUNCTION(BlueprintCallable)
+	static bool IsInBaseLevel();
 };

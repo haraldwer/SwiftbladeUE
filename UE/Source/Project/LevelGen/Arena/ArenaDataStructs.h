@@ -10,6 +10,12 @@ struct FArenaSubdivision
 
 	UPROPERTY(BlueprintReadOnly)
 	float height = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	float startAngle = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly)
+	float endAngle = 0.0f;
 	
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FVector2D> vertices;

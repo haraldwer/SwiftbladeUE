@@ -2,7 +2,11 @@
 #include "ArenaConfig.h"
 #include "ArenaDataStructs.h"
 #include "Components/ArenaCompBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
+#include "Project/Player/FPCharacter.h"
+#include "Project/Utility/EngineUtility.h"
+#include "Project/Utility/MainSingelton.h"
 
 void AArenaGenerator::Generate()
 {
@@ -15,48 +19,68 @@ void AArenaGenerator::Generate()
 
 	TArray<FArenaLayer> layers;
 
+	float prevLayerRadius = 0.0f;
+	const int32 numSections = (FMath::RandRange(config->myMinSections, config->myMaxSections) / 2) * 2; 
+	
 	// Create layers
 	for (const auto& layerConfig : config->myLayerConfigs)
 	{
-		const auto* prevLayer = layers.Num() > 0 ? &layers.Last() : nullptr; 
 		auto& layer = layers.Emplace_GetRef();
-		layer.startRadius = prevLayer ? prevLayer->endRadius : 0.0f;
+		layer.startRadius = prevLayerRadius;
 		layer.endRadius = layer.startRadius + FMath::RandRange(layerConfig.myMinRadius, layerConfig.myMaxRadius);
 
 		// Subdivisions are repeated for each section
-		// Start with getting components
 		TArray<FArenaSubdivision> subdivisions;
-		const int32 numSubdivisions = layerConfig.mySubdivisions;
+		const int32 numSubdivisions = config->mySubdivisions;
+		
+		// Set up subdivisions
 		for (int32 subIndex = 0; subIndex < numSubdivisions; subIndex++)
 		{
 			auto& subdivision = subdivisions.Emplace_GetRef();
-			subdivision.height = FMath::RandRange(layerConfig.myMinSubHeight, layerConfig.myMaxSubHeight); 
-			GenerateSubComponents(layerConfig, layer, subdivision);
+			subdivision.height = FMath::RandRange(layerConfig.myMinSubHeight, layerConfig.myMaxSubHeight);
+			
+			// Start with getting components
+			TArray<UArenaCompBase*> comps;
+			for (auto& comp : layerConfig.myComponents)
+				if (auto compPtr = comp.Get())
+					if (FMath::RandRange(0.0f, 100.0f) < compPtr->GetChance())
+						comps.Add(compPtr);
+			
+			subdivision.components = GetComponents(comps); 
 		}
 		
 		// Create sections
-		const int32 prevNumSections = prevLayer ? prevLayer->sections.Num() : 1;
-		const int32 randNumSections = FMath::RandRange(config->myLayerMinSections, config->myLayerMaxSections);
-		const int32 roundNumSections = (randNumSections / prevNumSections) * prevNumSections;
-		const int32 numSections = FMath::Max(prevNumSections, roundNumSections);
 		const float angleSize = PI * 2.0f / static_cast<float>(numSections * numSubdivisions);
 		for (int32 sectionIndex = 0; sectionIndex < numSections; sectionIndex++)
 		{
 			auto& section = layer.sections.Emplace_GetRef();
-			section.subdivisions = subdivisions;	
+			
+			// Copy subdivisions for each section
+			section.subdivisions = subdivisions;
+
+			// Create subdivision mesh
 			for (int32 subIndex = 0; subIndex < section.subdivisions.Num(); subIndex++)
 			{
 				auto& subdivision = section.subdivisions[subIndex];
 				const float angle = angleSize * (sectionIndex * numSubdivisions + subIndex);
-				const float startAngle = angle - angleSize * 0.5f;
-				const float endAngle = angle + angleSize * 0.5f;
-				CreateSubMesh(
-					FMath::Max(0.1f, layer.startRadius),
-					layer.endRadius,
-					startAngle, endAngle,
-					subdivision);
+				subdivision.startAngle = angle - angleSize * 0.5f;
+				subdivision.endAngle = angle + angleSize * 0.5f;
+
+				const FVector2D startCoord = FVector2D(
+				   FMath::Cos(subdivision.startAngle),
+				   FMath::Sin(subdivision.startAngle));
+				const FVector2D endCoord = FVector2D(
+					FMath::Cos(subdivision.endAngle),
+					FMath::Sin(subdivision.endAngle));
+				
+				subdivision.vertices.Add(endCoord * FMath::Max(0.1f, layer.startRadius));
+				subdivision.vertices.Add(startCoord * FMath::Max(0.1f, layer.startRadius));
+				subdivision.vertices.Add(startCoord * layer.endRadius);
+				subdivision.vertices.Add(endCoord * layer.endRadius);
 			}
 		}
+
+		prevLayerRadius = layer.endRadius;
 	}
 
 	// Populate
@@ -73,35 +97,6 @@ void AArenaGenerator::Generate()
 	CreateDoor(config, layers.Last());
 }
 
-
-void AArenaGenerator::GenerateSubComponents(const FArenaConfigLayer& aConfig, const FArenaLayer& aLayer, FArenaSubdivision& aSubdivision) const
-{
-	CHECK_RETURN_LOG(!aConfig.myComponents.Num(), "No components specified for layer");
-	
-	TArray<TObjectPtr<UArenaCompBase>> comps = aConfig.myComponents;
-	while (aSubdivision.components.Num() < aConfig.myNumSubdivisionComponents && comps.Num())
-	{
-		const int32 compIndex = FMath::RandRange(0, comps.Num() - 1);
-		aSubdivision.components.Add(comps[compIndex]);
-		comps.RemoveAtSwap(compIndex);
-	}
-}
-
-void AArenaGenerator::CreateSubMesh(const float aStartRadius, const float anEndRadius, const float aStartAngle, const float anEndAngle, FArenaSubdivision& aSubdivision) const
-{
-	const FVector2D startCoord = FVector2D(
-		FMath::Cos(aStartAngle),
-		FMath::Sin(aStartAngle));
-	const FVector2D endCoord = FVector2D(
-		FMath::Cos(anEndAngle),
-		FMath::Sin(anEndAngle));
-	
-	aSubdivision.vertices.Add(startCoord * aStartRadius);
-	aSubdivision.vertices.Add(startCoord * anEndRadius);			
-	aSubdivision.vertices.Add(endCoord * anEndRadius);
-	aSubdivision.vertices.Add(endCoord * aStartRadius);
-}
-
 void AArenaGenerator::CreateCheckpoint(const UArenaConfig* aConfig, const FArenaLayer& aLayer)
 {
 	CHECK_RETURN(!aConfig)
@@ -112,8 +107,12 @@ void AArenaGenerator::CreateCheckpoint(const UArenaConfig* aConfig, const FArena
 void AArenaGenerator::CreateDoor(const UArenaConfig* aConfig, const FArenaLayer& aLayer)
 {
 	CHECK_RETURN(!aConfig)
-	const FTransform trans = FTransform(FVector(0.0f, -aLayer.endRadius, 0.0f)); 
-	SpawnGeneratedActor(aConfig->myDoorClass, trans);
+	const FVector location = FVector(0.0f, -aLayer.endRadius * aConfig->myDoorRadiusPart, aConfig->myDoorHeight);
+	SpawnGeneratedActor(aConfig->myDoorClass, FTransform(location));
+
+	if (UEngineUtility::IsInBaseLevel())
+		if (const auto player = UMainSingelton::GetLocalPlayer())
+			player->SetActorLocation(location - FVector::RightVector * 250.0f);
 }
 
 const UArenaConfig* AArenaGenerator::GetRandomConfig() const

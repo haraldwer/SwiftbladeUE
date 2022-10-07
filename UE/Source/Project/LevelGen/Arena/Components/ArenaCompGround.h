@@ -15,10 +15,10 @@ public:
 
 protected:
 	
-	UPROPERTY(EditAnywhere, meta=(EditCondition=myHasGround))
+	UPROPERTY(EditAnywhere)
 	float myGroundThickness = 5000.0f;
 	
-	UPROPERTY(EditAnywhere, meta=(EditCondition=myHasGround))
+	UPROPERTY(EditAnywhere)
 	UMaterialInterface* myGroundMaterial;
 
 };

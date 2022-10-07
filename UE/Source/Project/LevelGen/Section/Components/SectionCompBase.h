@@ -1,13 +1,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Project/LevelGen/GeneratorCompBase.h"
 #include "Project/LevelGen/Section/SectionDataStructs.h"
 #include "SectionCompBase.generated.h"
 
 class ASectionGenerator;
 
 UCLASS(Abstract, Blueprintable, EditInlineNew)
-class PROJECT_API USectionCompBase : public UObject
+class PROJECT_API USectionCompBase : public UGeneratorCompBase
 {
 	GENERATED_BODY()
 	
@@ -19,26 +20,14 @@ public:
 	// Populate a specific room
 	virtual void PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom);
 
-	const TArray<TSubclassOf<USectionCompBase>>& GetReqiredComps() const { return myRequiredComponents; }
-	const TArray<TSubclassOf<USectionCompBase>>& GetBlockingComps() const { return myBlockingComponents; }
-	
 protected:
 
 	// For defining components in BP
 	UFUNCTION(BlueprintImplementableEvent)
 	void BPPopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom);
 
-	UPROPERTY(EditAnywhere)
-	float myRoomChance = 100.0f;
-
-	// Requirements
+	// Helpers
 	
-	UPROPERTY(EditAnywhere)
-	TArray<TSubclassOf<USectionCompBase>> myRequiredComponents;
-
-	UPROPERTY(EditAnywhere)
-	TArray<TSubclassOf<USectionCompBase>> myBlockingComponents;
-
 	template <class T>
 	static T* GetRoomComp(const FProcRoom& aRoom)
 	{
@@ -49,10 +38,7 @@ protected:
 		}
 		return nullptr;
 	}
-
-	// Helpers	
-	FVector2D GetBlendVert(const TArray<FVector2D>& someVerts, float anIndex) const;
+	
 	void GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& aFirst, FVector2D& aSecond) const;
-	bool FitIntoRoom(FVector2D& aPosition, float aRadius, const FProcRoom& aRoom, UWorld* world) const;
 	
 };

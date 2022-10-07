@@ -25,4 +25,8 @@ public:
 	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;
 	
 	float GetTime() const { return GetWorld()->GetTimeSeconds(); }
+
+	// If player should take damage in this state
+	virtual bool TakeDamage(float ADamageAmount, FDamageEvent const& DamageEvent, AController* Controller, AActor* Actor)
+	{ return true; }
 };

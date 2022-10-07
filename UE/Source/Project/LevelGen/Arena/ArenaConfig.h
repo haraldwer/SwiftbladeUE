@@ -10,9 +10,7 @@ USTRUCT()
 struct FArenaConfigLayer
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditDefaultsOnly)
-	int32 mySubdivisions = 2;
+	
 	UPROPERTY(EditDefaultsOnly)
 	float myMinRadius = 500.0f;
 	UPROPERTY(EditDefaultsOnly)
@@ -22,9 +20,6 @@ struct FArenaConfigLayer
 	float myMinSubHeight = 0.0f;
 	UPROPERTY(EditDefaultsOnly)
 	float myMaxSubHeight = 0.0f;
-
-	UPROPERTY(EditDefaultsOnly)
-	int32 myNumSubdivisionComponents = 1;
 	
 	UPROPERTY(Instanced, EditDefaultsOnly)
 	TArray<TObjectPtr<UArenaCompBase>> myComponents;
@@ -43,14 +38,23 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AActor> myDoorClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 mySubdivisions = 2;
 	
 	UPROPERTY(EditDefaultsOnly)
-	int32 myLayerMinSections = 2;
+	int32 myMinSections = 2;
 	
 	UPROPERTY(EditDefaultsOnly)
-	int32 myLayerMaxSections = 6;
+	int32 myMaxSections = 6;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FArenaConfigLayer> myLayerConfigs;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myDoorHeight = 500.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myDoorRadiusPart = 0.8f;
 	
 };

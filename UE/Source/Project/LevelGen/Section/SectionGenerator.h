@@ -47,7 +47,4 @@ private:
 	void GenerateGroundCeil(FProcSection& aSection, const USectionDataConfig& aConfig, const float aStartHeight) const;
 	void Populate(FProcSection& aSection, const USectionDataConfig& aConfig);
 	
-	static TArray<USectionCompBase*> FilterSortRoomComponents(const FProcRoom& aRoom);
-	static void AddSortedComponent(const TArray<USectionCompBase*>& aBase, TArray<USectionCompBase*>& aResult, USectionCompBase* aComp, const int32 aDepth);
-	
 };

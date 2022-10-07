@@ -20,6 +20,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Movement/FPMovement.h"
 #include "Project/Gameplay/Door.h"
+#include "Project/Utility/EngineUtility.h"
 #include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Utility.h"
 #include "Project/Utility/Tools/CustomCamera.h"
@@ -104,7 +105,7 @@ void AFPCharacter::BeginPlay()
 		}
 	}
 
-	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "ML_Base")
+	if (UEngineUtility::IsInBaseLevel())
 	{
 		if (const auto controller = GetFPController())
 			controller->LoadState();	

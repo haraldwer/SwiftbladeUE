@@ -24,8 +24,6 @@ protected:
 
 private:
 
-	void GenerateSubComponents(const FArenaConfigLayer& aConfig, const FArenaLayer& aLayer, FArenaSubdivision& aSubdivision) const;
-	void CreateSubMesh(const float aStartRadius, const float anEndRadius, const float aStartAngle, const float anEndAngle, FArenaSubdivision& aSubdivision) const;
 	void CreateCheckpoint(const UArenaConfig* aConfig, const FArenaLayer& aLayer);
 	void CreateDoor(const UArenaConfig* aConfig, const FArenaLayer& aLayer);
 	
