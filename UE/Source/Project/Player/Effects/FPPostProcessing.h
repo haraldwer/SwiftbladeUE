@@ -8,7 +8,8 @@ UENUM(BlueprintType)
 enum EFPPostProcess
 {
 	PP_NONE,
-	PP_EYE
+	PP_EYE,
+	PP_MAGIC
 };
 
 USTRUCT(BlueprintType)

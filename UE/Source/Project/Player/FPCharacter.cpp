@@ -183,11 +183,10 @@ AEffect* AFPCharacter::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTran
 {
 	const auto bp = aBP.Get();
 	CHECK_RETURN_LOG(!bp, "Effect BP not set", nullptr);
-	AActor* actor = GetWorld()->SpawnActor(bp);
+	AActor* actor = GetWorld()->SpawnActor(bp, &aTransform);
 	CHECK_RETURN_LOG(!actor, "Failed to create effect", nullptr);
 	AEffect* effect = Cast<AEffect>(actor);
 	CHECK_RETURN_LOG(!effect, "Effect not of type AEffect", nullptr)
-	effect->SetActorTransform(aTransform);
 	return effect;
 }
 

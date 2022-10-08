@@ -11,6 +11,7 @@ class PROJECT_API UFPAnimationStateGrapple : public UFPAnimationStateBase
 
 public:
 	virtual void Enter() override;
+	virtual void Exit() override;
 	virtual UClass* Update(float aDT) override;
 
 protected:
@@ -31,6 +32,21 @@ protected:
 	FTransform myFinalTransform;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myExtendedDist = 70.0f; 
+	float myExtendedDist = 80.0f;
 	
+	UPROPERTY(EditDefaultsOnly)
+	class UCurveFloat* myMagicEffectCurve;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AEffect> myEffectType;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myEffectDelay = 0.1f;
+
+private:
+
+	void UpdateMagicEffects(const FVector& aDirection);
+
+	bool myHasCreatedEffect = false;
+
 };

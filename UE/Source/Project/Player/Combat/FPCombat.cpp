@@ -136,7 +136,7 @@ ASword* UFPCombat::GetSword() const
 
 bool UFPCombat::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) const
 {
-	if (const auto state = GetCurrentState())
+	if (const auto state = Cast<UFPStateBase>(GetCurrentState()))
 		return state->TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser);
 	return false;
 }
