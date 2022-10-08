@@ -29,8 +29,11 @@ public:
 	FOnEnemiesCleared myOnEnemiesCleared;
 
 private:
-	
+
+	UPROPERTY()
 	TSet<AEnemy*> myEnemies;
+
+	UPROPERTY()
 	TSet<AEnemySpawner*> mySpawners;
 	
 };

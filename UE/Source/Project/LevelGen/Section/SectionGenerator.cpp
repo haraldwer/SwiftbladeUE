@@ -7,6 +7,7 @@
 #include "SectionDataStructs.h"
 #include "Components/SectionCompBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project/LevelGen/LevelRand.h"
 #include "Project/Utility/Math/LineIntersection.h"
 
 void ASectionGenerator::Generate()
@@ -37,7 +38,7 @@ void ASectionGenerator::Generate()
 USectionDataConfig* ASectionGenerator::GetRandomConfig() const
 {
 	CHECK_RETURN_LOG(!myConfigs.Num(), "No configs", nullptr);
-	const int32 index = FMath::RandRange(0, myConfigs.Num() - 1);
+	const int32 index = ULevelRand::RandRange(0, myConfigs.Num() - 1);
 	const auto configClass = myConfigs[index];
 	const auto config = configClass.GetDefaultObject();
 	CHECK_RETURN_LOG(!config, "No config for face type", nullptr);
@@ -72,7 +73,7 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 	{
 		roomItr++;
 		
-		float roomRadius = FMath::RandRange(aConfig.myMinRoomRadius, aConfig.myMaxRoomRadius);
+		float roomRadius = ULevelRand::FRandRange(aConfig.myMinRoomRadius, aConfig.myMaxRoomRadius);
 		
 		FVector2D srcEdgeStart;
 		FVector2D srcEdgeEnd;
@@ -93,7 +94,7 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 				// Select random edge within threshold
 				for (int i = 0; i < 50; i++)
 				{
-					const int32 index = FMath::RandRange(0, prev.edges.Num() - 1);
+					const int32 index = ULevelRand::RandRange(0, prev.edges.Num() - 1);
 					if (prev.edges[index].normal.Y < aConfig.mySnakePathY)
 						continue;
 					edgeIndex = index;
@@ -209,13 +210,14 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 		
 		// Create vertices
 		int32 vertItr = 0;
-		const int32 numVerts = FMath::RandRange(aConfig.myMinNumVerts, aConfig.myMaxNumVerts);
+		const int32 numVerts = ULevelRand::RandRange(aConfig.myMinNumVerts, aConfig.myMaxNumVerts);
 		while (room.vertices.Num() < numVerts && vertItr < numVerts * 10)
 		{
 			vertItr++;
 			
 			FVector2D intersect;
-			const FVector2D vert = FMath::RandPointInCircle(1.0f).GetSafeNormal() * roomRadius + roomLoc;
+			const FVector dir = ULevelRand::RandVec(); 
+			const FVector2D vert = FVector2D(dir.X, dir.Y).GetSafeNormal() * roomRadius + roomLoc;
 			
 			// Check line intersect
 			if (LineIntersect(roomLoc, vert,
@@ -375,9 +377,9 @@ void ASectionGenerator::GenerateGroundCeil(FProcSection& aSection, const USectio
 	for (int i = 0; i < aSection.rooms.Num(); i++)
 	{
 		auto& room = aSection.rooms[i];
-		const bool applyGroundOffset = i != 0 && FMath::RandRange(0.0f, 100.0f) < aConfig.myGroundOffsetChance;
-		room.groundOffset = prevRoomHeight + FMath::RandRange(aConfig.myGroundMinOffset, aConfig.myGroundMaxOffset) * applyGroundOffset;
-		room.ceilHeight = FMath::RandRange(aConfig.myCeilingMinHeight, aConfig.myCeilingMaxHeight);
+		const bool applyGroundOffset = i != 0 && ULevelRand::FRandRange(0.0f, 100.0f) < aConfig.myGroundOffsetChance;
+		room.groundOffset = prevRoomHeight + ULevelRand::FRandRange(aConfig.myGroundMinOffset, aConfig.myGroundMaxOffset) * applyGroundOffset;
+		room.ceilHeight = ULevelRand::FRandRange(aConfig.myCeilingMinHeight, aConfig.myCeilingMaxHeight);
 		prevRoomHeight = room.groundOffset; 
 	}
 }

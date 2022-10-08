@@ -1,4 +1,6 @@
 #include "SectionCompProp.h"
+
+#include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
 void USectionCompProp::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
@@ -9,10 +11,10 @@ void USectionCompProp::PopulateRoom(ASectionGenerator* aGenerator, const FProcSe
 	for (const auto& prop : myProps)
 		totalWeight += prop.mySpawnWeight;
 	
-	const int32 count = static_cast<int32>(FMath::RandRange(myMinFillRate, myMaxFillRate));
+	const int32 count = static_cast<int32>(ULevelRand::FRandRange(myMinFillRate, myMaxFillRate));
 	for (int i = 0; i < count; i++)
 	{
-		float weight = FMath::RandRange(0.0f, totalWeight);
+		float weight = ULevelRand::FRandRange(0.0f, totalWeight);
 		const FSectionProp* selected = nullptr;
 		for (const auto& prop : myProps)
 		{
@@ -27,9 +29,10 @@ void USectionCompProp::PopulateRoom(ASectionGenerator* aGenerator, const FProcSe
 		
 		// Check trace
 		FHitResult hit;
-		const auto dir = FMath::RandPointInCircle(1.0f).GetSafeNormal();
+		const auto dir = ULevelRand::RandVec();
+		const auto dir2D = FVector2D(dir.X, dir.Y).GetSafeNormal();
 		const auto start = aRoom.center;
-		const auto end = aRoom.center + dir * aRoom.radius * 1.5f;
+		const auto end = aRoom.center + dir2D * aRoom.radius * 1.5f;
 		const float height = aRoom.groundOffset + aRoom.ceilHeight * 0.5f;
 		if (aGenerator->GetWorld()->LineTraceSingleByChannel(hit,
 			 FVector(start.X, start.Y, height),

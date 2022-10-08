@@ -1,6 +1,7 @@
 #include "SectionCompBase.h"
 
 #include "DrawDebugHelpers.h"
+#include "Project/LevelGen/LevelRand.h"
 #include "Project/Utility/Math/LineIntersection.h"
 
 TArray<int32> USectionCompBase::PopulateSection(ASectionGenerator* aGenerator, const FProcSection& aSection)
@@ -18,7 +19,7 @@ TArray<int32> USectionCompBase::PopulateSection(ASectionGenerator* aGenerator, c
 	TArray<int32> populateRooms;
 	for (int32 i = 0; i < numPopulatedRooms; i++)
 	{
-		const int32 randI = FMath::RandRange(0, pool.Num() - 1);
+		const int32 randI = ULevelRand::RandRange(0, pool.Num() - 1);
 		const int32 index = pool[randI];
 		pool.RemoveAtSwap(randI);
 		populateRooms.Add(index);
@@ -41,8 +42,8 @@ void USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& 
 	// If few walls, just choose random location
 	if (numWalls <= 1)
 	{
-		const int32 firstI = FMath::RandRange(0, numVerts - 1);
-		const int32 secondI = (firstI + FMath::RandRange(1, numVerts - 1)) % (numVerts);
+		const int32 firstI = ULevelRand::RandRange(0, numVerts - 1);
+		const int32 secondI = (firstI + ULevelRand::RandRange(1, numVerts - 1)) % (numVerts);
 		aFirst = aRoom.vertices[firstI];
 		aSecond = aRoom.vertices[secondI];
 		return;
@@ -51,28 +52,28 @@ void USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& 
 	constexpr float padding = 0.5f;
 	
 	// Get first location
-	const int32 firstWallI = FMath::RandRange(0, numWalls - 1);
+	const int32 firstWallI = ULevelRand::RandRange(0, numWalls - 1);
 	const auto& firstVerts = aRoom.walls[firstWallI].verts;
 	if (firstVerts.Num())
 	{
-		const float index = FMath::RandRange(padding, firstVerts.Num() - 1.0f - padding);
+		const float index = ULevelRand::FRandRange(padding, firstVerts.Num() - 1.0f - padding);
 		aFirst = GetBlendVert(firstVerts, index);	
 	}
 	else
 	{
-		aFirst = aRoom.vertices[FMath::RandRange(0, numVerts - 1)];
+		aFirst = aRoom.vertices[ULevelRand::RandRange(0, numVerts - 1)];
 	}
 	
 	// Get second location
-	const int32 secondWallI = (firstWallI + FMath::RandRange(1, numWalls - 1)) % (numWalls);
+	const int32 secondWallI = (firstWallI + ULevelRand::RandRange(1, numWalls - 1)) % (numWalls);
 	const auto& secondVerts = aRoom.walls[secondWallI].verts;
 	if (secondVerts.Num())
 	{
-		const float index = FMath::RandRange(padding, secondVerts.Num() - 1.0f - padding);
+		const float index = ULevelRand::FRandRange(padding, secondVerts.Num() - 1.0f - padding);
 		aSecond = GetBlendVert(secondVerts, index);	
 	}
 	else
 	{
-		aSecond = aRoom.vertices[FMath::RandRange(0, numVerts - 1)];
+		aSecond = aRoom.vertices[ULevelRand::RandRange(0, numVerts - 1)];
 	}
 }

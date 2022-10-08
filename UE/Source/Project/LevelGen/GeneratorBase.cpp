@@ -2,6 +2,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "GeneratorCompBase.h"
+#include "LevelRand.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Utility/EngineUtility.h"
 
@@ -25,7 +26,14 @@ void AGeneratorBase::Generate()
 	
 	// Set seed
 	if (mySeed)
-		FMath::RandInit(mySeed);
+	{
+		ULevelRand::Init(mySeed);
+	}
+	else
+	{
+		ULevelRand::Reset();
+	}
+	
 }
 
 void AGeneratorBase::Clear()

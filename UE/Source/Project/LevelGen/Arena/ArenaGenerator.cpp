@@ -4,6 +4,7 @@
 #include "Components/ArenaCompBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
+#include "Project/LevelGen/LevelRand.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Utility/EngineUtility.h"
 #include "Project/Utility/MainSingelton.h"
@@ -20,14 +21,14 @@ void AArenaGenerator::Generate()
 	TArray<FArenaLayer> layers;
 
 	float prevLayerRadius = 0.0f;
-	const int32 numSections = (FMath::RandRange(config->myMinSections, config->myMaxSections) / 2) * 2; 
+	const int32 numSections = (ULevelRand::RandRange(config->myMinSections, config->myMaxSections) / 2) * 2; 
 	
 	// Create layers
 	for (const auto& layerConfig : config->myLayerConfigs)
 	{
 		auto& layer = layers.Emplace_GetRef();
 		layer.startRadius = prevLayerRadius;
-		layer.endRadius = layer.startRadius + FMath::RandRange(layerConfig.myMinRadius, layerConfig.myMaxRadius);
+		layer.endRadius = layer.startRadius + ULevelRand::FRandRange(layerConfig.myMinRadius, layerConfig.myMaxRadius);
 
 		// Subdivisions are repeated for each section
 		TArray<FArenaSubdivision> subdivisions;
@@ -37,13 +38,13 @@ void AArenaGenerator::Generate()
 		for (int32 subIndex = 0; subIndex < numSubdivisions; subIndex++)
 		{
 			auto& subdivision = subdivisions.Emplace_GetRef();
-			subdivision.height = FMath::RandRange(layerConfig.myMinSubHeight, layerConfig.myMaxSubHeight);
+			subdivision.height = ULevelRand::FRandRange(layerConfig.myMinSubHeight, layerConfig.myMaxSubHeight);
 			
 			// Start with getting components
 			TArray<UArenaCompBase*> comps;
 			for (auto& comp : layerConfig.myComponents)
 				if (auto compPtr = comp.Get())
-					if (FMath::RandRange(0.0f, 100.0f) < compPtr->GetChance())
+					if (ULevelRand::FRandRange(0.0f, 100.0f) < compPtr->GetChance())
 						comps.Add(compPtr);
 			
 			subdivision.components = GetComponents(comps); 
@@ -118,7 +119,7 @@ void AArenaGenerator::CreateDoor(const UArenaConfig* aConfig, const FArenaLayer&
 const UArenaConfig* AArenaGenerator::GetRandomConfig() const
 {
 	CHECK_RETURN_LOG(!myConfigs.Num(), "No configs", nullptr);
-	const int32 index = FMath::RandRange(0, myConfigs.Num() - 1);
+	const int32 index = ULevelRand::RandRange(0, myConfigs.Num() - 1);
 	const auto configClass = myConfigs[index];
 	const auto config = configClass.GetDefaultObject();
 	CHECK_RETURN_LOG(!config, "No config for type", nullptr);

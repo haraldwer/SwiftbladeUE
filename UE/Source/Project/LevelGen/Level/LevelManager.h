@@ -59,5 +59,5 @@ private:
 	
 	TArray<LoadedLevelData> myLoadedLevels;
 	int32 myLoadCount = -1;
-	float myLowestEnd = 0.0f; 
+	float myLowestEnd = 0.0f;
 };

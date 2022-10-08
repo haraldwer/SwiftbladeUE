@@ -1,13 +1,14 @@
 #include "SectionCompKnifeWall.h"
 
 #include "Kismet/KismetMathLibrary.h"
+#include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
 void USectionCompKnifeWall::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
 {
 	CHECK_RETURN(!aRoom.walls.Num());
 	
-	const int32 wallIndex = FMath::RandRange(0, aRoom.walls.Num() - 1);
+	const int32 wallIndex = ULevelRand::RandRange(0, aRoom.walls.Num() - 1);
 	const auto& verts = aRoom.walls[wallIndex].verts;
 
 	CHECK_RETURN(verts.Num() < 2);
@@ -27,7 +28,7 @@ void USectionCompKnifeWall::PopulateRoom(ASectionGenerator* aGenerator, const FP
 	
 		const FVector2D middle = (start + end) * 0.5f;
 
-		const float height = aRoom.groundOffset + FMath::RandRange(100.0f, aRoom.ceilHeight - 100.0f);
+		const float height = aRoom.groundOffset + ULevelRand::FRandRange(100.0f, aRoom.ceilHeight - 100.0f);
 
 		const FRotator rotation =
 			UKismetMathLibrary::FindLookAtRotation(

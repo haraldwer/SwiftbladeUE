@@ -4,6 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
 ALevelManager::ALevelManager()
@@ -35,10 +36,9 @@ void ALevelManager::LevelLoaded()
 
 void ALevelManager::GenerateLevelOrder(const int aSeed)
 {
-	LOG("Generating levels");
+	LOG("Deciding level order");
 
-	if (aSeed)
-		FMath::RandInit(aSeed);
+	ULevelRand::Init(aSeed);
 
 	myLevels.Reset();
 	myLevels.Add("SL_Start_0"); // Start of game

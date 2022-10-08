@@ -37,10 +37,12 @@ UCustomCamera* AFPController::GetCamera() const
 void AFPController::OnStateLoaded(const FFPControllerState aState)
 {
 	myState = aState;
+	if (!myState.mySeed)
+		myState.mySeed = FMath::Rand();
 		
 	// Load level
 	auto& levelGen = UMainSingelton::GetLevelGenerator();
-	levelGen.GenerateLevelOrder(myState.mySeed);
+	levelGen.GenerateLevelOrder(myState.mySeed + myState.myArenaIndex);
 	myState.myInArena ?
 		levelGen.LoadArena(myState.myArenaIndex) :
 		levelGen.LoadSection(myState.myArenaIndex);
@@ -62,12 +64,9 @@ FFPControllerState AFPController::GetState() const
 
 void AFPController::CharacterKilled()
 {
-	//if (myState.myArenaIndex || myState.myInArena)
-	{
-		myState.myRespawnCount++;
-		if (const auto character = GetFPCharacter())
-			character->OnLivesChanged(GetRemainingLives());
-	}
+	myState.myRespawnCount++;
+	if (const auto character = GetFPCharacter())
+		character->OnLivesChanged(GetRemainingLives());
 	
 	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::DEATH);
 
@@ -120,6 +119,7 @@ void AFPController::FinishTravel()
 			{
 				myState.myArenaIndex = 0;
 				myState.myRespawnCount = 0;
+				myState.mySeed = FMath::Rand();
 			}
 			myState.myInArena ?
 				EnterArena() : EnterSection();

@@ -1,6 +1,7 @@
 
 #include "ArenaCompWall.h"
 
+#include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Arena/ArenaGenerator.h"
 #include "Project/LevelGen/Section/FaceMeshGeneration.h"
 
@@ -20,7 +21,7 @@ void UArenaCompWall::Populate(AArenaGenerator* aArenaGenerator, const FArenaLaye
 				myRadiusPart));
 	}
 	
-	const float groundOffset = FMath::RandRange(myMinWallGroundOffset, myMaxWallGroundOffset) + aSubdivision.height;
-	const float height = FMath::RandRange(myMinWallHeight, myMaxWallHeight);
+	const float groundOffset = ULevelRand::FRandRange(myMinWallGroundOffset, myMaxWallGroundOffset) + aSubdivision.height;
+	const float height = ULevelRand::FRandRange(myMinWallHeight, myMaxWallHeight);
 	CreateWall(aArenaGenerator, wallVerts, groundOffset, height);
 }

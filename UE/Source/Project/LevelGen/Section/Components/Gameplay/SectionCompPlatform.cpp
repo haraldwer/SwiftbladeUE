@@ -1,4 +1,6 @@
 #include "SectionCompPlatform.h"
+
+#include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
 void USectionCompPlatform::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
@@ -6,9 +8,9 @@ void USectionCompPlatform::PopulateRoom(ASectionGenerator* aGenerator, const FPr
 	CHECK_RETURN_LOG(!myPlatformClasses.Num(), "No platform classes set");
 
 	// Randomize class per room
-	const int32 classIndex = FMath::RandRange(0, myPlatformClasses.Num() - 1);
+	const int32 classIndex = ULevelRand::RandRange(0, myPlatformClasses.Num() - 1);
 	const auto& platformClass = myPlatformClasses[classIndex];
-	const float height = FMath::RandRange(myMinHeight, myMaxHeight);
+	const float height = ULevelRand::FRandRange(myMinHeight, myMaxHeight);
 	
 	const float part = 1.0f / static_cast<float>(myCount + 2);
 	for (int32 i = 0; i < myCount; i++)
