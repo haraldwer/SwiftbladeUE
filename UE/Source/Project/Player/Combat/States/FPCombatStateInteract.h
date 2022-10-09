@@ -15,7 +15,8 @@ public:
 	virtual UClass* Update(float aDT) override;
 	virtual UClass* Check() override;
 	virtual UClass* Input(EFPCombatInput anAction) override;
-	
+
+	virtual bool BlocksInput() const override { return true; }
 	virtual int32 Priority() const override { return 3; }
 	
 	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;

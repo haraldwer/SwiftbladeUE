@@ -21,6 +21,7 @@ public:
 	
 	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const { return {}; }
 	virtual TSubclassOf<UFPAnimationStateBase> GetResetAnimation() const { return {}; }
+	virtual bool BlocksInput() const { return false; } 
 
 protected:
 

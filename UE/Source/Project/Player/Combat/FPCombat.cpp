@@ -30,6 +30,8 @@ void UFPCombat::BeginPlay()
 
 void UFPCombat::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+	UpdateInput();
+	
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (mySwordFirstTick)
@@ -146,16 +148,64 @@ AFPCharacter& UFPCombat::GetCharacter() const
 	return *Cast<AFPCharacter>(GetOwner());
 }
 
-void UFPCombat::Input(const EFPCombatInput anInput)
+void UFPCombat::QueueInput(const EFPCombatInput anInput)
 {
+	const auto world = GetWorld();
+	CHECK_RETURN(!world);
+	auto& time = myInputQueue.FindOrAdd(static_cast<uint8>(anInput));
+	time = world->GetRealTimeSeconds();
+	UpdateInput();
+}
+
+void UFPCombat::UpdateInput()
+{
+	const auto world = GetWorld();
+	CHECK_RETURN(!world);
+	const float time = world->GetRealTimeSeconds();
+
+	for (auto& entry : myInputQueue)
+	{
+		CHECK_CONTINUE(entry.Value < 0.0f)
+		
+		// Compare time since
+		if (time - entry.Value > myInputQueueTime)
+		{
+			LOG("Resetting input due to out of time " + FString::FromInt(entry.Key))
+			entry.Value = -1.0f;
+			return;
+		}
+		
+		if (CheckInput(static_cast<EFPCombatInput>(entry.Key)))
+		{
+			LOG("Resetting input due to consume " + FString::FromInt(entry.Key))
+			entry.Value = -1.0f;
+		}
+	}
+}
+
+bool UFPCombat::CheckInput(const EFPCombatInput anInput)
+{
+	// First check current state
+	if (const auto currState = Cast<UFPCombatStateBase>(GetCurrentState()))
+	{
+		if (currState->BlocksInput())
+		{
+			LOG(FString("Blockign input ") + currState->GetName())
+			return false;
+		}
+	}
+		
 	UStateBase* nextState = nullptr;
-	for (auto& it : myStates)
-		if (const auto ptr = Cast<UFPCombatStateBase>(it.Get()))
-			if (const auto newStateType = ptr->Input(anInput))
-				if (const auto newState = GetState(newStateType))
-					nextState = newState;
+	if (!nextState)
+		for (auto& it : myStates)
+			if (const auto ptr = Cast<UFPCombatStateBase>(it.Get()))
+				if (const auto newStateType = ptr->Input(anInput))
+					if (const auto newState = GetState(newStateType))
+						nextState = newState;
+	
 	if (nextState)
 		SetStatePtr(nextState);
+	return nextState != nullptr;
 }
 
 void UFPCombat::TryOverrideAnimation() const

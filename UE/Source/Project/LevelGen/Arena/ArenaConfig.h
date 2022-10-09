@@ -56,5 +56,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float myDoorRadiusPart = 0.8f;
-	
+
+	UPROPERTY(Instanced, EditDefaultsOnly)
+	TObjectPtr<class UEnemyConfig> myEnemyConfig;
 };

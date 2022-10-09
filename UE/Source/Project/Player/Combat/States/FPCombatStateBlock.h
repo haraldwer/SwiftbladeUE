@@ -17,7 +17,8 @@ public:
 	virtual void Enter() override;
 
 	virtual bool TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) override;
-	
+
+	virtual bool BlocksInput() const override { return true; }
 	virtual int32 Priority() const override { return 1; }
 
 	virtual TSubclassOf<UFPAnimationStateBase> GetAnimation() const override;

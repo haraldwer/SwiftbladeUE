@@ -23,6 +23,6 @@ protected:
 	
 	// Helpers
 
-	static FVector2D GetSectionLocation(const FArenaLayer& aLayer, const FArenaSubdivision& aSubdivision, const float anAnglePart, const float aRadiusPart);
+	static FVector2D GetSectionLocation(const FArenaLayer& aLayer, const FArenaSubdivision& aSubdivision, const float anAnglePart, const float aRadiusPart, bool aRoundRadius);
 	
 };

@@ -28,9 +28,9 @@ public:
 	class ASword* GetSword() const;
 
 	// Input
-	void Strike()	{ Input(EFPCombatInput::STRIKE);	}
-	void Block()	{ Input(EFPCombatInput::BLOCK);		}
-	void Interact() { Input(EFPCombatInput::INTERACT);	}
+	void Strike()	{ QueueInput(EFPCombatInput::STRIKE);	}
+	void Block()	{ QueueInput(EFPCombatInput::BLOCK);		}
+	void Interact() { QueueInput(EFPCombatInput::INTERACT);	}
 	
 	bool TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) const;
 
@@ -38,14 +38,24 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ASword> mySwordBP;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myInputQueueTime = 0.5f;
 	
 private:
-
+	
 	class AFPCharacter& GetCharacter() const;
-	void Input(EFPCombatInput anInput);
+	
+	void QueueInput(EFPCombatInput anInput);
+	
+	void UpdateInput();
+	bool CheckInput(EFPCombatInput anInput);
+	
 	void TryOverrideAnimation() const;
 	
 	TWeakObjectPtr<ASword> mySword;
 	bool mySwordFirstTick = false;
+
+	TMap<uint8, float> myInputQueue; 
 	
 };

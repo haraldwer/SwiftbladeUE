@@ -37,11 +37,6 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void AEnemy::SetSpawner(AEnemySpawner* aSpawner)
-{
-	mySpawner = aSpawner;
-}
-
 float AEnemy::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser)
 {
 	LOG("Enemy took damage " + FString::SanitizeFloat(aDamageAmount));
@@ -58,9 +53,6 @@ void AEnemy::Die()
 	LOG("Enemy died");
 	OnDied();
 	UMainSingelton::GetEnemyManager().RemoveEnemy(this);
-	if (mySpawner.IsValid())
-		mySpawner->RemoveEnemy(this);
-	// TODO: Death animation
 	Destroy();
 }
 

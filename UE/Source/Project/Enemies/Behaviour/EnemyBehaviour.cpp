@@ -1,6 +1,5 @@
 ﻿#include "EnemyBehaviour.h"
 
-#include "GameFramework/PawnMovementComponent.h"
 #include "Project/Enemies/EnemyManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Project/Player/FPCharacter.h"
@@ -21,8 +20,11 @@ void UEnemyBehaviour::BeginPlay()
 
 void UEnemyBehaviour::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+	if (IsBeingDestroyed())
+		return;
+	
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	if (!myCurrentState)
 		SetState(UEnemyStateIdle::StaticClass());
 	

@@ -19,7 +19,7 @@ public:
 protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	void BreakMeshes(const FVector& aPosition, const FVector& aNormal, bool aSplit);
+	void BreakMeshes(const FVector& aPosition, const FVector& aNormal);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool myDestroyOnBreak = false;

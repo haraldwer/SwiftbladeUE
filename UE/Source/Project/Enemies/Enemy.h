@@ -14,8 +14,6 @@ public:
 	AEnemy();
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	void SetSpawner(class AEnemySpawner* aSpawner);
 
 	virtual float TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) override;
 	void Die();
@@ -58,7 +56,5 @@ private:
 		CHECK_RETURN_LOG(!aPtr, "Failed to create " + aName.ToString() + " component", false);
 		aPtr->SetupAttachment(myCollider);
 		return true;
-	}
-
-	TWeakObjectPtr<AEnemySpawner> mySpawner; 
+	} 
 };

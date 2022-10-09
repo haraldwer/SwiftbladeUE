@@ -2,21 +2,37 @@
 #include "ArenaConfig.h"
 #include "ArenaDataStructs.h"
 #include "Components/ArenaCompBase.h"
-#include "Kismet/GameplayStatics.h"
+#include "Project/Enemies/EnemyManager.h"
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/LevelGen/LevelRand.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Utility/EngineUtility.h"
 #include "Project/Utility/MainSingelton.h"
 
+void AArenaGenerator::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (!UEngineUtility::IsInBaseLevel())
+	{
+		if (!myConfig.Get())
+			Generate();
+		
+		if (const auto config = myConfig.Get())
+			UMainSingelton::GetEnemyManager().Init(config->myEnemyConfig);
+	}
+}
+
 void AArenaGenerator::Generate()
 {
 	Super::Generate(); 
 
 	// Select random config
-	const UArenaConfig* config = GetRandomConfig();
+	UArenaConfig* config = GetRandomConfig();
 	if (!config)
 		return;
+
+	myConfig = config; 
 
 	TArray<FArenaLayer> layers;
 
@@ -96,6 +112,15 @@ void AArenaGenerator::Generate()
 	
 	CreateCheckpoint(config, layers[0]);
 	CreateDoor(config, layers.Last());
+
+	if (UEngineUtility::IsInBaseLevel())
+		UMainSingelton::GetEnemyManager().Init(config->myEnemyConfig);
+}
+
+void AArenaGenerator::Clear()
+{
+	Super::Clear();
+	myConfig = nullptr; 
 }
 
 void AArenaGenerator::CreateCheckpoint(const UArenaConfig* aConfig, const FArenaLayer& aLayer)
@@ -116,7 +141,7 @@ void AArenaGenerator::CreateDoor(const UArenaConfig* aConfig, const FArenaLayer&
 			player->SetActorLocation(location - FVector::RightVector * 250.0f);
 }
 
-const UArenaConfig* AArenaGenerator::GetRandomConfig() const
+UArenaConfig* AArenaGenerator::GetRandomConfig()
 {
 	CHECK_RETURN_LOG(!myConfigs.Num(), "No configs", nullptr);
 	const int32 index = ULevelRand::RandRange(0, myConfigs.Num() - 1);

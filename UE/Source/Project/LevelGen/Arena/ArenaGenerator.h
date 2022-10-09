@@ -15,7 +15,10 @@ class PROJECT_API AArenaGenerator : public AGeneratorBase
 	GENERATED_BODY()
 
 public:
+
+	virtual void BeginPlay() override;
 	virtual void Generate() override;
+	virtual void Clear() override;
 
 protected:
 
@@ -27,6 +30,8 @@ private:
 	void CreateCheckpoint(const UArenaConfig* aConfig, const FArenaLayer& aLayer);
 	void CreateDoor(const UArenaConfig* aConfig, const FArenaLayer& aLayer);
 	
-	const UArenaConfig* GetRandomConfig() const;
-	
+	UArenaConfig* GetRandomConfig();
+
+	UPROPERTY()
+	TObjectPtr<UArenaConfig> myConfig;
 };

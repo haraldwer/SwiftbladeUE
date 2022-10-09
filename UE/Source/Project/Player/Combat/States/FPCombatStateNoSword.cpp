@@ -34,8 +34,11 @@ UClass* UFPCombatStateNoSword::Update(float aDT)
 
 UClass* UFPCombatStateNoSword::Input(const EFPCombatInput anAction)
 {
+	// Only when in this state
 	CHECK_RETURN(GetCurrentState() != this, nullptr);
-	CHECK_RETURN(anAction != EFPCombatInput::INTERACT, nullptr);
+
+	// Block all other inputs
+	CHECK_RETURN(anAction != EFPCombatInput::INTERACT, StaticClass());
 
 	// Is sword nearby? 
 	TArray<AActor*> actors;
@@ -43,10 +46,10 @@ UClass* UFPCombatStateNoSword::Input(const EFPCombatInput anAction)
 	for (const auto& it : actors)
 	{
 		GetCombat().SetSword(Cast<ASword>(it));
-		return StaticClass();
+		break;
 	}
 	
-	return nullptr;
+	return StaticClass();
 }
 
 void UFPCombatStateNoSword::Enter()

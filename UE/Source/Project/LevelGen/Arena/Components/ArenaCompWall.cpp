@@ -18,7 +18,8 @@ void UArenaCompWall::Populate(AArenaGenerator* aArenaGenerator, const FArenaLaye
 				aLayer,
 				aSubdivision,
 				anglePart,
-				myRadiusPart));
+				myRadiusPart,
+				mySubdivideWall));
 	}
 	
 	const float groundOffset = ULevelRand::FRandRange(myMinWallGroundOffset, myMaxWallGroundOffset) + aSubdivision.height;

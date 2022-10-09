@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Enemy.h"
-#include "EnemySpawner.h"
 #include "GameFramework/Actor.h"
 #include "EnemyManager.generated.h"
 
@@ -16,13 +15,15 @@ class PROJECT_API AEnemyManager : public AActor
 public:
 	
 	AEnemyManager();
-	virtual void BeginPlay() override;
+
+	void Init(class UEnemyConfig* aConfig);
+	
+	void CheckWaveConditions();
+	void InitWave(int32 anIndex);
 
 	void AddEnemy(AEnemy* anEnemy);
 	void RemoveEnemy(const AEnemy* anEnemy);
-
-	void AddSpawner(AEnemySpawner* aSpawner);
-	void RemoveSpawner(const AEnemySpawner* aSpawner);
+	
 	TSet<AEnemy*> GetEnemies() const;
 
 	UPROPERTY(BlueprintAssignable)
@@ -33,7 +34,7 @@ private:
 	UPROPERTY()
 	TSet<AEnemy*> myEnemies;
 
-	UPROPERTY()
-	TSet<AEnemySpawner*> mySpawners;
+	TObjectPtr<UEnemyConfig> myConfig;
+	int32 myWave = -1;
 	
 };

@@ -25,15 +25,10 @@ void AGeneratorBase::Generate()
 	FlushPersistentDebugLines(GetWorld());
 	
 	// Set seed
-	if (mySeed)
-	{
-		ULevelRand::Init(mySeed);
-	}
-	else
-	{
+	if (UEngineUtility::IsInBaseLevel())
 		ULevelRand::Reset();
-	}
-	
+	else if (mySeed)
+		ULevelRand::Init(mySeed);
 }
 
 void AGeneratorBase::Clear()
