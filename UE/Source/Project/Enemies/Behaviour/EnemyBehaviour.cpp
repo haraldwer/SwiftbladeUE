@@ -15,6 +15,12 @@ UEnemyBehaviour::UEnemyBehaviour()
 void UEnemyBehaviour::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (const auto owner = GetOwner())
+		for (auto& comp : owner->GetComponents())
+			if (const auto state = Cast<UEnemyBaseState>(comp))
+				myStates.Add(state);
+	
 	SetState(UEnemyStateIdle::StaticClass());
 }
 
@@ -25,28 +31,37 @@ void UEnemyBehaviour::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if (!myCurrentState)
+	if (!myCurrentState.IsValid())
 		SetState(UEnemyStateIdle::StaticClass());
 	
-	if (myCurrentState)
+	if (const auto state = myCurrentState.Get())
 	{
-		myCurrentState->Update(DeltaTime);
-		UpdateAnimations(myCurrentState, DeltaTime);
+		state->Update(DeltaTime);
+		UpdateAnimations(state, DeltaTime);
 	}	
 }
 
 void UEnemyBehaviour::SetState(const TSubclassOf<UEnemyBaseState>& aClass)
 {
-	UEnemyBaseState* state = Cast<UEnemyBaseState>(GetOwner()->GetComponentByClass(aClass));
+	const auto find = myStates.FindByPredicate([aClass](const TWeakObjectPtr<UEnemyBaseState>& weakPtr)
+	{
+		if (const auto ptr = weakPtr.Get())
+			return ptr->IsA(aClass);
+		return false;
+	});
+	CHECK_RETURN_LOG(!find, "Could not find state");
+	
+	const auto state = find->Get();
+	const auto currState = myCurrentState.Get(); 
 	CHECK_RETURN_LOG(!state, "Invalid state");
-	CHECK_RETURN_LOG(myCurrentState == state, "Already in state");
+	CHECK_RETURN_LOG(currState == state, "Already in state");
 	
 	myCurrentState = state;
 	
-	auto& animation = myCurrentState->GetAnimation();
+	auto& animation = state->GetAnimation();
 	animation.Reset();
 
-	myOnBehaviourStateChanged.Broadcast(myCurrentState);
+	myOnBehaviourStateChanged.Broadcast(state);
 }
 
 bool UEnemyBehaviour::CanDamageTarget() const
@@ -124,14 +139,15 @@ void UEnemyBehaviour::MoveTowards(const AActor* aTarget, const float aMovementSp
 	if (const auto collider = self->GetCollider())
 	{
 		collider->AddForce(dir * aMovementSpeed, NAME_None, true);
-		//DrawDebugLine(GetWorld(),
-		//	collider->GetComponentLocation(),
-		//	collider->GetComponentLocation() + collider->GetComponentVelocity(),
-		//	FColor(0, 255, 0, 255));
+		if (myDrawDebugForces)
+			DrawDebugLine(GetWorld(),
+				collider->GetComponentLocation(),
+				collider->GetComponentLocation() + collider->GetComponentVelocity(),
+				FColor(0, 255, 0, 255));
 	}
 }
 
-void UEnemyBehaviour::RotateTowards(AActor* aTarget, const float aRotationSpeed, const float aDT) const
+void UEnemyBehaviour::RotateTowards(const AActor* aTarget, const float aRotationSpeed, const float aDT) const
 {
 	CHECK_RETURN_LOG(!aTarget, "Target nullptr");
 	
@@ -156,11 +172,26 @@ void UEnemyBehaviour::RotateTowards(AActor* aTarget, const float aRotationSpeed,
 	{
 		collider->AddTorqueInRadians(cross * aRotationSpeed, NAME_None, true);
 		collider->AddTorqueInRadians(rightCross * 20.0f, NAME_None, true);
-		//DrawDebugLine(GetWorld(),
-		//	collider->GetComponentLocation(),
-		//	collider->GetComponentLocation() + rightCross * 100.0f,
-		//	FColor(0, 0, 255, 255));
+		if (myDrawDebugForces)
+			DrawDebugLine(GetWorld(),
+				collider->GetComponentLocation(),
+				collider->GetComponentLocation() + rightCross * 100.0f,
+				FColor(0, 0, 255, 255));
 	}
+}
+
+void UEnemyBehaviour::OnTookDamage(const float aDamageAmount, AActor* aDamageCauser)
+{
+	for (auto& state : myStates)
+		if (const auto ptr = state.Get())
+			ptr->OnTookDamage(aDamageAmount, aDamageCauser);
+}
+
+void UEnemyBehaviour::OnDied()
+{
+	for (auto& state : myStates)
+		if (const auto ptr = state.Get())
+			ptr->OnDied();
 }
 
 bool UEnemyBehaviour::CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVector& aLocation, const FVector& aForward) const
@@ -196,7 +227,7 @@ bool UEnemyBehaviour::CanTarget(const TWeakObjectPtr<AActor>& anActor, const FVe
 }
 
 
-void UEnemyBehaviour::UpdateAnimations(UEnemyBaseState* aState, float aDT) const
+void UEnemyBehaviour::UpdateAnimations(UEnemyBaseState* aState, const float aDT) const
 {
 	CHECK_RETURN_LOG(!aState, "Invalid state");
 	

@@ -23,10 +23,9 @@ class PROJECT_API UEnemyStateAttackBase : public UEnemyBaseState
 	
 public:
 	
-	UEnemyStateAttackBase();
-	void BeginPlay() override;
-	void Enter(const UEnemyBaseState* aFromState) override;
-	void Update(const float aDT) override;
+	virtual void BeginPlay() override;
+	virtual void Enter(const UEnemyBaseState* aFromState) override;
+	virtual void Update(const float aDT) override;
 
 protected:
 

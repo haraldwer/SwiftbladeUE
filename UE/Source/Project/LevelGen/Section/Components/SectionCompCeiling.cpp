@@ -1,5 +1,5 @@
 #include "SectionCompCeiling.h"
-#include "Project/LevelGen/Section/FaceMeshGeneration.h"
+#include "Project/ProcGen/FaceMeshGeneration.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
 void USectionCompCeiling::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)

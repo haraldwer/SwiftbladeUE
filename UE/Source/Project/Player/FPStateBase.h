@@ -5,7 +5,7 @@
 #include "FPStateBase.generated.h"
 
 UCLASS(ClassGroup=(Custom))
-class PROJECT_API UFPStateBase : public UStateBase
+class PROJECT_API  UFPStateBase : public UStateBase
 {
 	GENERATED_BODY()
 

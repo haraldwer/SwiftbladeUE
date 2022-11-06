@@ -42,6 +42,8 @@ float AEnemy::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, 
 	LOG("Enemy took damage " + FString::SanitizeFloat(aDamageAmount));
 	myHealth -= FMath::RoundToInt(aDamageAmount);
 	Super::TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser);
+	if (myBehaviour)
+		myBehaviour->OnTookDamage(aDamageAmount, aDamageCauser);
 	OnTookDamage(aDamageAmount, aDamageCauser);
 	if (myHealth <= 0)
 		Die();
@@ -51,6 +53,8 @@ float AEnemy::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, 
 void AEnemy::Die()
 {
 	LOG("Enemy died");
+	if (myBehaviour)
+		myBehaviour->OnDied();
 	OnDied();
 	UMainSingelton::GetEnemyManager().RemoveEnemy(this);
 	Destroy();

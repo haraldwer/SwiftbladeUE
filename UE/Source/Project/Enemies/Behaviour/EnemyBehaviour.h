@@ -19,7 +19,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	void SetState(const TSubclassOf<UEnemyBaseState>& aClass);
-	UEnemyBaseState* GetState() const { return myCurrentState; }
+	UEnemyBaseState* GetState() const { return myCurrentState.Get(); }
 	bool CanDamageTarget() const;
 
 	// - Targeting - //
@@ -32,7 +32,10 @@ public:
 	AActor* GetTarget() const { return myCurrentTarget.Get(); }
 
 	void MoveTowards(const AActor* aTarget, float aMovementSpeed, float aForwardWeight, float aDT) const;
-	void RotateTowards(AActor* aTarget, float aRotationSpeed, float aDT) const;
+	void RotateTowards(const AActor* aTarget, float aRotationSpeed, float aDT) const;
+
+	void OnTookDamage(float aDamageAmount, AActor* aDamageCauser);
+	void OnDied(); 
 	
 protected:
 
@@ -58,6 +61,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Behaviour")
 	bool myCanTargetEnemies = false;
 
+	UPROPERTY(EditDefaultsOnly, Category="Behaviour")
+	bool myDrawDebugForces = false;
+
 	UPROPERTY()
 	TWeakObjectPtr<AActor> myCurrentTarget;
 
@@ -74,8 +80,6 @@ private:
 
 	void UpdateAnimations(UEnemyBaseState* aState, float aDT) const;
 	
-	UPROPERTY()
-	UEnemyBaseState* myCurrentState;
-
-	
+	TWeakObjectPtr<UEnemyBaseState> myCurrentState;
+	TArray<TWeakObjectPtr<UEnemyBaseState>> myStates;
 };

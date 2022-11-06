@@ -170,16 +170,12 @@ void UFPCombat::UpdateInput()
 		// Compare time since
 		if (time - entry.Value > myInputQueueTime)
 		{
-			LOG("Resetting input due to out of time " + FString::FromInt(entry.Key))
 			entry.Value = -1.0f;
 			return;
 		}
 		
 		if (CheckInput(static_cast<EFPCombatInput>(entry.Key)))
-		{
-			LOG("Resetting input due to consume " + FString::FromInt(entry.Key))
 			entry.Value = -1.0f;
-		}
 	}
 }
 
@@ -189,10 +185,7 @@ bool UFPCombat::CheckInput(const EFPCombatInput anInput)
 	if (const auto currState = Cast<UFPCombatStateBase>(GetCurrentState()))
 	{
 		if (currState->BlocksInput())
-		{
-			LOG(FString("Blockign input ") + currState->GetName())
 			return false;
-		}
 	}
 		
 	UStateBase* nextState = nullptr;

@@ -4,11 +4,6 @@
 #include "Project/Enemies/Behaviour/EnemyBehaviour.h"
 #include "Project/Enemies/Behaviour/States/EnemyStateIdle.h"
 
-UEnemyStateAttackBase::UEnemyStateAttackBase()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
-
 void UEnemyStateAttackBase::BeginPlay()
 {
 	Super::BeginPlay();

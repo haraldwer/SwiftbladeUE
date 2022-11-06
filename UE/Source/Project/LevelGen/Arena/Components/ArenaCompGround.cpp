@@ -2,7 +2,7 @@
 #include "ArenaCompGround.h"
 
 #include "Project/LevelGen/Arena/ArenaGenerator.h"
-#include "Project/LevelGen/Section/FaceMeshGeneration.h"
+#include "Project/ProcGen/FaceMeshGeneration.h"
 
 void UArenaCompGround::Populate(AArenaGenerator* aArenaGenerator, const FArenaLayer& aLayer, const FArenaSection& aSection, const FArenaSubdivision& aSubdivision)
 {

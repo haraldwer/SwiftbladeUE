@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GeneratorBase.h"
+#include "Project/LevelGen/GeneratorBase.h"
 #include "ProceduralMeshComponent.h"
 
 inline UProceduralMeshComponent* CreateFaceMesh(AGeneratorBase* aGenerator, const TArray<FVector2D>& someVertices, const FVector& anOffset, float aHeight, UMaterialInterface* aMaterial)

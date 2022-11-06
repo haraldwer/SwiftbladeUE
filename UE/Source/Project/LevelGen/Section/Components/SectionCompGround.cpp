@@ -1,5 +1,5 @@
 #include "SectionCompGround.h"
-#include "Project/LevelGen/Section/FaceMeshGeneration.h"
+#include "Project/ProcGen/FaceMeshGeneration.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
 void USectionCompGround::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection,const FProcRoom& aRoom)

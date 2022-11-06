@@ -17,6 +17,9 @@ public:
 	virtual void Enter(const UEnemyBaseState* aFromState) {}
 	virtual void Update(float aDT) {}
 
+	virtual void OnTookDamage(float aDamageAmount, AActor* aDamageCauser) {}
+	virtual void OnDied() {}
+
 	FEnemyAnimation& GetAnimation() { return myAnimation; }  
 
 protected:
