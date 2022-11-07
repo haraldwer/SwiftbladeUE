@@ -29,10 +29,10 @@ public:
 protected:
 	
 	UPROPERTY(EditDefaultsOnly)
-	float myCooldown = 0.5f;
+	float myCooldown = 0.7f;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float myVerticalOffset = -130;
+	float myVerticalOffset = -110;
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myRailVelocity = 700.0f;
@@ -42,10 +42,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	float myInputInterpSpeed = 2.0f;
-	
-	TWeakObjectPtr<URailComponent> myRail;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myInitialVelOffsetMul = 0.5f;
 
 private:
+	
+	TWeakObjectPtr<URailComponent> myRail;
+	TWeakObjectPtr<URailComponent> myPrevRail;
 
 	float myExitTimestamp = 0.0f;
 	float mySplineDist = 0.0f;

@@ -3,7 +3,7 @@
 #include "../SectionCompBase.h"
 #include "SectionCompSpikeLine.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class PROJECT_API USectionCompSpikeLine : public USectionCompBase
 {
 	GENERATED_BODY()

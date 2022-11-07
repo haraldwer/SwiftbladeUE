@@ -3,7 +3,7 @@
 #include "SectionCompBase.h"
 #include "SectionCompGround.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class PROJECT_API USectionCompGround : public USectionCompBase
 {
 	GENERATED_BODY()

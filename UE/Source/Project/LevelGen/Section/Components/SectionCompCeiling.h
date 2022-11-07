@@ -3,7 +3,7 @@
 #include "SectionCompBase.h"
 #include "SectionCompCeiling.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class PROJECT_API USectionCompCeiling : public USectionCompBase
 {
 	GENERATED_BODY()

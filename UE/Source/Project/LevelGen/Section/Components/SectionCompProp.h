@@ -18,7 +18,7 @@ struct FSectionProp
 	float myPadding = 0.0f;
 };
 
-UCLASS()
+UCLASS(Abstract)
 class PROJECT_API USectionCompProp : public USectionCompBase
 {
 	GENERATED_BODY()

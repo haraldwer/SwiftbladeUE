@@ -3,7 +3,7 @@
 #include "../SectionCompBase.h"
 #include "SectionCompKnifeWall.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class PROJECT_API USectionCompKnifeWall : public USectionCompBase
 {
 	GENERATED_BODY()

@@ -22,8 +22,10 @@ UClass* UFPMovementStateRails::Update(float aDT)
 	
 	if (mySplineDist < 0.0f)
 	{
+		
 		const FVector worldLoc = GetActorTransform().GetLocation() + GetCharacter().GetDefaultHalfHeight();
-		const float key = spline->FindInputKeyClosestToWorldLocation(worldLoc);
+		const FVector velOff = movement.Velocity * myInitialVelOffsetMul;
+		const float key = spline->FindInputKeyClosestToWorldLocation(worldLoc + velOff);
 		mySplineDist = spline->GetDistanceAlongSplineAtSplineInputKey(key);
 		myInterpInput = input; 
 	}
@@ -51,8 +53,6 @@ UClass* UFPMovementStateRails::Update(float aDT)
 
 UClass* UFPMovementStateRails::Check()
 {
-	CHECK_RETURN(GetTime() - myExitTimestamp < myCooldown, nullptr);
-	
 	// Check overlaps
 	TArray<AActor*> overlaps;
 	GetCharacter().GetOverlappingActors(overlaps);
@@ -62,6 +62,10 @@ UClass* UFPMovementStateRails::Check()
 		overlap->GetComponents<URailComponent>(rails);
 		for (const auto& rail : rails)
 		{
+			if (rail == myPrevRail.Get())
+				if (GetTime() - myExitTimestamp < myCooldown)
+					continue;
+			
 			myRail = rail;
 			return StaticClass();
 		}
@@ -88,8 +92,12 @@ void UFPMovementStateRails::Enter()
 
 void UFPMovementStateRails::Exit()
 {
-	// Retain velocity? 
-	
+	// Retain velocity?
+
+	if (const auto airState = GetState<UFPMovementStateInAir>())
+		airState->ResetJumps();
+
+	myPrevRail = myRail;
 	myRail.Reset();
 	myExitTimestamp = GetTime();
 	mySplineDist = -1.0f; 
