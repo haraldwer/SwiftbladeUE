@@ -45,7 +45,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UObjectAnimator* myObjectAnimator;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int myHealth = 1;
 
 private:

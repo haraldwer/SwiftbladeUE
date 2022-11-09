@@ -18,10 +18,10 @@ struct FPPEntry
 	GENERATED_BODY()
 	
 	UPROPERTY()
-	class APostProcessVolume* myVolume;
+	class APostProcessVolume* myVolume = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category=FWeightedBlendable, meta=( AllowedClasses="BlendableInterface", Keywords="PostProcess" ))
-	TObjectPtr<UObject> myMaterial;
+	TObjectPtr<UObject> myMaterial = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myDefaultWeight = 1.0f;
@@ -30,7 +30,7 @@ struct FPPEntry
 	bool myDefaultEnable = false;
 
 	UPROPERTY(EditDefaultsOnly)
-	class UMaterialParameterCollection* myParamCollection;
+	class UMaterialParameterCollection* myParamCollection = nullptr;
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))

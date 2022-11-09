@@ -32,6 +32,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float myStrikeCooldown = 0.5f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float myStrikeImpulse = 500.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myStrikeTorque = 30.0f;
+
 private:
 
 	bool myHasHit = false; 

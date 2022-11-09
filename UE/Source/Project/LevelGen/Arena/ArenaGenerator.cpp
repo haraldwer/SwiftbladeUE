@@ -138,7 +138,7 @@ void AArenaGenerator::CreateDoor(const UArenaConfig* aConfig, const FArenaLayer&
 
 	if (UEngineUtility::IsInBaseLevel())
 		if (const auto player = UMainSingelton::GetLocalPlayer())
-			player->SetActorLocation(location - FVector::RightVector * 250.0f);
+			player->SetActorLocation(location - FVector::RightVector * 250.0f + FVector::UpVector * 75.0f);
 }
 
 UArenaConfig* AArenaGenerator::GetRandomConfig()

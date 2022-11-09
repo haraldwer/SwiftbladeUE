@@ -15,6 +15,8 @@
 #include "Project/Player/Animation/States/FPAnimationStateIdle.h"
 #include "Project/Player/Animation/States/FPAnimationStateStrike.h"
 #include "Project/Player/Combat/FPCombat.h"
+#include "Project/Player/Movement/FPMovement.h"
+#include "Project/Player/Movement/States/FPMovementStateStrike.h"
 
 UClass* UFPCombatStateStrike::Update(float aDT)
 {
@@ -58,16 +60,30 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 		// Enemies
 		if (const auto enemy = Cast<AEnemy>(owner))
 		{
+			// Enter strike movement state
+			auto& movement = GetMovement();
+			if (const auto strikeState = movement.GetState<UFPMovementStateStrike>())
+			{
+				strikeState->SetTarget(enemy->GetActorLocation());
+				movement.SetState<UFPMovementStateStrike>();
+			}
+			
+			const FTransform hitTrans = sword->GetHitTransform(enemy);
+			sword->CreateHitEffect(hitTrans);
+			
+			if (const auto enemyCollider = enemy->GetCollider())
+				enemyCollider->AddImpulseAtLocation((enemy->GetActorLocation() - character.GetActorLocation()).GetSafeNormal() * myStrikeImpulse, hitTrans.GetLocation());
+			
 			UGameplayStatics::ApplyDamage(
 				enemy,
 				1.0f,
 				&GetController(),
 				sword,
 				UDamageType::StaticClass());
-			const auto hitTrans = sword->GetHitTransform(enemy);
-			sword->CreateHitEffect(hitTrans); 
+			
 			myHasHit = true;
 			LOG("Apply damage");
+			
 			break;
 		}
 		
@@ -79,6 +95,16 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 			const auto position = sword->GetActorLocation();
 			const auto normal = sword->GetActorRightVector(); 
 			breakable->Break(position, normal);
+
+			// Enter strike movement state
+			// TODO: Maybe make optional?
+			auto& movement = GetMovement();
+			if (const auto strikeState = movement.GetState<UFPMovementStateStrike>())
+			{
+				strikeState->SetTarget(owner->GetActorLocation());
+				movement.SetState<UFPMovementStateStrike>();
+			}
+			
 			break; 
 		}
 	}
