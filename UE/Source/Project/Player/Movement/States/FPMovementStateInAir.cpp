@@ -24,7 +24,7 @@ UClass* UFPMovementStateInAir::Update(float aDT)
 
 UClass* UFPMovementStateInAir::Check()
 {
-	const float time = GetTime();
+	const float time = GetCurrentTime();
 	const auto& movement = GetCharacterMovement();
 	if (movement.IsWalking())
 		myCoyoteTimeStamp = time;
@@ -47,7 +47,7 @@ UClass* UFPMovementStateInAir::Input(EFPMovementInputAction anAction, float aVal
 	if (anAction == EFPMovementInputAction::JUMP_PRESSED)
 	{
 		myJumpHeld = true;
-		const float time = GetTime();
+		const float time = GetCurrentTime();
 		const auto& movement = GetCharacterMovement();
 		const bool onGround = movement.IsWalking();
 		if (onGround)
@@ -104,7 +104,7 @@ bool UFPMovementStateInAir::HasAirJumps() const
 void UFPMovementStateInAir::ResetJumps()
 {
 	myJumpedSinceTouchedGround = false;
-	myCoyoteTimeStamp = GetTime();
+	myCoyoteTimeStamp = GetCurrentTime();
 	myAirJumpCount = 0;
 }
 

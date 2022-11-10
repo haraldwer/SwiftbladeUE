@@ -25,6 +25,8 @@ public:
 	virtual bool RequiresMagic() const { return false; }
 	virtual bool CanJump() const { return true; }
 
+	virtual void ResetAbilities();
+
 protected:
 
 	// Helpers

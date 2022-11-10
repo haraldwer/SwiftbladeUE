@@ -8,6 +8,7 @@
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Player/Animation/States/FPAnimationStateRails.h"
+#include "Project/Player/Movement/FPMovement.h"
 
 UClass* UFPMovementStateRails::Update(float aDT)
 {
@@ -63,7 +64,7 @@ UClass* UFPMovementStateRails::Check()
 		for (const auto& rail : rails)
 		{
 			if (rail == myPrevRail.Get())
-				if (GetTime() - myExitTimestamp < myCooldown)
+				if (GetCurrentTime() - myExitTimestamp < myCooldown)
 					continue;
 			
 			myRail = rail;
@@ -81,13 +82,8 @@ UClass* UFPMovementStateRails::Input(const EFPMovementInputAction anAction, cons
 
 void UFPMovementStateRails::Enter()
 {
-	auto& movement = GetCharacterMovement();
-	movement.SetMovementMode(MOVE_Falling);
-
-	if (const auto dashState = GetState<UFPMovementStateDash>())
-		dashState->Reset();
-	if (const auto airState = GetState<UFPMovementStateInAir>())
-		airState->ResetJumps();
+	GetCharacterMovement().SetMovementMode(MOVE_Falling);
+	ResetAbilities();
 }
 
 void UFPMovementStateRails::Exit()
@@ -99,7 +95,7 @@ void UFPMovementStateRails::Exit()
 
 	myPrevRail = myRail;
 	myRail.Reset();
-	myExitTimestamp = GetTime();
+	myExitTimestamp = GetCurrentTime();
 	mySplineDist = -1.0f; 
 }
 

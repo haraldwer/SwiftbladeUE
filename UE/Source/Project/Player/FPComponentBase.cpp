@@ -76,6 +76,20 @@ UFPCombat& UFPActorComponentBase::GetCombat() const
 	return *ptr;
 }
 
+UFPTime& UFPActorComponentBase::GetTime() const
+{
+	const auto ptr = GetCharacter().GetTime();
+	CHECK_ASSERT(!ptr, "Time nullptr");
+	return *ptr;
+}
+
+UFPPostProcessing& UFPActorComponentBase::GetPostProcessing() const
+{
+	const auto ptr = GetCharacter().GetPostProcessing();
+	CHECK_ASSERT(!ptr, "PostProcessing nullptr");
+	return *ptr;
+}
+
 AEffect* UFPActorComponentBase::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const
 {
 	return GetCharacter().CreateEffect(aBP, aTransform);
@@ -151,6 +165,20 @@ UFPCombat& UFPSceneComponentBase::GetCombat() const
 {
 	const auto ptr = GetCharacter().GetCombat();
 	CHECK_ASSERT(!ptr, "Combat nullptr");
+	return *ptr;
+}
+
+UFPTime& UFPSceneComponentBase::GetTime() const
+{
+	const auto ptr = GetCharacter().GetTime();
+	CHECK_ASSERT(!ptr, "Time nullptr");
+	return *ptr;
+}
+
+UFPPostProcessing& UFPSceneComponentBase::GetPostProcessing() const
+{
+	const auto ptr = GetCharacter().GetPostProcessing();
+	CHECK_ASSERT(!ptr, "PostProcessing nullptr");
 	return *ptr;
 }
 

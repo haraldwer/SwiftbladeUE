@@ -15,7 +15,7 @@ UClass* UFPMovementStateDash::Update(float aDT)
 	if (movement.IsWalking())
 		myCanDash = true;
 
-	const float timer = GetTime() - myDashTimestamp;  
+	const float timer = GetCurrentTime() - myDashTimestamp;  
 	if (timer > myDashDuration)
 		return movement.IsWalking() ?
 			UFPMovementStateRun::StaticClass() :
@@ -58,7 +58,7 @@ void UFPMovementStateDash::Enter()
 
 	myDashDirection = vel;
 	movement.Velocity = vel * myDashVelocity;
-	myDashTimestamp = GetTime();
+	myDashTimestamp = GetCurrentTime();
 	myCanDash = false;
 }
 

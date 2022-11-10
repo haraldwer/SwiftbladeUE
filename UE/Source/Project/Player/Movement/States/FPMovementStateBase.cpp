@@ -1,11 +1,21 @@
 ﻿#include "FPMovementStateBase.h"
 
+#include "FPMovementStateDash.h"
+#include "FPMovementStateInAir.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
 #include "Project/Player/Combat/FPCombat.h"
 #include "Project/Player/Actors/Hand.h"
 #include "Project/Player/Actors/Sword.h"
+
+void UFPMovementStateBase::ResetAbilities()
+{
+	if (const auto dashState = GetState<UFPMovementStateDash>())
+		dashState->Reset();
+	if (const auto airState = GetState<UFPMovementStateInAir>())
+		airState->ResetJumps();
+}
 
 void UFPMovementStateBase::Jump(const FVector aDirection) const
 {

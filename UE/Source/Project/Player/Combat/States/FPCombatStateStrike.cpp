@@ -11,16 +11,19 @@
 #include "Project/Gameplay/Breakable/Breakable.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
+#include "Project/Player/FPTime.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Animation/States/FPAnimationStateIdle.h"
 #include "Project/Player/Animation/States/FPAnimationStateStrike.h"
 #include "Project/Player/Combat/FPCombat.h"
 #include "Project/Player/Movement/FPMovement.h"
+#include "Project/Player/Movement/States/FPMovementStateDash.h"
+#include "Project/Player/Movement/States/FPMovementStateInAir.h"
 #include "Project/Player/Movement/States/FPMovementStateStrike.h"
 
 UClass* UFPCombatStateStrike::Update(float aDT)
 {
-	const float timeDiff = GetTime() - myStrikeTimestamp;
+	const float timeDiff = GetCurrentTime() - myStrikeTimestamp;
 	if (timeDiff > myStrikeDuration)
 		return UFPCombatStateIdle::StaticClass();
 	if (timeDiff > myStrikeDamageDuration)
@@ -49,30 +52,20 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 		if (const auto checkpoint = Cast<ACheckpoint>(owner))
 		{
 			if (GetController().TrySetCheckpoint(checkpoint))
-			{
-				const auto hitTrans = sword->GetHitTransform(checkpoint);
-				sword->CreateHitEffect(hitTrans);
-			}
+				ApplyHitEffects(checkpoint);
+			
 			myHasHit = true;
+			
 			break;
 		}
 
 		// Enemies
 		if (const auto enemy = Cast<AEnemy>(owner))
 		{
-			// Enter strike movement state
-			auto& movement = GetMovement();
-			if (const auto strikeState = movement.GetState<UFPMovementStateStrike>())
-			{
-				strikeState->SetTarget(enemy->GetActorLocation());
-				movement.SetState<UFPMovementStateStrike>();
-			}
-			
-			const FTransform hitTrans = sword->GetHitTransform(enemy);
-			sword->CreateHitEffect(hitTrans);
-			
+			const auto hitTrans = ApplyHitEffects(enemy);
+			const FVector impulse = (enemy->GetActorLocation() - character.GetActorLocation()).GetSafeNormal() * myStrikeImpulse;
 			if (const auto enemyCollider = enemy->GetCollider())
-				enemyCollider->AddImpulseAtLocation((enemy->GetActorLocation() - character.GetActorLocation()).GetSafeNormal() * myStrikeImpulse, hitTrans.GetLocation());
+				enemyCollider->AddImpulseAtLocation(impulse, hitTrans.GetLocation());
 			
 			UGameplayStatics::ApplyDamage(
 				enemy,
@@ -82,7 +75,6 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 				UDamageType::StaticClass());
 			
 			myHasHit = true;
-			LOG("Apply damage");
 			
 			break;
 		}
@@ -90,20 +82,11 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 		// Breakable stuff
 		if (const auto breakable = Cast<UBreakable>(owner->GetComponentByClass(UBreakable::StaticClass())))
 		{
-			const auto hitTrans = sword->GetHitTransform(owner);
-			sword->CreateHitEffect(hitTrans);
+			ApplyHitEffects(owner);
+			
 			const auto position = sword->GetActorLocation();
 			const auto normal = sword->GetActorRightVector(); 
 			breakable->Break(position, normal);
-
-			// Enter strike movement state
-			// TODO: Maybe make optional?
-			auto& movement = GetMovement();
-			if (const auto strikeState = movement.GetState<UFPMovementStateStrike>())
-			{
-				strikeState->SetTarget(owner->GetActorLocation());
-				movement.SetState<UFPMovementStateStrike>();
-			}
 			
 			break; 
 		}
@@ -118,7 +101,7 @@ UClass* UFPCombatStateStrike::Input(const EFPCombatInput anAction)
 	CHECK_RETURN(anAction != EFPCombatInput::STRIKE, nullptr);
 
 	// Check cooldown
-	const float timeDiff = GetTime() - myStrikeTimestamp;
+	const float timeDiff = GetCurrentTime() - myStrikeTimestamp;
 	CHECK_RETURN(timeDiff < myStrikeCooldown, nullptr);
 	return StaticClass();
 }
@@ -126,7 +109,7 @@ UClass* UFPCombatStateStrike::Input(const EFPCombatInput anAction)
 void UFPCombatStateStrike::Enter()
 {
 	myHasHit = false;
-	myStrikeTimestamp = GetTime();
+	myStrikeTimestamp = GetCurrentTime();
 }
 
 TSubclassOf<UFPAnimationStateBase> UFPCombatStateStrike::GetAnimation() const
@@ -137,4 +120,20 @@ TSubclassOf<UFPAnimationStateBase> UFPCombatStateStrike::GetAnimation() const
 TSubclassOf<UFPAnimationStateBase> UFPCombatStateStrike::GetResetAnimation() const
 {
 	return UFPAnimationStateIdle::StaticClass();
+}
+
+FTransform UFPCombatStateStrike::ApplyHitEffects(const AActor* anActor) const
+{
+	const auto sword = GetSword();
+	CHECK_RETURN_LOG(!sword, "No sword", FTransform::Identity);
+	
+	// Enter strike movement state
+	auto& movement = GetMovement();
+	movement.SetState<UFPMovementStateStrike>();
+
+	GetTime().AddDilation(EDilationType::OUTGOING_DAMAGE, 1.0f, myDilationDuration, myDilationCurve);
+	
+	const auto hitTrans = sword->GetHitTransform(anActor);
+	sword->CreateHitEffect(hitTrans);
+	return hitTrans;
 }

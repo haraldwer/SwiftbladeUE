@@ -70,6 +70,13 @@ UFPCombat& UFPStateBase::GetCombat() const
 	return *ptr;
 }
 
+UFPTime& UFPStateBase::GetTime() const
+{
+	const auto ptr = GetCharacter().GetTime();
+	CHECK_ASSERT(!ptr, "Combat nullptr");
+	return *ptr;
+}
+
 AEffect* UFPStateBase::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const
 {
 	return GetCharacter().CreateEffect(aBP, aTransform);

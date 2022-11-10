@@ -30,7 +30,7 @@ UClass* UFPAnimationStateStrike::Update(float aDT)
 {
 	Super::Update(aDT);
 
-	const float timeDiff = GetTime() - myStrikeTimestamp; 
+	const float timeDiff = GetCurrentTime() - myStrikeTimestamp; 
 	const float timePart = FMath::Clamp(timeDiff / myStrikeDuration, 0.0f, 1.0f);
 	
 	auto trans = GetDefaultHandTransform();
@@ -69,7 +69,7 @@ UClass* UFPAnimationStateStrike::Update(float aDT)
 void UFPAnimationStateStrike::Enter()
 {
 	Super::Enter();
-	myStrikeTimestamp = GetTime();
+	myStrikeTimestamp = GetCurrentTime();
 
 	// Randomize index
 	const int32 num = myEntries.Num();

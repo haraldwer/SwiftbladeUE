@@ -11,7 +11,7 @@ UClass* UFPMovementStateBoostPad::Update(float aDT)
 	auto& movement = GetCharacterMovement();
 	movement.Velocity = myBoostDirection * myBoostVelocity;
 
-	const float timer = GetTime() - myBoostTimestamp;  
+	const float timer = GetCurrentTime() - myBoostTimestamp;  
 	if (timer > myBoostDuration)
 		return UFPMovementStateInAir::StaticClass();
 	
@@ -34,7 +34,7 @@ UClass* UFPMovementStateBoostPad::Check()
 
 void UFPMovementStateBoostPad::Enter()
 {
-	myBoostTimestamp = GetTime();
+	myBoostTimestamp = GetCurrentTime();
 	auto& movement = GetCharacterMovement();
 	GetCharacter().SetActorLocation(myBoostLocation);
 	movement.SetMovementMode(MOVE_Falling);

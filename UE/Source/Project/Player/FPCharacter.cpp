@@ -3,6 +3,7 @@
 
 #include "FPCamera.h"
 #include "FPController.h"
+#include "FPTime.h"
 #include "Effects/FPPostProcessing.h"
 #include "Actors/Hand.h"
 #include "Actors/Sword.h"
@@ -45,18 +46,18 @@ AFPCharacter::AFPCharacter()
 	
 	myFPMovement = CreateDefaultSubobject<UFPMovement>("FPMovement");
 	CHECK_ASSERT(!myFPMovement, "Failed to create movement component");
-	//myFPMovement->SetupAttachment(RootComponent);
 	
 	myFPAnimator = CreateDefaultSubobject<UFPAnimatorNew>("FPAnimator");
 	CHECK_ASSERT(!myFPAnimator, "Failed to create animator component");
-	//myFPAnimator->SetupAttachment(RootComponent);
 	
 	myFPCombat = CreateDefaultSubobject<UFPCombat>("FPCombat");
 	CHECK_ASSERT(!myFPCombat, "Failed to create combat component");
-	//myFPCombat->SetupAttachment(RootComponent);
 
-	myPP = CreateDefaultSubobject<UFPPostProcessing>("FPPostProcessing");
-	CHECK_ASSERT(!myPP, "Failed to create pp component");
+	myFPTime = CreateDefaultSubobject<UFPTime>("FPTime");
+	CHECK_ASSERT(!myFPTime, "Failed to create combat component");
+
+	myFPPP = CreateDefaultSubobject<UFPPostProcessing>("FPPostProcessing");
+	CHECK_ASSERT(!myFPPP, "Failed to create pp component");
 	
 	myInteractionCollider = CreateDefaultSubobject<USphereComponent>("InteractionCollider");
 	CHECK_ASSERT(!myInteractionCollider, "Failed to create interaction collider");

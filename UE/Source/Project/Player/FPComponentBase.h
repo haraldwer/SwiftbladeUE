@@ -25,6 +25,8 @@ public:
 	class UFPAnimatorNew& GetAnimator() const;
 	class UFPMovement& GetMovement() const;
 	class UFPCombat& GetCombat() const;
+	class UFPTime& GetTime() const;
+	class UFPPostProcessing& GetPostProcessing() const;
 
 	// Interface for creating player-related effects
 	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;
@@ -50,6 +52,8 @@ public:
 	class UFPAnimatorNew& GetAnimator() const;
 	class UFPMovement& GetMovement() const;
 	class UFPCombat& GetCombat() const;
+	class UFPTime& GetTime() const;
+	class UFPPostProcessing& GetPostProcessing() const;
 
 	// Interface for creating player-related effects
 	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;

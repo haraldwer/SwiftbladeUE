@@ -21,10 +21,11 @@ public:
 	class UFPAnimatorNew& GetAnimator() const;
 	class UFPMovement& GetMovement() const;
 	class UFPCombat& GetCombat() const;
+	class UFPTime& GetTime() const; 
 
 	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;
 	
-	float GetTime() const { return GetWorld()->GetTimeSeconds(); }
+	float GetCurrentTime() const { return GetWorld()->GetTimeSeconds(); }
 
 	// If player should take damage in this state
 	virtual bool TakeDamage(float ADamageAmount, FDamageEvent const& DamageEvent, AController* Controller, AActor* Actor)

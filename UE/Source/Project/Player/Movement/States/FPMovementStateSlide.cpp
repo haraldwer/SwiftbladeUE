@@ -18,7 +18,7 @@ UClass* UFPMovementStateSlide::Update(float aDT)
 	if (movement.GetLastUpdateVelocity().Length() < 0.1f)
 		return UFPMovementStateIdle::StaticClass();
 
-	if(GetTime() - mySlideTimeStamp > mySlideDuration)
+	if(GetCurrentTime() - mySlideTimeStamp > mySlideDuration)
 		return UFPMovementStateRun::StaticClass();
 
 	const float movementDot = FVector::DotProduct(movement.GetLastInputVector(), movement.Velocity);
@@ -38,7 +38,7 @@ UClass* UFPMovementStateSlide::Update(float aDT)
 void UFPMovementStateSlide::Enter()
 {
 	Super::Enter();
-	mySlideTimeStamp = GetTime();
+	mySlideTimeStamp = GetCurrentTime();
 	auto& character = GetCharacter();
 	character.Crouch();
 	const auto& movement = GetCharacterMovement();

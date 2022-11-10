@@ -25,7 +25,7 @@ void UFPMovementStateWall::Init()
 UClass* UFPMovementStateWall::Update(float aDT)
 {
 	UpdateMovementNormal();
-	myWallrunTimestamp = GetTime();
+	myWallrunTimestamp = GetCurrentTime();
 
 	auto& character = GetCharacter();
 	auto& movement = GetCharacterMovement();
@@ -123,7 +123,7 @@ void UFPMovementStateWall::Enter()
 {
 	Super::Enter();
 	UpdateMovementNormal();
-	myWallrunTimestamp = GetTime();
+	myWallrunTimestamp = GetCurrentTime();
 	myHasWallJumped = false;
 	if (const auto dashState = GetState<UFPMovementStateDash>())
 		dashState->Reset();
@@ -131,11 +131,10 @@ void UFPMovementStateWall::Enter()
 
 void UFPMovementStateWall::Exit()
 {
-	auto& movement = GetCharacterMovement();
-	movement.SetPlaneConstraintEnabled(false);
-	movement.GravityScale = myOverrideGravityScale;
-	if (const auto airState = GetState<UFPMovementStateInAir>())
-		airState->ResetJumps();
+	auto& charMove = GetCharacterMovement();
+	charMove.SetPlaneConstraintEnabled(false);
+	charMove.GravityScale = myOverrideGravityScale;
+	ResetAbilities(); 
 	Super::Exit();
 }
 
@@ -160,7 +159,7 @@ bool UFPMovementStateWall::GetCanWallJump() const
 {
 	return !myHasWallJumped &&
 		(GetCurrentState() == this ||
-		(GetTime() - myWallrunTimestamp < myWallJumpCoyoteTime)); 
+		(GetCurrentTime() - myWallrunTimestamp < myWallJumpCoyoteTime)); 
 }
 
 FVector UFPMovementStateWall::GetWalljumpDirection() const

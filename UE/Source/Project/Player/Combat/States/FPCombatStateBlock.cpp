@@ -23,7 +23,7 @@ UClass* UFPCombatStateBlock::Update(float aDT)
 {	
 	const auto sword = GetSword();
 	CHECK_RETURN(!sword, UFPCombatStateNoSword::StaticClass());
-	const float timeDiff = GetTime() - myBlockTimestamp;
+	const float timeDiff = GetCurrentTime() - myBlockTimestamp;
 	CHECK_RETURN(timeDiff > myBlockDuration, UFPCombatStateIdle::StaticClass());
 
 	// Block
@@ -55,14 +55,14 @@ UClass* UFPCombatStateBlock::Input(const EFPCombatInput anAction)
 	CHECK_RETURN(anAction != EFPCombatInput::BLOCK, nullptr);
 
 	// Check cooldown
-	const float timeDiff = GetTime() - myBlockTimestamp;
+	const float timeDiff = GetCurrentTime() - myBlockTimestamp;
 	CHECK_RETURN(timeDiff < myBlockCooldown, nullptr);
 	return StaticClass();
 }
 
 void UFPCombatStateBlock::Enter()
 {
-	myBlockTimestamp = GetTime();
+	myBlockTimestamp = GetCurrentTime();
 }
 
 bool UFPCombatStateBlock::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser)

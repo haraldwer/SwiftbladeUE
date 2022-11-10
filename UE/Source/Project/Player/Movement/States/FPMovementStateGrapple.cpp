@@ -12,7 +12,7 @@
 
 UClass* UFPMovementStateGrapple::Update(float aDT)
 {
-	const auto timer = GetTime() - myTimeStamp;
+	const auto timer = GetCurrentTime() - myTimeStamp;
 	auto& movement = GetCharacterMovement();
 	
 	if (GetIsInFreeze())
@@ -82,7 +82,7 @@ UClass* UFPMovementStateGrapple::Input(EFPMovementInputAction anAction, float aV
 
 	CHECK_RETURN(anAction != EFPMovementInputAction::GRAPPLE, nullptr)
 
-	const auto timer = GetTime() - myTimeStamp;
+	const auto timer = GetCurrentTime() - myTimeStamp;
 	CHECK_RETURN(timer < myCooldown, nullptr);
 
 	const auto currentTarget = myTarget.Get();
@@ -94,7 +94,7 @@ UClass* UFPMovementStateGrapple::Input(EFPMovementInputAction anAction, float aV
 
 void UFPMovementStateGrapple::Enter()
 {
-	myTimeStamp = GetTime();
+	myTimeStamp = GetCurrentTime();
 	
 	const auto& movement = GetCharacterMovement();
 	if (movement.IsWalking())
@@ -118,7 +118,7 @@ void UFPMovementStateGrapple::Exit()
 
 bool UFPMovementStateGrapple::GetIsInFreeze() const
 {
-	const auto timer = GetTime() - myTimeStamp;
+	const auto timer = GetCurrentTime() - myTimeStamp;
 	return timer < myFreezeTime;
 }
 

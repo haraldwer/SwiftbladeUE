@@ -36,11 +36,13 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UFPCombat* GetCombat() const					{ return myFPCombat; }
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
-	class UFPPostProcessing* GetPostProcessing() const{ return myPP; }
+	class UFPTime* GetTime() const						{ return myFPTime; };
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
+	class UFPPostProcessing* GetPostProcessing() const	{ return myFPPP; }
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UCapsuleComponent* GetWallDetection() const	{ return myWallDetection; }
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
-	class USphereComponent* GetInteractionCollider() const{ return myInteractionCollider; }
+	class USphereComponent* GetInteractionCollider() const { return myInteractionCollider; }
 
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class AHand* GetRightHand() const					{ return myRightHand; }
@@ -91,8 +93,10 @@ protected:
 	UFPAnimatorNew* myFPAnimator;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
 	UFPCombat* myFPCombat;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
+	UFPTime* myFPTime;
 	UPROPERTY(EditDefaultsOnly, Category="Components")
-	UFPPostProcessing* myPP;
+	UFPPostProcessing* myFPPP;
 
 	UPROPERTY(EditDefaultsOnly, Category="Components")
 	UCapsuleComponent* myWallDetection;

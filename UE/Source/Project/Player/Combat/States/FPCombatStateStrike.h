@@ -33,12 +33,20 @@ protected:
 	float myStrikeCooldown = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myStrikeImpulse = 500.0f;
+	float myStrikeImpulse = 50000.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myStrikeTorque = 30.0f;
+	float myStrikeTorque = 50000.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<class UCurveFloat> myDilationCurve = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myDilationDuration = 0.5f; 
 
 private:
+	
+	FTransform ApplyHitEffects(const AActor* anActor) const;
 
 	bool myHasHit = false; 
 	float myStrikeTimestamp = 0.0f; 

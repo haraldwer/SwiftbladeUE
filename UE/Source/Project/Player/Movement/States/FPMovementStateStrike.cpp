@@ -1,27 +1,33 @@
 ﻿#include "FPMovementStateStrike.h"
 
 #include "FPMovementStateInAir.h"
+#include "Curves/CurveFloat.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/Animation/States/FPAnimationStateDash.h"
 
 UClass* UFPMovementStateStrike::Update(float aDT)
 {
-	// Exit instantly
-	return UFPMovementStateInAir::StaticClass();
+	const UCurveFloat* gravCurve = myGravityCurve.Get();
+	CHECK_RETURN_LOG(!gravCurve, "No gravity curve", UFPMovementStateInAir::StaticClass());
+	
+	const float diff = GetCurrentTime() - myEnterTimestamp;
+	CHECK_RETURN(diff > myDuration, UFPMovementStateInAir::StaticClass());
+
+	const float gravMul = gravCurve->GetFloatValue(diff / myDuration);
+	GetCharacterMovement().GravityScale = myOriginalGravity * gravMul; 
+	
+	return nullptr;
 }
 
 void UFPMovementStateStrike::Enter()
 {
-	if (myTarget.Size() < SMALL_NUMBER)
-		return; 
-	
-	const FVector diff = myTarget - GetActorTransform().GetLocation();
-	
-	auto& movement = GetCharacterMovement();
-	//movement.Velocity += diff.GetSafeNormal() * myStrikeVelocity;
+	myEnterTimestamp = GetCurrentTime();
+	myOriginalGravity = GetCharacterMovement().GravityScale;
+
+	ResetAbilities();
 }
 
 void UFPMovementStateStrike::Exit()
 {
-	myTarget = FVector::ZeroVector;
+	GetCharacterMovement().GravityScale = myOriginalGravity; 
 }
