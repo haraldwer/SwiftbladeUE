@@ -3,6 +3,7 @@
 #include "FPMovementStateDash.h"
 #include "FPMovementStateInAir.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
 #include "Project/Player/Combat/FPCombat.h"
@@ -57,12 +58,14 @@ void UFPMovementStateBase::MoveVertical(const float aValue) const
 
 void UFPMovementStateBase::LookHorizontal(const float aValue) const
 {
-	GetCharacter().AddControllerYawInput(aValue * GetSensitivity());
+	const float dilation = UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+	GetCharacter().AddControllerYawInput(aValue * GetSensitivity() * dilation);
 }
 
 void UFPMovementStateBase::LookVertical(const float aValue) const
 {
-	GetCharacter().AddControllerPitchInput(aValue * GetSensitivity() * -1.0f);
+	const float dilation = UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+	GetCharacter().AddControllerPitchInput(aValue * GetSensitivity() * -1.0f * dilation);
 }
 
 bool UFPMovementStateBase::HasMagic() const

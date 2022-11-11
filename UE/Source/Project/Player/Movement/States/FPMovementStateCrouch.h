@@ -10,6 +10,7 @@ class PROJECT_API UFPMovementStateCrouch : public UFPMovementStateBase
 	GENERATED_BODY()
 	
 public:
+	
 	virtual UClass* Update(float aDT) override;
 	virtual UClass* Check() override;
 
@@ -23,10 +24,12 @@ public:
 	virtual int32 Priority() const override { return 2; }
 
 protected:
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Crouch")
 	float myCamHeightMul = 0.5f;
 	
 private:
+	
 	UClass* CheckCrouch(bool aLanded = false) const;
 	
 	bool myIsHoldingCrouch = false;

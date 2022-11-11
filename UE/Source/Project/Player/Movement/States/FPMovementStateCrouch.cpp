@@ -25,7 +25,7 @@ UClass* UFPMovementStateCrouch::Check()
 	return CheckCrouch();
 }
 
-UClass* UFPMovementStateCrouch::Input(EFPMovementInputAction anAction, float aValue)
+UClass* UFPMovementStateCrouch::Input(const EFPMovementInputAction anAction, const float aValue)
 {
 	Super::Input(anAction, aValue);
 
@@ -84,11 +84,10 @@ UClass* UFPMovementStateCrouch::CheckCrouch(const bool aLanded) const
 		return nullptr;
 
 	if (HasMagic())
-	{
-		// Slide? 
-		if (movement.GetLastUpdateVelocity().Size2D() > movement.MaxWalkSpeedCrouched)
-			return UFPMovementStateSlide::StaticClass();
-	}
+		if (const auto slide = GetState<UFPMovementStateSlide>())
+			if (!slide->IsOnCooldown())
+				if (movement.GetLastUpdateVelocity().Size2D() > movement.MaxWalkSpeedCrouched)
+					return UFPMovementStateSlide::StaticClass();
 
 	return StaticClass();
 }

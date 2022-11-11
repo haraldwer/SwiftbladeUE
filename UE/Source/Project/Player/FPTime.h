@@ -9,8 +9,8 @@ UENUM(BlueprintType)
 enum class EDilationType : uint8
 {
 	OUTGOING_DAMAGE,
-	
 	DEATH,
+	CHECKPOINT,
 	PAUSE
 };
 

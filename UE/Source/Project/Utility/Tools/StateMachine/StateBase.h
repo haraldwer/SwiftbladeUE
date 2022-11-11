@@ -30,7 +30,7 @@ protected:
 	bool IsCurrentState() const;
 
 	template <class T>
-	T* GetState()
+	T* GetState() const
 	{
 		return Cast<T>(GetState(T::StaticClass()));
 	}

@@ -1,6 +1,5 @@
 ﻿#include "FPMovementStateSlide.h"
 
-#include "FPMovementStateCrouch.h"
 #include "FPMovementStateIdle.h"
 #include "FPMovementStateInAir.h"
 #include "FPMovementStateRun.h"
@@ -52,9 +51,16 @@ void UFPMovementStateSlide::Exit()
 	Super::Exit();
 	auto& character = GetCharacter();
 	character.UnCrouch();
+	mySlideExitTimeStamp = GetCurrentTime();
 }
 
 TSubclassOf<UFPAnimationStateBase> UFPMovementStateSlide::GetAnimation() const
 {
 	return UFPAnimationStateSlide::StaticClass();
+}
+
+bool UFPMovementStateSlide::IsOnCooldown() const
+{
+	return GetCurrentTime() - mySlideExitTimeStamp < mySlideCooldown;
+		
 }

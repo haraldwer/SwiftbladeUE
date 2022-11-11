@@ -91,7 +91,10 @@ void AEnemyManager::RemoveEnemy(const AEnemy* anEnemy)
 	CheckWaveConditions();
 }
 
-TSet<AEnemy*> AEnemyManager::GetEnemies() const
+bool AEnemyManager::GetIsLastEnemy() const
 {
-	return myEnemies;
+	const auto config = myConfig.Get();
+	CHECK_RETURN(!config, false);
+	CHECK_RETURN(myWave < config->myWaves.Num() - 1, false);
+	return myEnemies.Num() == 0; 
 }

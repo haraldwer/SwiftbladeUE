@@ -24,7 +24,9 @@ public:
 	void AddEnemy(AEnemy* anEnemy);
 	void RemoveEnemy(const AEnemy* anEnemy);
 	
-	TSet<AEnemy*> GetEnemies() const;
+	TSet<AEnemy*> GetEnemies() const { return myEnemies; }
+
+	bool GetIsLastEnemy() const; 
 
 	UPROPERTY(BlueprintAssignable)
 	FOnEnemiesCleared myOnEnemiesCleared;

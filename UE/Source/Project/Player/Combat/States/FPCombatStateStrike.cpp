@@ -3,10 +3,10 @@
 #include "FPCombatStateIdle.h"
 #include "FPCombatStateNoSword.h"
 #include "Components/SphereComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Enemies/Enemy.h"
+#include "Project/Enemies/EnemyManager.h"
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/Gameplay/Breakable/Breakable.h"
 #include "Project/Player/FPCharacter.h"
@@ -17,9 +17,8 @@
 #include "Project/Player/Animation/States/FPAnimationStateStrike.h"
 #include "Project/Player/Combat/FPCombat.h"
 #include "Project/Player/Movement/FPMovement.h"
-#include "Project/Player/Movement/States/FPMovementStateDash.h"
-#include "Project/Player/Movement/States/FPMovementStateInAir.h"
 #include "Project/Player/Movement/States/FPMovementStateStrike.h"
+#include "Project/Utility/MainSingelton.h"
 
 UClass* UFPCombatStateStrike::Update(float aDT)
 {
@@ -73,6 +72,9 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 				&GetController(),
 				sword,
 				UDamageType::StaticClass());
+
+			if (UMainSingelton::GetEnemyManager().GetIsLastEnemy())
+				GetTime().AddDilation(EDilationType::OUTGOING_DAMAGE, 1.0f, myDilationDuration, myDilationCurve);
 			
 			myHasHit = true;
 			
@@ -131,8 +133,6 @@ FTransform UFPCombatStateStrike::ApplyHitEffects(const AActor* anActor) const
 	auto& movement = GetMovement();
 	movement.SetState<UFPMovementStateStrike>();
 
-	GetTime().AddDilation(EDilationType::OUTGOING_DAMAGE, 1.0f, myDilationDuration, myDilationCurve);
-	
 	const auto hitTrans = sword->GetHitTransform(anActor);
 	sword->CreateHitEffect(hitTrans);
 	return hitTrans;
