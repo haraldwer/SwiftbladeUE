@@ -7,14 +7,14 @@
 
 UClass* UFPMovementStateStrike::Update(float aDT)
 {
-	const UCurveFloat* gravCurve = myGravityCurve.Get();
-	CHECK_RETURN_LOG(!gravCurve, "No gravity curve", UFPMovementStateInAir::StaticClass());
+	const UCurveFloat* velCurve = myVelocityCurve.Get();
+	CHECK_RETURN_LOG(!velCurve, "No gravity curve", UFPMovementStateInAir::StaticClass());
 	
 	const float diff = GetCurrentTime() - myEnterTimestamp;
 	CHECK_RETURN(diff > myDuration, UFPMovementStateInAir::StaticClass());
 
-	const float gravMul = gravCurve->GetFloatValue(diff / myDuration);
-	GetCharacterMovement().GravityScale = myOriginalGravity * gravMul; 
+	const float velMul = velCurve->GetFloatValue(diff / myDuration);
+	GetCharacterMovement().Velocity = myOriginalVelocity * velMul; 
 	
 	return nullptr;
 }
@@ -22,12 +22,12 @@ UClass* UFPMovementStateStrike::Update(float aDT)
 void UFPMovementStateStrike::Enter()
 {
 	myEnterTimestamp = GetCurrentTime();
-	myOriginalGravity = GetCharacterMovement().GravityScale;
+	myOriginalVelocity = GetCharacterMovement().Velocity;
 
 	ResetAbilities();
 }
 
 void UFPMovementStateStrike::Exit()
 {
-	GetCharacterMovement().GravityScale = myOriginalGravity; 
+	GetCharacterMovement().Velocity = myOriginalVelocity; 
 }

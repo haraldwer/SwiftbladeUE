@@ -21,14 +21,14 @@ public:
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Strike")
-	TObjectPtr<class UCurveFloat> myGravityCurve;
+	TObjectPtr<class UCurveFloat> myVelocityCurve;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Strike")
 	float myDuration = 1.0f; 
 
 private:
 
-	float myOriginalGravity = -1.0f;
+	FVector myOriginalVelocity = FVector::ZeroVector;
 	float myEnterTimestamp = -1.0f;
 	
 };
