@@ -77,6 +77,8 @@ UClass* UFPMovementStateRails::Check()
 UClass* UFPMovementStateRails::Input(const EFPMovementInputAction anAction, const float aValue)
 {
 	Super::Input(anAction, aValue);
+	if (anAction == EFPMovementInputAction::CROUCH_PRESSED)
+		return UFPMovementStateInAir::StaticClass();
 	return nullptr;
 }
 

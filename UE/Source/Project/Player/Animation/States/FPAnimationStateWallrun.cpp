@@ -1,6 +1,7 @@
 ﻿#include "FPAnimationStateWallrun.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Movement/FPMovement.h"
 #include "Project/Player/Movement/States/FPMovementStateWall.h"
@@ -64,18 +65,12 @@ UClass* UFPAnimationStateWallrun::Update(float aDT)
 	}
 	
 	// Find close collisions
-	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
+	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 15.0f);
 	if (rightResult.myHit)
 		hands.myRight = rightResult.myTransform;
-	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft, 50.0f);
+	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft, 1.0f);
 	if (leftResult.myHit)
-	{
-		hands.myLeft = leftResult.myTransform;
-		// Flip rotation
-		const FRotator normal = hands.myLeft.Rotator();
-		const FRotator flipped = FlipRightToLeft(hands.myLeft).Rotator();
-		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
-	}
+		hands.myLeft.SetLocation(leftResult.myTransform.GetLocation() + leftResult.myTransform.Rotator().Vector() * 20.0f);
 
 	OverrideSwordData(hands, 0.8f, 0.9f, false);
 	SetHands(hands);

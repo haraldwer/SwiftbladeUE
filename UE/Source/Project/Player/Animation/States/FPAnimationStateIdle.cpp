@@ -20,10 +20,10 @@ UClass* UFPAnimationStateIdle::Update(float aDT)
     hands.myRotInterpSpd = 5.0f;
 
 	// Find close collisions
-	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
+	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight);
 	if (rightResult.myHit)
 		hands.myRight = rightResult.myTransform;
-	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft, 50.0f);
+	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft);
 	if (leftResult.myHit)
 	{
 		hands.myLeft = leftResult.myTransform;

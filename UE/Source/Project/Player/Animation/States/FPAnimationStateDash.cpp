@@ -23,10 +23,10 @@ UClass* UFPAnimationStateDash::Update(float aDT)
 	hands.myLeft = FlipRightToLeft(hands.myRight);
 
 	// Find close collisions
-	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
+	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight);
 	if (rightResult.myHit)
 		hands.myRight = rightResult.myTransform;
-	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft, 50.0f);
+	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft);
 	if (leftResult.myHit)
 	{
 		hands.myLeft = leftResult.myTransform;

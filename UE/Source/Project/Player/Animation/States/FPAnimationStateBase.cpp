@@ -82,9 +82,8 @@ FFPAnimationHandCollision UFPAnimationStateBase::GetHandCollision(const FTransfo
 	const auto& combat = GetCombat();
 	const auto charTrans = character.GetTransform();
 	
-	TArray<FHitResult> hits;
 	FCollisionQueryParams params;
-	params.bFindInitialOverlaps = true;
+	params.bFindInitialOverlaps = false;
 	params.AddIgnoredActor(Cast<AActor>(character.GetLeftHand()));
 	params.AddIgnoredActor(Cast<AActor>(character.GetRightHand()));
 	params.AddIgnoredActor(&character);
@@ -93,39 +92,38 @@ FFPAnimationHandCollision UFPAnimationStateBase::GetHandCollision(const FTransfo
 
 	const FVector localLocation = aHandTrans.GetLocation();
 	const FVector location = charTrans.TransformPosition(localLocation);
+
+	auto& cam = GetCamera();
+	const FVector camLoc = cam.GetComponentLocation() - cam.GetForwardVector() * 30.0f;
+	const FVector dir = (location - camLoc).GetSafeNormal();
 	
-	if (world->SweepMultiByChannel(
-		hits,
-		location,
-		location + FVector(0.0f, 0.0f, 1.0f),
+	const FVector startLoc = camLoc + dir * 50.0f;
+	const FVector endLoc = location + dir * 25.0f; 
+	
+	//DrawDebugSphere(GetWorld(), endLoc, aRadius, 8, FColor::Cyan);
+	//DrawDebugSphere(GetWorld(), startLoc, aRadius, 8, FColor::Magenta);
+	
+	FHitResult hit;
+	if (world->SweepSingleByChannel(
+		hit,
+		startLoc,
+		endLoc,
 		aHandTrans.GetRotation(),
 		ECC_Camera,
 		FCollisionShape::MakeSphere(aRadius),
 		params))
 	{
-		// Distance sort
-		hits.Sort([&](const FHitResult& aFirst, const FHitResult& aSecond)
-		{
-			return FVector::DistSquared(aFirst.Location, location) < FVector::DistSquared(aSecond.Location, location);
-		});
+		result.myHit = true;
+		result.myHitActor = hit.GetActor();
 
-		for (const auto& hit : hits)
-		{
-			if (!hit.bBlockingHit)
-				continue;; 
-			
-			result.myHit = true;
-			result.myHitActor = hit.GetActor();
-
-			// Palm towards collision 
-			result.myTransform.SetLocation(charTrans.InverseTransformPosition(hit.ImpactPoint));
-			auto rot = charTrans.InverseTransformRotation((hit.ImpactNormal * -1.0f).Rotation().Quaternion());
-			auto adjusted = (rot * FRotator(90.0f, 0.0f, -90.0f).Quaternion()).Rotator();
-			FQuat corrected = FMath::Lerp(adjusted.Quaternion(), FRotator(adjusted.Pitch, 0.0f, adjusted.Roll).Quaternion(), hit.ImpactNormal.Z);
-			result.myTransform.SetRotation(corrected);
-			
-			return result; 
-		}
+		// Palm towards collision 
+		result.myTransform.SetLocation(charTrans.InverseTransformPosition(hit.ImpactPoint));
+		auto rot = charTrans.InverseTransformRotation((hit.ImpactNormal * -1.0f).Rotation().Quaternion());
+		auto adjusted = (rot * FRotator(90.0f, 0.0f, -90.0f).Quaternion()).Rotator();
+		FQuat corrected = FMath::Lerp(adjusted.Quaternion(), FRotator(adjusted.Pitch, 0.0f, adjusted.Roll).Quaternion(), hit.ImpactNormal.Z);
+		result.myTransform.SetRotation(corrected);
+		
+		return result; 
 	}
 
 	return result;

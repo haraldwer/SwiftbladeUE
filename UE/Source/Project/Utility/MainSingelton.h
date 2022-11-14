@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Project/LevelGen/Level/LevelManager.h"
 #include "MainSingelton.generated.h"
 
 UCLASS()
@@ -26,8 +25,12 @@ public:
 	static class AEnemyManager& GetEnemyManager();
 
 	UFUNCTION(BlueprintCallable, Category="MainSingelton Getter")
-	static ALevelManager* GetLevelGeneratorPtr();
+	static class ALevelManager* GetLevelGeneratorPtr();
 	static class ALevelManager& GetLevelGenerator();
+
+	UFUNCTION(BlueprintCallable, Category="MainSingelton Getter")
+	static class AGameDB* GetGameDBPtr();
+	static class AGameDB& GetGameDB();
 	
 	UFUNCTION(BlueprintCallable, Category="MainSingelton Getter")
 	static class AFPController* GetLocalController();

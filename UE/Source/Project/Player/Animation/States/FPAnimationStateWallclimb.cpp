@@ -30,10 +30,10 @@ UClass* UFPAnimationStateWallclimb::Update(float aDT)
 		FRotator(-cos * mySwingHandRotateAmount, 0.0f, 0.0f).Quaternion());
 	
 	// Find close collisions
-	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight, 50.0f);
+	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight);
 	if (rightResult.myHit)
 		hands.myRight = rightResult.myTransform;
-	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft, 50.0f);
+	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft);
 	if (leftResult.myHit)
 	{
 		hands.myLeft = leftResult.myTransform;

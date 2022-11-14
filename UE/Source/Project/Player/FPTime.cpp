@@ -26,8 +26,9 @@ void UFPTime::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 	}
 
 	for (const auto& remove : toBeRemoved)
-		myEntries.Remove(remove); 
-	
+		myEntries.Remove(remove);
+
+	dilation = FMath::Clamp(dilation, 0.0001f, 20.0f);
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), dilation);
 }
 

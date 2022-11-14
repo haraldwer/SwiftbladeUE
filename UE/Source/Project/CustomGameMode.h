@@ -19,14 +19,17 @@ private:
 	void CreatePromptManager();
 	void CreateEnemyManager();
 	void CreateLevelGenerator();
+	void CreateGameDB();
 	
-	UPROPERTY();
+	UPROPERTY()
 	class AMenuManager* myMenuManager;
-	UPROPERTY();
+	UPROPERTY()
 	class APromptManager* myPromptManager;
-	UPROPERTY();
+	UPROPERTY()
 	class AEnemyManager* myEnemyManager;
-	UPROPERTY();
+	UPROPERTY()
 	class ALevelManager* myLevelGenerator;
+	UPROPERTY()
+	class AGameDB* myGameDB;
 	
 };

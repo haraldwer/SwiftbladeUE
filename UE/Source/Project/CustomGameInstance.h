@@ -18,7 +18,8 @@ public:
 	TSubclassOf<class APromptManager> GetPromptManagerBP() const { return myPromptManagerBlueprint; }
 	TSubclassOf<class AEnemyManager> GetEnemyManagerBP() const { return myEnemyManagerBlueprint; }
 	TSubclassOf<class ALevelManager> GetLevelGeneratorBP() const { return myLevelGeneratorBlueprint; }
-	
+	TSubclassOf<class AGameDB> GetGameDBBP() const { return myGameDBBlueprint; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="UI")
 	TSubclassOf<class AMenuManager> myMenuManagerBlueprint;
@@ -28,5 +29,7 @@ protected:
 	TSubclassOf<class AEnemyManager> myEnemyManagerBlueprint;
 	UPROPERTY(EditDefaultsOnly, Category="Levels")
 	TSubclassOf<class ALevelManager> myLevelGeneratorBlueprint;
+	UPROPERTY(EditDefaultsOnly, Category="Game Database")
+	TSubclassOf<class AGameDB> myGameDBBlueprint;
 
 };

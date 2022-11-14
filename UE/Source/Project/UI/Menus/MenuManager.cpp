@@ -102,7 +102,7 @@ UMenuBase* AMenuManager::GetMenuInstance(const EMenuType aMenu)
 	const auto menu = CreateWidget(world, blueprint->Get());
 	CHECK_RETURN_LOG(!menu, "Failed to create menu", nullptr);
 	const auto menuBase = Cast<UMenuBase>(menu);
-	CHECK_RETURN_LOG(!menuBase, "Menu does not inherit from SMenuBase", nullptr);
+	CHECK_RETURN_LOG(!menuBase, "Menu does not inherit from UMenuBase", nullptr);
 	myMenus.Add(menuBase);
 	menuBase->Init(aMenu);
 	return menuBase;

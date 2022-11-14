@@ -2,10 +2,13 @@
 #include "FPController.h"
 
 #include "FPCharacter.h"
+#include "GameDB.h"
+#include "Leaderboard.h"
 #include "Camera/CameraActor.h"
 #include "Combat/FPCombat.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
+#include "Project/LevelGen/Level/LevelManager.h"
 #include "Project/UI/Menus/MenuManager.h"
 #include "Project/UI/Prompts/PromptManager.h"
 #include "Project/Utility/MainSingelton.h"
@@ -72,6 +75,9 @@ void AFPController::CharacterKilled()
 
 	const auto character = GetFPCharacter();
 	character->DisableInput(this);
+
+	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
+	lb.Write("Global", static_cast<int64>(character->GetActorLocation().Z));
 
 	LOG("Character killed");
 }

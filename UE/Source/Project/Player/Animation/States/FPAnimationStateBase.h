@@ -46,7 +46,7 @@ protected:
 	static FTransform FlipRightToLeft(const FTransform& aRightTransform);
 	FTransform ToCameraSpace(const FTransform& aTransform) const;
 	FVector Get3DNoise(float aSpeed, float aStrength, float anOffset = 0.0f) const;
-	FFPAnimationHandCollision GetHandCollision(const FTransform& aHandTrans, float aRadius) const;
+	FFPAnimationHandCollision GetHandCollision(const FTransform& aHandTrans, float aRadius = 40.0f) const;
 
 	void OverrideSwordData(FFPAnimationHandPositions& someData, float aLocationWeight, float aRotationWeight, bool aDualWeild) const;
 	void OverrideVelocityData(FFPAnimationHandPositions& someData, float aVelocityWeight, float aDT) const;

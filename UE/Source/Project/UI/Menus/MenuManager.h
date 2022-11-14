@@ -13,6 +13,7 @@ enum class EMenuType : uint8
 	PAUSE,
 	MAIN,
 	OPTIONS,
+	LEADERBOARD,
 	COUNT
 };
 

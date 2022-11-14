@@ -8,7 +8,10 @@ public class Project : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.NoSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "GameDatabase" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent" });
+		
+		// Database and server
+		PublicDependencyModuleNames.AddRange(new string[] { "GameDatabase", "NakamaUnreal", "NakamaCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "Niagara", "ProceduralMeshComponent"});
 

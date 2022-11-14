@@ -2,8 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Project/Gameplay/Door.h"
-
 #include "FPCharacter.generated.h"
 
 UCLASS()
@@ -63,7 +61,7 @@ public:
 	void OnLivesChanged(int32 aNewLifeCount) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	void DoorOpened(ADoor* aDoor) const;
+	void DoorOpened(class ADoor* aDoor) const;
 
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	bool HasMagic() const;

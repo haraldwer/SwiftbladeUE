@@ -55,6 +55,18 @@ ALevelManager& UMainSingelton::GetLevelGenerator()
 	return *GetLevelGeneratorPtr();
 }
 
+AGameDB* UMainSingelton::GetGameDBPtr()
+{
+	const auto& gameMode = GetGameMode();
+	CHECK_ASSERT(!gameMode.myGameDB, "EnemyManager nullptr");
+	return gameMode.myGameDB; 
+}
+
+AGameDB& UMainSingelton::GetGameDB()
+{
+	return *GetGameDBPtr(); 
+}
+
 AFPController* UMainSingelton::GetLocalController()
 {
 	const auto& instance = GetGameInstance();

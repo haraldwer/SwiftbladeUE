@@ -1,8 +1,14 @@
 #include "GameDB.h"
 
+#include "NakamaClient.h"
+#include "Leaderboard.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "GameDBModule.h"
+
 AGameDB::AGameDB()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	myLeaderboard = CreateDefaultSubobject<ULeaderboard>("Leaderboard");
 }
 
 void AGameDB::BeginPlay()
@@ -15,12 +21,12 @@ void AGameDB::BeginPlay()
 	const FString clientName = FString(TEXT("Main"));
 
 	// Setup Default Client
-	NakamaClient = UNakamaClient::CreateDefaultClient(serverKey, host, 7350, false, true, ENakamaClientType::DEFAULT, 0.05f, clientName);
+	myClient = UNakamaClient::CreateDefaultClient(serverKey, host, 7350, false, true, ENakamaClientType::DEFAULT, 0.05f, clientName);
 
 	// Authentication Parameters
 	const FString email = FString(TEXT("debug@mail.com"));
 	const FString password = FString(TEXT("verysecretpassword"));
-	const FString username = FString(TEXT("debug-user"));
+	const FString username = UKismetSystemLibrary::GetPlatformUserName(); 
 	TMap<FString, FString> variables;
 
 	// Setup Delegates of same type and bind them to local functions
@@ -30,14 +36,20 @@ void AGameDB::BeginPlay()
 	FOnError authenticationErrorDelegate;
 	authenticationErrorDelegate.AddDynamic(this, &AGameDB::OnAuthenticationError);
 
-	NakamaClient->AuthenticateEmail(email, password, username, true, variables, authenticationSuccessDelegate, authenticationErrorDelegate);
+	myClient->AuthenticateEmail(email, password, username, true, variables, authenticationSuccessDelegate, authenticationErrorDelegate);
+}
+
+ULeaderboard& AGameDB::GetLeaderboard() const
+{
+	check(myLeaderboard && "Leaderboard null in AGameDB")
+	return *myLeaderboard;
 }
 
 void AGameDB::OnAuthenticationSuccess(UNakamaSession* aLoginData)
 {
-	if(GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("Authenticated As %s"), *aLoginData->SessionData.Username));
+	UE_LOG(LogGameDB, Display, TEXT("Authenticated As %s"), *aLoginData->SessionData.Username);
 
-	UserSession = aLoginData;
+	myUserSession = aLoginData;
 
 	// Setup Delegates of same type and bind them to local functions
 	FOnRealtimeClientConnected connectionSuccessDelegate;
@@ -47,26 +59,29 @@ void AGameDB::OnAuthenticationSuccess(UNakamaSession* aLoginData)
 	connectionErrorDelegate.AddDynamic(this, &AGameDB::OnRealtimeClientConnectError);
 
 	// This is our realtime client (socket) ready to use
-	NakamaRealtimeClient = NakamaClient->SetupRealtimeClient(UserSession, true, 7350, ENakamaRealtimeClientProtocol::Protobuf, 0.05f, "");
+	myRealtimeClient = myClient->SetupRealtimeClient(
+		myUserSession,
+		true,
+		7350,
+		ENakamaRealtimeClientProtocol::Protobuf,
+		0.5f, 
+		"");
 
 	// Remember to Connect
-	NakamaRealtimeClient->Connect(connectionSuccessDelegate, connectionErrorDelegate);
+	myRealtimeClient->Connect(connectionSuccessDelegate, connectionErrorDelegate);
 }
 
 void AGameDB::OnAuthenticationError(const FNakamaError& aError)
 {
-	if(GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("Failed to Authenticate: %s"), *aError.Message));
+	UE_LOG(LogGameDB, Display, TEXT("Failed to Authenticate: %s"), *aError.Message);
 }
 
 void AGameDB::OnRealtimeClientConnectSuccess()
 {
-	if(GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString(TEXT("Socket Setup Success!")));
-
-	// Example of Joining Chat without callbacks
-	NakamaRealtimeClient->JoinChat("Heroes", ENakamaChannelType::ROOM, true, false, {}, {});
+	UE_LOG(LogGameDB, Display, TEXT("Socket Setup Success!"));
 }
 
 void AGameDB::OnRealtimeClientConnectError()
 {
-	if(GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString(TEXT("Socket Setup Failed!")));
+	UE_LOG(LogGameDB, Display, TEXT("Socket Setup Failed!"));
 }

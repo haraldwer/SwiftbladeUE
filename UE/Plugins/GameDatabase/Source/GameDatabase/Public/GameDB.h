@@ -1,29 +1,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NakamaClient.h"
-
+#include "NakamaError.h" // TODO: Fix include
 #include "GameDB.generated.h"
+
+class ULeaderboard;
+
+class UNakamaClient;
+class UNakamaRealtimeClient;
+class UNakamaSession;
 
 UCLASS()
 class GAMEDATABASE_API AGameDB : public AActor
 {
 	GENERATED_BODY()
 
+	friend ULeaderboard;
+	
 public:
+	
 	AGameDB();
 	virtual void BeginPlay() override;
+	ULeaderboard& GetLeaderboard() const;
 
 private:
-	
-	UPROPERTY()
-	UNakamaClient* NakamaClient;
-
-	UPROPERTY()
-	UNakamaRealtimeClient* NakamaRealtimeClient;
-
-	UPROPERTY()
-	UNakamaSession* UserSession;
 
 	UFUNCTION()
 	void OnAuthenticationSuccess(UNakamaSession* aLoginData);
@@ -36,5 +36,17 @@ private:
 
 	UFUNCTION()
 	void OnRealtimeClientConnectError();
+
+	UPROPERTY(EditDefaultsOnly)
+	ULeaderboard* myLeaderboard;
+	
+	UPROPERTY()
+	UNakamaClient* myClient;
+
+	UPROPERTY()
+	UNakamaRealtimeClient* myRealtimeClient;
+
+	UPROPERTY()
+	UNakamaSession* myUserSession;
 	
 };
