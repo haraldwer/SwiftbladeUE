@@ -18,6 +18,7 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include "Movement/FPMovement.h"
 #include "Project/Gameplay/Door.h"
+#include "Project/Gameplay/GameEnd.h"
 #include "Project/LevelGen/Level/LevelManager.h"
 #include "Project/Utility/EngineUtility.h"
 #include "Project/Utility/MainSingelton.h"
@@ -135,13 +136,22 @@ void AFPCharacter::BeginDestroy()
 void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunction& ThisTickFunction)
 {
 	Super::TickActor(DeltaTime, Tick, ThisTickFunction);
-	
-	const float lowestPoint = UMainSingelton::GetLevelGenerator().GetLowestEnd();
-	if (GetActorLocation().Z < lowestPoint + myKillZ)
-		Die("OutOfBounds"); 
-	
+
 	if (myFPCamera)
 		myFPCamera->BeginTick(DeltaTime);
+	
+	// Check game end
+	TArray<AActor*> ends;
+	GetCapsuleComponent()->GetOverlappingActors(ends, AGameEnd::StaticClass());
+	for (const auto actor : ends)
+		if (const auto gameEnd = Cast<AGameEnd>(actor))
+			if (const auto controller = GetFPController())
+				controller->ReachEnd(gameEnd);
+
+	// Check lowest Z
+	const float lowestPoint = UMainSingelton::GetLevelGenerator().GetLowestEnd();
+	if (GetActorLocation().Z < lowestPoint + myKillZ)
+		Die("OutOfBounds");
 }
 
 void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

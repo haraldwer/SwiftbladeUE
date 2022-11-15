@@ -8,7 +8,7 @@ UENUM()
 enum class EPropPlacementStrategy : uint8
 {
 	PREDEFINED,
-	USE_LOCAITONS,
+	USE_LOCATIONS,
 	SCATTER
 };
 
@@ -20,15 +20,37 @@ class PROJECT_API APropGroup : public AActor
 public:
 	
 	APropGroup();
+	void Generate(class AGeneratorBase* aGenerator);
 
-	void Generate();
-	
+	UShapeComponent* GetVolume() const { return myVolume; }
+	float GetWallOffset() const { return myWallOffset; }
+	float GetYawRot() const { return myYawRot; }
+
 protected:
+	
+	FTransform GetScatterTrans() const;
+	FTransform GetRandomLocationTrans(TArray<FTransform>& someUnusedLocations) const;
+	TArray<FTransform> GetLocations() const;
 
 	UPROPERTY(EditDefaultsOnly)
 	EPropPlacementStrategy myPlacementStrategy;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<TSubclassOf<AActor>> myPropsToPlace;
+
+	UPROPERTY(EditDefaultsOnly)
+	USceneComponent* myLocationParent = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	UShapeComponent* myVolume = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	USceneComponent* myRoot = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myWallOffset = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myYawRot = 360.0f;
 	
 };

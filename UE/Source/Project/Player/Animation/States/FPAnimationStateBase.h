@@ -49,7 +49,7 @@ protected:
 	FFPAnimationHandCollision GetHandCollision(const FTransform& aHandTrans, float aRadius = 40.0f) const;
 
 	void OverrideSwordData(FFPAnimationHandPositions& someData, float aLocationWeight, float aRotationWeight, bool aDualWeild) const;
-	void OverrideVelocityData(FFPAnimationHandPositions& someData, float aVelocityWeight, float aDT) const;
+	void OverrideVelocityData(FFPAnimationHandPositions& someData, float aVelocityWeight) const;
 	
 	float GetVelocityCameraTilt() const;
 

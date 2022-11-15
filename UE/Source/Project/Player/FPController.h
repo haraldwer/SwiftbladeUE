@@ -18,6 +18,8 @@ struct FFPControllerState
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 mySeed = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float myTime = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool myHasSword = false;
 };
 
@@ -87,6 +89,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FinishTravel();
 
+	// -- Reaching the end -- //
+
+	void ReachEnd(class AGameEnd* aGameEnd);
+	
 	// -- Other -- // 
 	
 	// UI helper function
@@ -99,6 +105,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	int myRespawns = 3;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+	int myMinAllowedTime = 10.0f;
 	
 private:
 
@@ -113,4 +122,6 @@ private:
 	TWeakObjectPtr<ACheckpoint> myCheckpoint;
 	FFPControllerState myState;
 	EFPTravelReason myTravelReason = EFPTravelReason::NONE;
+
+	bool myHasReachedEnd = false;
 };

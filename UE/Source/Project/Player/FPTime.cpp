@@ -32,6 +32,16 @@ void UFPTime::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), dilation);
 }
 
+void UFPTime::SetInitialTime(const float aTime)
+{
+	myInitialTime = aTime; 
+}
+
+float UFPTime::GetScoreTime() const
+{
+	return myInitialTime + GetWorld()->GetTimeSeconds(); 
+}
+
 void UFPTime::AddDilation(const EDilationType aType, const float aValue, const float aDuration, UCurveFloat* aCurve)
 {
 	const float time = GetWorld()->GetRealTimeSeconds();

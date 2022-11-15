@@ -65,7 +65,7 @@ void UFPMovementStateDash::Enter()
 void UFPMovementStateDash::Exit()
 {
 	auto& movement = GetCharacterMovement();
-	movement.Velocity = myDashDirection * movement.MaxWalkSpeed;
+	movement.Velocity = myDashDirection * movement.MaxWalkSpeed * myDashExitSpeedMul;
 }
 
 UClass* UFPMovementStateDash::OnLanded()

@@ -27,7 +27,7 @@ UClass* UFPAnimationStateRails::Update(float aDT)
 	hands.myLeft.SetLocation(hands.myLeft.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength));
 
 	OverrideSwordData(hands, 0.3f, 0.5f, false);
-	OverrideVelocityData(hands, 0.5f, aDT);
+	OverrideVelocityData(hands, 0.5f);
 
 	if (const auto railState = GetMovement().GetState<UFPMovementStateRails>())
 	{

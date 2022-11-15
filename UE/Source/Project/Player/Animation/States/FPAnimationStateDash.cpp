@@ -16,27 +16,16 @@ UClass* UFPAnimationStateDash::Update(float aDT)
 	const auto lerpTrans = LerpTransWeight(
 		defaultTrans,
 		ToCameraSpace(defaultTrans),
-		0.5f, 0.5f);
+		0.8f, 0.8f);
 	
 	FFPAnimationHandPositions hands;
+	hands.myPosInterpSpd = 30.0f;
+	hands.myRotInterpSpd = 30.0f; 
 	hands.myRight = lerpTrans;
 	hands.myLeft = FlipRightToLeft(hands.myRight);
-
-	// Find close collisions
-	const FFPAnimationHandCollision rightResult = GetHandCollision(hands.myRight);
-	if (rightResult.myHit)
-		hands.myRight = rightResult.myTransform;
-	const FFPAnimationHandCollision leftResult = GetHandCollision(hands.myLeft);
-	if (leftResult.myHit)
-	{
-		hands.myLeft = leftResult.myTransform;
-		// Flip rotation
-		const FRotator normal = hands.myLeft.Rotator();
-		const FRotator flipped = FlipRightToLeft(hands.myLeft).Rotator();
-		hands.myLeft.SetRotation(FRotator(flipped.Pitch, normal.Yaw, flipped.Roll).Quaternion());
-	}
 	
-	OverrideSwordData(hands, 0.8f, 1.0f, false);
+	OverrideSwordData(hands, 0.2f, 0.4f, false);
+	OverrideVelocityData(hands, -0.2f);
 	SetHands(hands);
 
 	FFPAnimationCameraData camera;

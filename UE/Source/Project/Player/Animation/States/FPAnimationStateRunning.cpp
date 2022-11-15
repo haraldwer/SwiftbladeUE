@@ -63,7 +63,7 @@ UClass* UFPAnimationStateRunning::Update(float aDT)
 	}
 
 	OverrideSwordData(hands, 0.8f, 0.9f, false);
-	OverrideVelocityData(hands, 0.7f, aDT);
+	OverrideVelocityData(hands, 0.7f);
 	SetHands(hands);
 
 	// Camera

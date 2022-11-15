@@ -26,6 +26,9 @@ public:
 	UFPTime();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void SetInitialTime(float aTime);
+	float GetScoreTime() const;
+
 	UFUNCTION(BlueprintCallable)
 	void AddDilation(EDilationType aType, float aValue, float aDuration = -1.0f, UCurveFloat* aCurve = nullptr);
 
@@ -34,7 +37,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	float GetDilationValue(EDilationType aType) const;
-	
+
 private:
 
 	struct Entry
@@ -47,5 +50,7 @@ private:
 	};
 	
 	TMap<EDilationType, Entry> myEntries;
+
+	float myInitialTime = 0.0f;
 	
 };

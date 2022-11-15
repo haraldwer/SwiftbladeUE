@@ -10,6 +10,8 @@ class PROJECT_API UMenuLeaderboard : public UMenuBase
 	GENERATED_BODY()
 
 public:
+
+	virtual ~UMenuLeaderboard() override = default;  
 	
 	UFUNCTION(BlueprintCallable)
 	void FetchData();

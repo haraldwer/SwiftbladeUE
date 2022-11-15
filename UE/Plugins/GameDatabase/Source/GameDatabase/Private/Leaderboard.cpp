@@ -68,7 +68,7 @@ void ULeaderboard::OnListResult(const FNakamaLeaderboardRecordList& aResult)
 	for (auto& record : aResult.Records)
 		data.myEntries.Add({
 			record.Username,
-			static_cast<float>(record.Score),
+			record.Score / myTimePrecision,
 			0});
 	
 	myOnListSuccess.Broadcast(data);
@@ -80,7 +80,7 @@ void ULeaderboard::OnListError(const FNakamaError& anError)
 	myOnListError.Broadcast(anError.Message);
 }
 
-void ULeaderboard::Write(const FString& aLeaderboardID, int64 aScore) const
+void ULeaderboard::Write(const FString& aLeaderboardID, const float aScore) const
 {
 	// TODO: Maybe write custom function and do this in one call?
 	// Or wait for create result?
@@ -97,7 +97,7 @@ void ULeaderboard::Write(const FString& aLeaderboardID, int64 aScore) const
 	db.myClient->WriteLeaderboardRecord(
 		db.myUserSession,
 		aLeaderboardID,
-		aScore,
+		aScore * myTimePrecision,
 		subScore,
 		meta,
 		OnWriteSuccess,

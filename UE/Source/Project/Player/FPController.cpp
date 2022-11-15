@@ -2,12 +2,14 @@
 #include "FPController.h"
 
 #include "FPCharacter.h"
+#include "FPTime.h"
 #include "GameDB.h"
 #include "Leaderboard.h"
 #include "Camera/CameraActor.h"
 #include "Combat/FPCombat.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
+#include "Project/Gameplay/GameEnd.h"
 #include "Project/LevelGen/Level/LevelManager.h"
 #include "Project/UI/Menus/MenuManager.h"
 #include "Project/UI/Prompts/PromptManager.h"
@@ -42,6 +44,10 @@ void AFPController::OnStateLoaded(const FFPControllerState aState)
 	myState = aState;
 	if (!myState.mySeed)
 		myState.mySeed = FMath::Rand();
+
+	if (const auto character = GetFPCharacter())
+		if (const auto time = character->GetTime())
+			time->SetInitialTime(myState.myTime);
 		
 	// Load level
 	auto& levelGen = UMainSingelton::GetLevelGenerator();
@@ -60,8 +66,12 @@ FFPControllerState AFPController::GetState() const
 {
 	FFPControllerState state = myState;
 	if (const auto character = GetFPCharacter())
+	{
 		if (const auto combat = character->GetCombat())
 			state.myHasSword = combat->HasSword();
+		if (const auto time = character->GetTime())
+			state.myTime = time->GetScoreTime();
+	} 
 	return state; 
 }
 
@@ -75,9 +85,6 @@ void AFPController::CharacterKilled()
 
 	const auto character = GetFPCharacter();
 	character->DisableInput(this);
-
-	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
-	lb.Write("Global", static_cast<int64>(character->GetActorLocation().Z));
 
 	LOG("Character killed");
 }
@@ -143,6 +150,25 @@ void AFPController::FinishTravel()
 	default:
 		LOG("Unknown travel reason");
 	}
+}
+
+void AFPController::ReachEnd(AGameEnd* aGameEnd)
+{
+	CHECK_RETURN_LOG(!aGameEnd, "GameEnd actor nullptr")
+	CHECK_RETURN(myHasReachedEnd);
+	
+	const auto character = GetFPCharacter();
+	CHECK_RETURN_LOG(!character, "Character nullptr");
+	
+	const auto time = character->GetTime();
+	const auto scoreTime = time->GetScoreTime();
+	CHECK_RETURN_LOG(scoreTime < myMinAllowedTime, "Score time less than allowed"); 
+	
+	myHasReachedEnd = true;
+	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
+	lb.Write("Global", scoreTime);
+	aGameEnd->SetTime(scoreTime);
+	
 }
 
 void AFPController::SetEnablePawnControls(const bool aEnabled)

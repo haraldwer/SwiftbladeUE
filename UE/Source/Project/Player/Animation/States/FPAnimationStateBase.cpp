@@ -155,12 +155,12 @@ void UFPAnimationStateBase::OverrideSwordData(FFPAnimationHandPositions& someDat
 	}
 }
 
-void UFPAnimationStateBase::OverrideVelocityData(FFPAnimationHandPositions& someData, const float aVelocityWeight, const float aDT) const
+void UFPAnimationStateBase::OverrideVelocityData(FFPAnimationHandPositions& someData, const float aVelocityWeight) const
 {
 	const auto velocity = GetCharacterMovement().GetLastUpdateVelocity();
 	const auto transformedVelocity = GetActorTransform().InverseTransformVectorNoScale(velocity);
-	someData.myRight.SetLocation(someData.myRight.GetLocation() - transformedVelocity * aVelocityWeight * aDT);
-	someData.myLeft.SetLocation(someData.myLeft.GetLocation() - transformedVelocity * aVelocityWeight * aDT);
+	someData.myRight.SetLocation(someData.myRight.GetLocation() - transformedVelocity * aVelocityWeight * 0.02f);
+	someData.myLeft.SetLocation(someData.myLeft.GetLocation() - transformedVelocity * aVelocityWeight * 0.02f);
 }
 
 float UFPAnimationStateBase::GetVelocityCameraTilt() const

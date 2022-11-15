@@ -38,7 +38,7 @@ UClass* UFPAnimationStateBlock::Update(float aDT)
 	hands.myRight.SetLocation(hands.myRight.GetLocation() + Get3DNoise(myHandWobbleSpeed, myHandWobbleStrength));
 	
 	OverrideSwordData(hands, 0.0f, 0.0f, true);
-	OverrideVelocityData(hands, 0.3f, aDT);
+	OverrideVelocityData(hands, 0.3f);
 	SetHands(hands);
 
 	FFPAnimationCameraData camera;

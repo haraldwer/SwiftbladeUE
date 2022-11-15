@@ -34,6 +34,8 @@ protected:
 	float myDashDuration = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	float myDashFov = 5.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+	float myDashExitSpeedMul = 1.5f;
 
 private:
 	

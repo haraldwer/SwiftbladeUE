@@ -29,7 +29,7 @@ public:
 	FOnListSuccess myOnListSuccess;
 	FOnLeaderboardError myOnListError;
 	
-	void Write(const FString& aLeaderboardID, int64 aScore) const;
+	void Write(const FString& aLeaderboardID, float aScore) const;
 	FOnWriteSuccess myOnWriteSuccess;
 	FOnLeaderboardError myOnWriteError;
 
@@ -51,5 +51,7 @@ private:
 	void OnWriteResult(const FNakamaLeaderboardRecord& aResult);
 	UFUNCTION()
 	void OnWriteError(const FNakamaError& anError); 
+
+	static constexpr float myTimePrecision = 1000.0f;  
 	
 };

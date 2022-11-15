@@ -26,8 +26,8 @@ void AGameDB::BeginPlay()
 	// Authentication Parameters
 	const FString email = FString(TEXT("debug@mail.com"));
 	const FString password = FString(TEXT("verysecretpassword"));
-	const FString username = UKismetSystemLibrary::GetPlatformUserName(); 
-	TMap<FString, FString> variables;
+	const FString username = UKismetSystemLibrary::GetPlatformUserName();
+	const TMap<FString, FString> variables;
 
 	// Setup Delegates of same type and bind them to local functions
 	FOnAuthUpdate authenticationSuccessDelegate;
