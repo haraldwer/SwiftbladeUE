@@ -3,6 +3,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Engine/StaticMesh.h"
 #include "Project/LevelGen/GeneratorBase.h"
 #include "Project/LevelGen/LevelRand.h"
 
@@ -12,12 +13,15 @@ APropGroup::APropGroup()
 
 	myRoot = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(myRoot);
+	myRoot->SetMobility(EComponentMobility::Static);
 	
 	myLocationParent = CreateDefaultSubobject<USceneComponent>("LocationParent");
 	myLocationParent->SetupAttachment(myRoot);
+	myLocationParent->SetMobility(EComponentMobility::Static);
 	
 	myVolume = CreateDefaultSubobject<UBoxComponent>("Volume");
 	myVolume->SetupAttachment(myRoot);
+	myVolume->SetMobility(EComponentMobility::Static);
 }
 
 void APropGroup::Generate(AGeneratorBase* aGenerator)
@@ -31,21 +35,42 @@ void APropGroup::Generate(AGeneratorBase* aGenerator)
 	case EPropPlacementStrategy::SCATTER:
 	case EPropPlacementStrategy::USE_LOCATIONS:
 		TArray<FTransform> unusedLocations = GetLocations();
-		for (auto prop : myPropsToPlace)
-		{
-			const FTransform spawnTrans = myPlacementStrategy == EPropPlacementStrategy::SCATTER ?
-				GetScatterTrans() : GetRandomLocationTrans(unusedLocations);
-			aGenerator->SpawnGeneratedActor(prop, spawnTrans);
-		}
+		for (auto actor : myActorsToPlace)
+			PlaceProp(aGenerator, unusedLocations, actor.GetDefaultObject());
+		for (auto mesh : myMeshesToPlace)
+			PlaceProp(aGenerator, unusedLocations, mesh.Get());
 		break;
 	}
 	
 	// Generate child prop groups
-	TArray<AActor*> children;
-	GetAllChildActors(children, false);
-	for (const auto& child : children)
-		if (const auto propGroup = Cast<APropGroup>(child))
-			propGroup->Generate(aGenerator);
+
+	TArray<UChildActorComponent*> childActorComps;
+	GetComponents<UChildActorComponent>(childActorComps);
+	for (const auto& childComp : childActorComps)
+		if (childComp)
+			if (const auto propGroup = Cast<APropGroup>(childComp->GetChildActor()))
+				propGroup->Generate(aGenerator);
+}
+
+void APropGroup::PlaceProp(AGeneratorBase* aGenerator, TArray<FTransform>& someUnusedLocations, UObject* aDefaultObject)
+{
+	CHECK_RETURN_LOG(!aDefaultObject, "Prop nullptr")
+	
+	const FTransform spawnTrans = myPlacementStrategy == EPropPlacementStrategy::SCATTER ?
+		GetScatterTrans() : GetRandomLocationTrans(someUnusedLocations);
+
+	if (const auto mesh = Cast<UStaticMesh>(aDefaultObject))
+	{
+		if (const auto meshComp = Cast<UStaticMeshComponent>(AddComponentByClass(UStaticMeshComponent::StaticClass(), true, FTransform::Identity, false)))
+		{
+			meshComp->AttachToComponent(myRoot, FAttachmentTransformRules::KeepRelativeTransform);
+			meshComp->SetStaticMesh(mesh);
+			meshComp->SetWorldTransform(spawnTrans);
+			meshComp->SetMobility(EComponentMobility::Static);
+		}
+	}
+	else if (const auto actor = Cast<AActor>(aDefaultObject))
+		aGenerator->SpawnGeneratedActor(actor->GetClass(), spawnTrans);
 }
 
 FTransform APropGroup::GetScatterTrans() const
@@ -86,8 +111,9 @@ FTransform APropGroup::GetRandomLocationTrans(TArray<FTransform>& someUnusedLoca
 	// First select from pool
 	if (someUnusedLocations.Num())
 	{
-		const FTransform trans = someUnusedLocations.Last();
-		someUnusedLocations.RemoveAt(someUnusedLocations.Num() - 1);
+		const int32 index = ULevelRand::RandRange(0, someUnusedLocations.Num() - 1);
+		const FTransform trans = someUnusedLocations[index];
+		someUnusedLocations.RemoveAtSwap(index);
 		return trans; 
 	}
 
