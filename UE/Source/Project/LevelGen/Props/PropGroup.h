@@ -14,6 +14,14 @@ enum class EPropPlacementStrategy : uint8
 	SCATTER
 };
 
+UENUM()
+enum class EPropPlacementMode : uint8
+{
+	AGAINST_WALL,
+	RANDOM,
+	CORNER
+};
+
 UCLASS()
 class PROJECT_API APropGroup : public AActor
 {
@@ -27,10 +35,11 @@ public:
 	UShapeComponent* GetVolume() const { return myVolume; }
 	float GetWallOffset() const { return myWallOffset; }
 	float GetYawRot() const { return myYawRot; }
-	float GetMinRadius() const { return myMinPlacementRadius; }
-	float GetMaxRadius() const { return myMaxPlacementRadius; }
+	float GetMinWallDist() const { return myMinWallDist; }
+	float GetMaxWallDist() const { return myMaxWallDist; }
 	float GetHeightPart() const { return myHeightPart; }
-	bool GetAgainstWall() const { return myAgainstWall; };
+	EPropPlacementMode GetPlacementMode() const { return myPlacementMode; }
+	
 
 protected:
 
@@ -59,13 +68,13 @@ protected:
 	USceneComponent* myRoot = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
-	bool myAgainstWall = true; 
+	EPropPlacementMode myPlacementMode = EPropPlacementMode::AGAINST_WALL;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float myMinPlacementRadius = -1.0f;
+	float myMinWallDist = 0.0f;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float myMaxPlacementRadius = -1.0f;
+	float myMaxWallDist = 0.0f;
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myWallOffset = 0.0f;

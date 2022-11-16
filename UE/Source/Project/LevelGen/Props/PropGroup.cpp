@@ -70,7 +70,11 @@ void APropGroup::PlaceProp(AGeneratorBase* aGenerator, TArray<FTransform>& someU
 		}
 	}
 	else if (const auto actor = Cast<AActor>(aDefaultObject))
-		aGenerator->SpawnGeneratedActor(actor->GetClass(), spawnTrans);
+	{
+		if (const auto propGroup = Cast<APropGroup>(aGenerator->SpawnGeneratedActor(actor->GetClass(), spawnTrans)))
+			propGroup->Generate(aGenerator);
+			
+	}
 }
 
 FTransform APropGroup::GetScatterTrans() const

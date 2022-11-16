@@ -94,46 +94,58 @@ FPropEntry* USectionCompProp::SelectPropGroup(UPropConfig& aConfig)
 
 FVector2D USectionCompProp::GetPlacement(const FProcRoom& aRoom, const APropGroup& aGroupObject)
 {
-	// Get random location in room
-	if (aGroupObject.GetAgainstWall())
+	const EPropPlacementMode placementMode = aGroupObject.GetPlacementMode();
+	switch (placementMode)
 	{
-		if (aRoom.walls.Num())
+	case EPropPlacementMode::AGAINST_WALL:
+	case EPropPlacementMode::CORNER:
 		{
-			// Random wall
-			const int32 numWalls = aRoom.walls.Num();
-			const int32 index = ULevelRand::RandRange(0, numWalls - 1);
-			const FProcWall* wallPtr = nullptr;
-			for (int32 iOff = 0; iOff < numWalls; iOff++)
+			if (aRoom.walls.Num())
 			{
-				const int32 newI = (index + iOff) % numWalls;
-				auto& wall = aRoom.walls[newI];
-				if (wall.verts.Num())
+				// Random wall
+				const FProcWall* wallPtr = nullptr;
+				const int32 numWalls = aRoom.walls.Num();
+				const int32 index = ULevelRand::RandRange(0, numWalls - 1);
+				for (int32 iOff = 0; iOff < numWalls; iOff++)
 				{
-					wallPtr = &wall;
-					break;
+					const int32 newI = (index + iOff) % numWalls;
+					auto& wall = aRoom.walls[newI];
+					if (wall.verts.Num())
+					{
+						wallPtr = &wall;
+						break;
+					}
 				}
-			}
-			
-			if (wallPtr)
-			{
-				// Random vert
-				const FVector2D wallLoc = GetBlendVert(wallPtr->verts, ULevelRand::FRandRange(0.0f, wallPtr->verts.Num()));
-				const FVector2D diff = wallLoc - aRoom.center;
-				const float dist = diff.Length();
-				const FVector2D dir = diff / dist;
-				const float wallMin = FMath::Min(dist, aGroupObject.GetMinRadius());
-				const float wallMax = FMath::Min(dist, aGroupObject.GetMaxRadius());
-				return aRoom.center + dir * ULevelRand::FRandRange(wallMin < 0 ? dist : wallMin, wallMax < 0 ? dist : wallMax);
-			}
+		
+				if (wallPtr)
+				{
+					// Random vert
+					float vertI = ULevelRand::FRandRange(0.0f, wallPtr->verts.Num());
+					if (placementMode == EPropPlacementMode::CORNER)
+						vertI = FMath::RoundToFloat(vertI);
+					const FVector2D loc = GetBlendVert(wallPtr->verts, vertI);
+					const FVector2D diff = loc - aRoom.center;
+					const float dist = diff.Length();
+					const FVector2D dir = diff / dist;
+					const float min = FMath::Min(dist, aGroupObject.GetMinWallDist());
+					const float max = FMath::Min(dist, aGroupObject.GetMaxWallDist());
+					return loc - dir * ULevelRand::FRandRange(min, max);
+				}
+			}			
+			break;
 		}
 	}
-	
-	const float min = FMath::Min(aRoom.radius, aGroupObject.GetMinRadius());
-	const float max = FMath::Min(aRoom.radius, aGroupObject.GetMaxRadius());
-	const FVector randVec = ULevelRand::RandVec();
-	return aRoom.location +
-		FVector2D(randVec.X, randVec.Y).GetSafeNormal() *
-		ULevelRand::FRandRange(min < 0.0f ? aRoom.radius : min, max < 0.0f ? aRoom.radius : max);
+
+	// Fallthrough case
+	{
+		// Get random location in room
+		const float min = FMath::Min(aRoom.radius, aGroupObject.GetMinWallDist());
+		const float max = FMath::Min(aRoom.radius, aGroupObject.GetMaxWallDist());
+		const FVector randVec = ULevelRand::RandVec();
+		const float wallDist = ULevelRand::FRandRange(min, max);
+		return aRoom.location +
+			FVector2D(randVec.X, randVec.Y).GetSafeNormal() * (aRoom.radius - wallDist);
+	}
 }
 
 void USectionCompProp::AdjustPlacement(const FProcRoom& aRoom, const APropGroup& aGroupObject, FVector2D& aPlacement, FVector2D& aNormal)
@@ -155,7 +167,7 @@ void USectionCompProp::AdjustPlacement(const FProcRoom& aRoom, const APropGroup&
 			if (LineIntersect(vert, nextVert, aRoom.center, edgeLoc, result))
 			{
 				aPlacement = result - direction * wallOffset;
-				if (!edge.isPath)
+				if (!edge.isPath && aGroupObject.GetPlacementMode() != EPropPlacementMode::CORNER)
 					aNormal = edge.normal; 
 			}
 		}
@@ -169,7 +181,7 @@ bool USectionCompProp::FindOverlaps(const ASectionGenerator& aGenerator, const A
 	{
 		FCollisionShape shape;
 		if (const auto box = Cast<UBoxComponent>(volumeComp))
-			shape = FCollisionShape::MakeBox(box->GetScaledBoxExtent() * 0.5f);
+			shape = FCollisionShape::MakeBox(box->GetScaledBoxExtent());
 		else if (const auto sphere = Cast<USphereComponent>(volumeComp))
 			shape = FCollisionShape::MakeSphere(sphere->GetScaledSphereRadius());
 		else if (const auto capsule = Cast<UCapsuleComponent>(volumeComp))
