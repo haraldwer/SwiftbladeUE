@@ -1,5 +1,6 @@
-#include "SectionCompProp.h"
+ #include "SectionCompProp.h"
 
+#include "DrawDebugHelpers.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/ShapeComponent.h"
@@ -48,7 +49,7 @@ void USectionCompProp::CreateGroup(ASectionGenerator& aGenerator, const FProcRoo
 		FVector2D dir = (loc - aRoom.center).GetSafeNormal();
 
 		// Adjust for walls and stuff
-		AdjustPlacement(aRoom, *defaultObject, loc, dir);
+		AdjustPlacement(aGenerator, aRoom, *defaultObject, loc, dir);
 		
 		// Create transform
 		const float yaw = FMath::RadiansToDegrees(FMath::Atan2(dir.Y, dir.X));
@@ -120,7 +121,7 @@ FVector2D USectionCompProp::GetPlacement(const FProcRoom& aRoom, const APropGrou
 				if (wallPtr)
 				{
 					// Random vert
-					float vertI = ULevelRand::FRandRange(0.0f, wallPtr->verts.Num());
+					float vertI = ULevelRand::FRandRange(0.1f, wallPtr->verts.Num() - 0.1f);
 					if (placementMode == EPropPlacementMode::CORNER)
 						vertI = FMath::RoundToFloat(vertI);
 					const FVector2D loc = GetBlendVert(wallPtr->verts, vertI);
@@ -148,11 +149,26 @@ FVector2D USectionCompProp::GetPlacement(const FProcRoom& aRoom, const APropGrou
 	}
 }
 
-void USectionCompProp::AdjustPlacement(const FProcRoom& aRoom, const APropGroup& aGroupObject, FVector2D& aPlacement, FVector2D& aNormal)
+void USectionCompProp::AdjustPlacement(ASectionGenerator& aGenerator, const FProcRoom& aRoom, const APropGroup& aGroupObject, FVector2D& aPlacement, FVector2D& aNormal)
 {
+	const FVector orgLoc = FVector(aPlacement.X, aPlacement.Y, aRoom.groundOffset + 100.0f);
+
+	// Avoid corners
+	const float cornerDist = aGroupObject.GetCornerDist();
+	if (cornerDist > SMALL_NUMBER)
+	{
+		for (auto& corner : aRoom.vertices)
+		{
+			const FVector2D diff = aPlacement - corner;
+			const float dist = diff.Size();
+			if (dist < cornerDist)
+				aPlacement = corner + diff.GetSafeNormal() * cornerDist;
+		}
+	}
+	
 	// Move inwards to avoid intersects
 	// Repeat to avoid moving into another close wall 
-	for (int j = 0; j < 4; j++)
+	for (int j = 0; j < 2; j++)
 	{
 		for (auto& edge : aRoom.edges)
 		{
@@ -172,6 +188,9 @@ void USectionCompProp::AdjustPlacement(const FProcRoom& aRoom, const APropGroup&
 			}
 		}
 	}
+
+	const FVector newLoc = FVector(aPlacement.X, aPlacement.Y, aRoom.groundOffset + 100.0f);
+	DrawDebugLine(aGenerator.GetWorld(), orgLoc, newLoc, FColor::Red, false, 100.0f, 0, 5.0f);
 }
 
 bool USectionCompProp::FindOverlaps(const ASectionGenerator& aGenerator, const APropGroup& aGroupObject, const FTransform& aTrans) const
@@ -181,7 +200,7 @@ bool USectionCompProp::FindOverlaps(const ASectionGenerator& aGenerator, const A
 	{
 		FCollisionShape shape;
 		if (const auto box = Cast<UBoxComponent>(volumeComp))
-			shape = FCollisionShape::MakeBox(box->GetScaledBoxExtent());
+			shape = FCollisionShape::MakeBox(box->GetScaledBoxExtent() * 2.0f);
 		else if (const auto sphere = Cast<USphereComponent>(volumeComp))
 			shape = FCollisionShape::MakeSphere(sphere->GetScaledSphereRadius());
 		else if (const auto capsule = Cast<UCapsuleComponent>(volumeComp))

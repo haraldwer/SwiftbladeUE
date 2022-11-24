@@ -1,10 +1,10 @@
 #pragma once
 
 #include "SectionCompBase.h"
-#include "SectionCompCorner.generated.h"
+#include "SectionCompDoorway.generated.h"
 
 UCLASS(Abstract)
-class PROJECT_API USectionCompCorner : public USectionCompBase
+class PROJECT_API USectionCompDoorway : public USectionCompBase
 {
 	GENERATED_BODY()
 
@@ -22,11 +22,6 @@ protected:
 	float myCeilPart = 0.0f;
 
 	UPROPERTY(EditAnywhere)
-	bool myScaleHeight = false;
-
-	UPROPERTY(EditAnywhere)
-	bool myAvoidDoorways = false;
-
-	UPROPERTY(EditAnywhere)
-	float myOffset = 0.0f; 
+	bool myScaleHeight = false; 
+	
 };

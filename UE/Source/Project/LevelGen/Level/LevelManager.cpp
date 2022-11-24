@@ -1,6 +1,10 @@
 #include "LevelManager.h"
 
 #include "LevelEndLocation.h"
+#include "NiagaraComponent.h"
+#include "Components/LightComponent.h"
+#include "Components/LightComponentBase.h"
+#include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
@@ -208,6 +212,18 @@ void ALevelManager::OptimizeObjectRendering() const
 		TArray<UPrimitiveComponent*> comps;
 		it->GetComponents<UPrimitiveComponent>(comps);
 		for (const auto& comp : comps)
-			if (comp) comp->SetCullDistance(myRenderDistance);
+			if (comp) comp->SetCullDistance(myMeshDistance);
+
+		TArray<ULightComponent*> lights;
+		it->GetComponents<ULightComponent>(lights);
+		for (const auto& comp : lights)
+		{
+			if (comp)
+			{
+				comp->MaxDrawDistance = myLightDistance;
+				comp->MaxDistanceFadeRange = myLightDistance * 0.2f;
+				comp->MarkRenderStateDirty();
+			}
+		}
 	}
 }

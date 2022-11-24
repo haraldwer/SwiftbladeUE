@@ -20,6 +20,7 @@ void USectionCompPathSpline::PopulateRoom(ASectionGenerator* aGenerator, const F
 		const FVector2D pathLoc = GetBlendVert(aRoom.path, index);
 		const FVector location = FVector(pathLoc.X, pathLoc.Y, aRoom.groundOffset) + GetOffset();
 		spline->AddSplinePoint(location, ESplineCoordinateSpace::World, false);
+		//spline->SetScaleAtSplinePoint(spline->GetNumberOfSplinePoints(), )
 	}
 	spline->UpdateSpline();
 	IProcSplineMesh::Execute_GenerateMesh(actor);

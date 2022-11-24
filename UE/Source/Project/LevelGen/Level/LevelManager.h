@@ -33,7 +33,10 @@ protected:
 	bool myEnableOverlapEvents = false;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myRenderDistance = 5000.0f; 
+	float myMeshDistance = 5000.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myLightDistance = 4000.0f; 
 	
 private:
 

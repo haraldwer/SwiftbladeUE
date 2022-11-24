@@ -34,12 +34,12 @@ public:
 
 	UShapeComponent* GetVolume() const { return myVolume; }
 	float GetWallOffset() const { return myWallOffset; }
+	float GetCornerDist() const { return myCornerDist; }
 	float GetYawRot() const { return myYawRot; }
 	float GetMinWallDist() const { return myMinWallDist; }
 	float GetMaxWallDist() const { return myMaxWallDist; }
 	float GetHeightPart() const { return myHeightPart; }
 	EPropPlacementMode GetPlacementMode() const { return myPlacementMode; }
-	
 
 protected:
 
@@ -78,6 +78,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myWallOffset = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myCornerDist = 20.0f; 
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myHeightPart = 0.0f;
