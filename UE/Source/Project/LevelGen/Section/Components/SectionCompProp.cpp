@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Components/SphereComponent.h"
+#include "Project/Gameplay/Obstacle.h"
 #include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Props/PropConfig.h"
 #include "Project/LevelGen/Props/PropGroup.h"
@@ -60,10 +61,7 @@ void USectionCompProp::CreateGroup(ASectionGenerator& aGenerator, const FProcRoo
 
 		// Avoid overlaps with existing stuff
 		if (FindOverlaps(aGenerator, *defaultObject, trans))
-		{
-			LOG("Found overlap!");
 			continue;
-		}
 		
 		// Valid placement, spawn group and generate!
 		if (const auto actor = Cast<APropGroup>(aGenerator.SpawnGeneratedActor(group, trans)))
@@ -200,7 +198,7 @@ bool USectionCompProp::FindOverlaps(const ASectionGenerator& aGenerator, const A
 	{
 		FCollisionShape shape;
 		if (const auto box = Cast<UBoxComponent>(volumeComp))
-			shape = FCollisionShape::MakeBox(box->GetScaledBoxExtent() * 2.0f);
+			shape = FCollisionShape::MakeBox(box->GetUnscaledBoxExtent() * box->GetRelativeScale3D());
 		else if (const auto sphere = Cast<USphereComponent>(volumeComp))
 			shape = FCollisionShape::MakeSphere(sphere->GetScaledSphereRadius());
 		else if (const auto capsule = Cast<UCapsuleComponent>(volumeComp))
@@ -209,23 +207,40 @@ bool USectionCompProp::FindOverlaps(const ASectionGenerator& aGenerator, const A
 		{
 			LOG("Unknown volume type");
 			return false;
-		} 
-				
+		}
+
+		auto compTrans = FTransform(
+			volumeComp->GetRelativeRotation(),
+			volumeComp->GetRelativeLocation());
+		auto trans = compTrans * aTrans;
+		
+		DrawDebugBox(aGenerator.GetWorld(), trans.GetLocation(), shape.GetExtent(), trans.GetRotation(), FColor::Emerald, true); 
+		
 		TArray<FOverlapResult> overlaps;
 		FCollisionQueryParams params;
 		params.bFindInitialOverlaps = true;
 		params.bTraceComplex = false;
 		if (aGenerator.GetWorld()->OverlapMultiByChannel(
 			overlaps,
-			aTrans.GetLocation() + volumeComp->GetRelativeLocation(),
-			volumeComp->GetRelativeRotation().Quaternion() * aTrans.GetRotation(),
+			trans.GetLocation(),
+			trans.GetRotation(),
 			ECC_WorldStatic,
 			shape,
 			params))
 		{
+			TArray<UObstacle*> obstacles; 
 			for (auto& overlap : overlaps)
+			{
 				if (overlap.GetActor()->IsA(APropGroup::StaticClass()))
 					return true;
+
+				overlap.GetActor()->GetComponents<UObstacle>(obstacles);
+				if (obstacles.Num())
+				{
+					LOG("Hit obstacle");
+					return true;
+				}
+			}
 		}
 	}
 	return false;

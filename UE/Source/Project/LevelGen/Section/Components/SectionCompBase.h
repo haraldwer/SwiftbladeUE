@@ -38,7 +38,7 @@ protected:
 		}
 		return nullptr;
 	}
-	
-	void GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& aFirst, FVector2D& aSecond) const;
+
+	static bool GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& aFirst, FVector2D& aSecond);
 	
 };

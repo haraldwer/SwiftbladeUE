@@ -8,6 +8,7 @@ void USectionCompPathSpline::PopulateRoom(ASectionGenerator* aGenerator, const F
 {
 	const FVector actorLoc = FVector(aRoom.location.X, aRoom.location.Y, aRoom.groundOffset); 
 	AActor* actor = aGenerator->SpawnGeneratedActor(myClass, FTransform(actorLoc));
+	CHECK_RETURN_LOG(!actor, "No actor spawned");
 	CHECK_RETURN_LOG(!actor->Implements<UProcSplineMesh>(), "Does not implement interface");
 	const auto spline = IProcSplineMesh::Execute_GetSpline(actor, 0);
 	CHECK_RETURN_LOG(!spline, "No spline");

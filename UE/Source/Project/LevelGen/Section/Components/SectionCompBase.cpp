@@ -34,7 +34,7 @@ void USectionCompBase::PopulateRoom(ASectionGenerator* aGenerator, const FProcSe
 }
 
 
-void USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& aFirst, FVector2D& aSecond) const
+bool USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& aFirst, FVector2D& aSecond)
 {
 	const int32 numWalls = aRoom.walls.Num();
 	const int32 numVerts = aRoom.vertices.Num();
@@ -46,10 +46,11 @@ void USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& 
 		const int32 secondI = (firstI + ULevelRand::RandRange(1, numVerts - 1)) % (numVerts);
 		aFirst = aRoom.vertices[firstI];
 		aSecond = aRoom.vertices[secondI];
-		return;
+		return false;
 	}
 
 	constexpr float padding = 0.5f;
+	bool result = true;
 	
 	// Get first location
 	const int32 firstWallI = ULevelRand::RandRange(0, numWalls - 1);
@@ -62,6 +63,7 @@ void USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& 
 	else
 	{
 		aFirst = aRoom.vertices[ULevelRand::RandRange(0, numVerts - 1)];
+		result = false;
 	}
 	
 	// Get second location
@@ -75,5 +77,8 @@ void USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& 
 	else
 	{
 		aSecond = aRoom.vertices[ULevelRand::RandRange(0, numVerts - 1)];
+		result = false;
 	}
+
+	return result; 
 }
