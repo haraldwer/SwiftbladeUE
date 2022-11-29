@@ -1,12 +1,10 @@
 #include "SectionGenerator.h"
 
 #include "DrawDebugHelpers.h"
-#include "EngineUtils.h"
-#include "ProceduralMeshComponent.h"
 #include "SectionDataConfig.h"
 #include "SectionDataStructs.h"
 #include "Components/SectionCompBase.h"
-#include "Kismet/GameplayStatics.h"
+#include "Components/SectionCompGroup.h"
 #include "Project/LevelGen/LevelRand.h"
 #include "Project/Utility/Math/LineIntersection.h"
 
@@ -152,6 +150,7 @@ void ASectionGenerator::GenerateSection(FProcSection& aSection, const USectionDa
 		const FVector2D srcEdgeLoc = (srcEdgeStart + srcEdgeEnd) * 0.5f;
 		
 		auto& room = aSection.rooms.Emplace_GetRef();
+		room.index = aSection.rooms.Num() - 1; 
 		room.location = roomLoc;
 		room.radius = roomRadius;
 		room.vertices.Add(srcEdgeStart);
@@ -392,6 +391,12 @@ void ASectionGenerator::Populate(FProcSection& aSection, const USectionDataConfi
 			for (const auto roomIndex : compPtr->PopulateSection(this, aSection))
 				if (aSection.rooms.IsValidIndex(roomIndex))
 					aSection.rooms[roomIndex].components.Add(compPtr);
+
+	// Some rooms have sub-components, add these before sorting and filtering 
+	for (auto& room : aSection.rooms)
+		for (int32 i = 0; i < room.components.Num(); i++)
+			if (const auto groupComp = Cast<USectionCompGroup>(room.components[i]))
+				room.components.Append(groupComp->GetSubComponents(this, aSection, room));
 
 	for (auto& room : aSection.rooms)
 	{

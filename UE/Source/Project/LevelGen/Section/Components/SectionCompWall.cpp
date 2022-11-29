@@ -17,7 +17,8 @@ void USectionCompWall::PopulateRoom(ASectionGenerator* aGenerator, const FProcSe
 			const int32 wallIndex = ULevelRand::RandRange(0, wallArr.Num() - 1);
 			const int32 index = wallArr[wallIndex];
 			wallArr.RemoveAtSwap(wallIndex);
-			CreateWall(aGenerator, aRoom.walls[index].verts, wallCount, aRoom.groundOffset, aRoom.ceilHeight);
+			const auto verts = GetAdjustedVerts(aRoom.walls[index].verts, aRoom.center);
+			CreateWall(aGenerator, verts, wallCount, aRoom.groundOffset, aRoom.ceilHeight);
 			wallCount++;
 		}
 	}
@@ -25,6 +26,21 @@ void USectionCompWall::PopulateRoom(ASectionGenerator* aGenerator, const FProcSe
 	{
 		for (int32 index = 0; index < aRoom.walls.Num(); index++)
 			if (aRoom.walls[index].verts.Num() > 1)
-				CreateWall(aGenerator, aRoom.walls[index].verts, index, aRoom.groundOffset, aRoom.ceilHeight);	
+				CreateWall(
+					aGenerator,
+					GetAdjustedVerts(aRoom.walls[index].verts, aRoom.center),
+					index,
+					aRoom.groundOffset,
+					aRoom.ceilHeight);	
 	}
+}
+
+TArray<FVector2D> USectionCompWall::GetAdjustedVerts(const TArray<FVector2D>& someVerts, const FVector2D& aCenter) const
+{
+	if (myWallDist < SMALL_NUMBER)
+		return someVerts;
+	TArray<FVector2D> verts = someVerts;
+	for (auto& vert : verts)
+		vert -= (vert - aCenter).GetSafeNormal() * myWallDist;
+	return verts; 
 }

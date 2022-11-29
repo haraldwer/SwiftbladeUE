@@ -33,7 +33,6 @@ void USectionCompBase::PopulateRoom(ASectionGenerator* aGenerator, const FProcSe
 	BPPopulateRoom(aGenerator, aSection, aRoom);
 }
 
-
 bool USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& aFirst, FVector2D& aSecond)
 {
 	const int32 numWalls = aRoom.walls.Num();

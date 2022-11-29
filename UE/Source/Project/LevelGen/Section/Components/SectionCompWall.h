@@ -22,7 +22,14 @@ protected:
 	UPROPERTY(EditAnywhere)
 	int32 myMaxNumWalls = -1;
 
+	UPROPERTY(EditAnywhere)
+	float myWallDist = 0.0f; 
+
 	UFUNCTION(BlueprintImplementableEvent)
-	void CreateWall(ASectionGenerator* aGenerator, const TArray<FVector2D>& aArray, int32 anIndex, float aGroundOffset, float aCeilHeight);
+	void CreateWall(ASectionGenerator* aGenerator, const TArray<FVector2D>& anArray, int32 anIndex, float aGroundOffset, float aCeilHeight);
+
+private:
+
+	TArray<FVector2D> GetAdjustedVerts(const TArray<FVector2D>& someVerts, const FVector2D& aCenter) const;
 	
 };

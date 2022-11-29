@@ -30,7 +30,6 @@ public:
 
 protected:
 
-	#pragma optimize("", off)
 	template <class T>
 	static TArray<T*> GetComponents(const TArray<T*>& someComps)
 	{
@@ -96,7 +95,6 @@ protected:
 		// Add this comp
 		aResult.Add(aComp);
 	}
-	#pragma optimize("", on)
 	
 	UPROPERTY(EditAnywhere, Category="Generation")
 	int32 mySeed = 0;

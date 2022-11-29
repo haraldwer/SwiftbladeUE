@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SectionCompPathSpline.h"
+#include "../Helpers/SectionCompPathSpline.h"
 #include "SectionCompRail.generated.h"
 
 class USectionPropConfig;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SectionCompPathSpline.h"
+#include "Helpers/SectionCompPathSpline.h"
 #include "UObject/Object.h"
 #include "SectionCompCave.generated.h"
 

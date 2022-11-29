@@ -35,6 +35,8 @@ struct FProcRoom
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
+	int32 index = -1;
+	UPROPERTY(BlueprintReadOnly)
 	FVector2D location = FVector2D::ZeroVector;
 	UPROPERTY(BlueprintReadOnly)
 	FVector2D center = FVector2D::ZeroVector;

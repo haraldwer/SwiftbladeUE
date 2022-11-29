@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SectionCompBase.h"
+#include "../SectionCompBase.h"
 #include "SectionCompDoorway.generated.h"
 
 UCLASS(Abstract)

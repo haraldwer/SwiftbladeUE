@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SectionCompBase.h"
+#include "../SectionCompBase.h"
 #include "SectionCompPathSpline.generated.h"
 
 UCLASS(Abstract)
