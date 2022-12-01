@@ -1,7 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Project/LevelGen/GeneratorStructs.h"
 #include "SectionDataStructs.generated.h"
+
+class USectionCompBase; 
 
 USTRUCT(BlueprintType)
 struct FProcEdge
@@ -57,8 +60,7 @@ struct FProcRoom
 	UPROPERTY(BlueprintReadOnly)
 	float ceilHeight = 0.0f;
 	
-	UPROPERTY(BlueprintReadOnly)
-	TArray<class USectionCompBase*> components;
+	TArray<FGeneratorCompEntry<USectionCompBase>> components;
 };
 
 USTRUCT(BlueprintType)

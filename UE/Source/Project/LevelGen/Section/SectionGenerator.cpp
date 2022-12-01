@@ -6,6 +6,7 @@
 #include "Components/SectionCompBase.h"
 #include "Components/SectionCompGroup.h"
 #include "Project/LevelGen/LevelRand.h"
+#include "Project/LevelGen/Level/LevelEnd.h"
 #include "Project/Utility/Math/LineIntersection.h"
 
 void ASectionGenerator::Generate()
@@ -31,6 +32,14 @@ void ASectionGenerator::Generate()
 		lastSectionEnd = section.lastEdgeLoc;
 		lastSectionHeight = section.rooms.Last().groundOffset;
 	}
+
+	const FTransform trans = FTransform(FVector(lastSectionEnd.X, lastSectionEnd.Y, lastSectionHeight));
+	if (const auto levelEnd = Cast<ALevelEnd>(SpawnGeneratedActor(myLevelEndClass, trans)))
+	{
+		levelEnd->OnEndLocationSet(this);
+		myLevelEnd = levelEnd;
+	}
+	else LOG("Failed to spawn level end");
 }
 
 USectionDataConfig* ASectionGenerator::GetRandomConfig() const
@@ -309,49 +318,57 @@ void ASectionGenerator::GenerateWalls(FProcSection& aSection, const USectionData
 		const int32 blue = FMath::RandRange(0, 255);
 		
 		// Find connections
-		TArray<FProcEdge*> pathEdgeLocations;
+		TArray<FProcEdge*> roomPathEdges;
 		for (auto& edge : room.edges)
 			if (edge.isPath)
-				pathEdgeLocations.Add(&edge);
+				roomPathEdges.Add(&edge);
 
-		auto isConnection = [&](const int32 aCurr, const int32 aNext)
+		const auto isPath = [&](const int32 aCurr, const int32 aNext)
 		{
-			for (const auto& edge : pathEdgeLocations)
+			for (const auto& edge : roomPathEdges)
 			{
-				if (edge->startIndex == aCurr && edge->endIndex == aNext)
+				if ((edge->startIndex == aCurr && edge->endIndex == aNext) ||
+					(edge->startIndex == aNext && edge->endIndex == aCurr)) 
 					return true;
 			}
 			return false;
 		};
 	
 		// Find wall vertices
-		room.walls.Emplace();
+		FProcWall* wall = nullptr;
+		const int32 startIndex = roomPathEdges.Num() ? roomPathEdges.Last()->endIndex : 0;
 		for (int32 i = 0; i < room.vertices.Num(); i++)
 		{
-			const int32 currI = i % room.vertices.Num();
-			const int32 nextI = (i + 1) % room.vertices.Num();
-			const bool noWall = isConnection(currI, nextI);
-
-			auto& curr = room.vertices[currI];
-			auto& next = room.vertices[nextI];
+			const int32 currI = (i + startIndex) % room.vertices.Num();
+			const int32 nextI = (i + startIndex + 1) % room.vertices.Num();
+			const bool addWall = !isPath(currI, nextI);
+			
+			const auto& curr = room.vertices[currI];
+			const auto& next = room.vertices[nextI];
 			if (myDebugDrawNoise)
 				DrawDebugLine(GetWorld(),
 					FVector(curr.X, curr.Y, 200.0f),
 					FVector(next.X, next.Y, 200.0f),
-					noWall ? FColor(255, 0, blue) : FColor(0, 255, blue),
+					!addWall ? FColor(255, 0, blue) : FColor(0, 255, blue),
 					true);
 
-			auto& wallSection = room.walls.Last(); 
-			if (noWall)
-			{
-				if (wallSection.verts.Num())
-					room.walls.Emplace(); 
-				continue;
-			}
 
-			if (!wallSection.verts.Num())
-				wallSection.verts.Add(curr);
-			wallSection.verts.Add(next);
+			// Should there be a wall here?
+			if (addWall)
+			{
+				// Yes!
+				if (!wall)
+				{
+					wall = &room.walls.Emplace_GetRef();
+					wall->verts.Add(curr); 
+				}
+				wall->verts.Add(next);
+			}
+			else
+			{
+				// No!
+				wall = nullptr;
+			}
 		}
 	}
 }
@@ -387,26 +404,42 @@ void ASectionGenerator::Populate(FProcSection& aSection, const USectionDataConfi
 {	
 	// Apply component chance for each room
 	for (auto& comp : aConfig.myComponents)
-		if (auto compPtr = comp.Get())
-			for (const auto roomIndex : compPtr->PopulateSection(this, aSection))
-				if (aSection.rooms.IsValidIndex(roomIndex))
-					aSection.rooms[roomIndex].components.Add(compPtr);
+	{
+		const auto compPtr = comp.Get();
+		CHECK_CONTINUE(!compPtr)
+		for (const auto roomIndex : compPtr->PopulateSection(this, aSection))
+		{
+			CHECK_CONTINUE(!aSection.rooms.IsValidIndex(roomIndex));
+			auto& entry = aSection.rooms[roomIndex].components.Emplace_GetRef();
+			entry.myPtr = compPtr;
+			entry.myRequiredComps = compPtr->GetReqiredComps();
+			entry.myBlockingComps = compPtr->GetBlockingComps();
+		}
+	}
 
 	// Some rooms have sub-components, add these before sorting and filtering 
 	for (auto& room : aSection.rooms)
 		for (int32 i = 0; i < room.components.Num(); i++)
-			if (const auto groupComp = Cast<USectionCompGroup>(room.components[i]))
+			if (const auto groupComp = Cast<USectionCompGroup>(room.components[i].myPtr))
 				room.components.Append(groupComp->GetSubComponents(this, aSection, room));
 
 	for (auto& room : aSection.rooms)
 	{
+		LOG("Components before: ");
+		for (auto comp : room.components)
+			LOG(comp.myPtr->GetName());
+		
 		// Sort and filter room components
 		auto comps = GetComponents(room.components);
 		room.components = comps;
 
+		LOG("Components after: ");
+		for (auto comp : room.components)
+			LOG(comp.myPtr->GetName());
+
 		// Then, populate
 		for (const auto& comp : comps)
-			if (const auto compPtr = Cast<USectionCompBase>(comp))
-				compPtr->PopulateRoom(this, aSection, room);
+			if (comp.myPtr)
+				comp.myPtr->PopulateRoom(this, aSection, room);
 	}
 }

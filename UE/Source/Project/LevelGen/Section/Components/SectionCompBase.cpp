@@ -37,47 +37,34 @@ bool USectionCompBase::GetRandomCrossSection(const FProcRoom& aRoom, FVector2D& 
 {
 	const int32 numWalls = aRoom.walls.Num();
 	const int32 numVerts = aRoom.vertices.Num();
-	
-	// If few walls, just choose random location
-	if (numWalls <= 1)
-	{
-		const int32 firstI = ULevelRand::RandRange(0, numVerts - 1);
-		const int32 secondI = (firstI + ULevelRand::RandRange(1, numVerts - 1)) % (numVerts);
-		aFirst = aRoom.vertices[firstI];
-		aSecond = aRoom.vertices[secondI];
-		return false;
-	}
 
-	constexpr float padding = 0.5f;
-	bool result = true;
+	constexpr float padding = 0.2f;
 	
-	// Get first location
 	const int32 firstWallI = ULevelRand::RandRange(0, numWalls - 1);
 	const auto& firstVerts = aRoom.walls[firstWallI].verts;
-	if (firstVerts.Num())
-	{
-		const float index = ULevelRand::FRandRange(padding, firstVerts.Num() - 1.0f - padding);
-		aFirst = GetBlendVert(firstVerts, index);	
-	}
-	else
-	{
-		aFirst = aRoom.vertices[ULevelRand::RandRange(0, numVerts - 1)];
-		result = false;
-	}
 	
-	// Get second location
-	const int32 secondWallI = (firstWallI + ULevelRand::RandRange(1, numWalls - 1)) % (numWalls);
+	const int32 secondWallI = (firstWallI + ULevelRand::RandRange(1, numWalls - 1)) % numWalls;
 	const auto& secondVerts = aRoom.walls[secondWallI].verts;
-	if (secondVerts.Num())
+	
+	if (firstVerts.Num() && secondVerts.Num() && firstWallI != secondWallI)
 	{
-		const float index = ULevelRand::FRandRange(padding, secondVerts.Num() - 1.0f - padding);
-		aSecond = GetBlendVert(secondVerts, index);	
-	}
-	else
-	{
-		aSecond = aRoom.vertices[ULevelRand::RandRange(0, numVerts - 1)];
-		result = false;
+		const float firstIndex = ULevelRand::FRandRange(padding, firstVerts.Num() - 1.0f - padding);
+		aFirst = GetBlendVert(firstVerts, firstIndex);
+		
+		const float secondIndex = ULevelRand::FRandRange(padding, secondVerts.Num() - 1.0f - padding);
+		aSecond = GetBlendVert(secondVerts, secondIndex);
+
+		return true;
 	}
 
-	return result; 
+	if (aRoom.vertices.Num() < 2)
+		return false; 
+	
+	// If few walls, just choose random location
+	const float firstI = ULevelRand::FRandRange(0.0f, numVerts - 1.0f);
+	const float secondI = ULevelRand::FRandRange(0.0f, numVerts - 1.0f);
+	aFirst = GetBlendVert(aRoom.vertices, firstI); 
+	aSecond = GetBlendVert(aRoom.vertices, secondI);
+
+	return false;
 }

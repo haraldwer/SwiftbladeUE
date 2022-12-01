@@ -1,7 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Project/LevelGen/GeneratorStructs.h"
 #include "ArenaDataStructs.generated.h"
+
+class UArenaCompBase;
 
 USTRUCT(BlueprintType)
 struct FArenaSubdivision
@@ -20,8 +23,7 @@ struct FArenaSubdivision
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FVector2D> vertices;
 	
-	UPROPERTY(BlueprintReadOnly)
-	TArray<class UArenaCompBase*> components;
+	TArray<FGeneratorCompEntry<UArenaCompBase>> components;
 	
 };
 

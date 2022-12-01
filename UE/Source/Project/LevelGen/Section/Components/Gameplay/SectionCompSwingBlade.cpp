@@ -8,7 +8,8 @@ void USectionCompSwingBlade::PopulateRoom(ASectionGenerator* aGenerator, const F
 {
 	FVector2D first;
 	FVector2D second;
-	GetRandomCrossSection(aRoom, first, second); 
+	if (!GetRandomCrossSection(aRoom, first, second))
+		return;
 
 	// Lerp middle
 	const float dist = FVector2D::Distance(first, second);

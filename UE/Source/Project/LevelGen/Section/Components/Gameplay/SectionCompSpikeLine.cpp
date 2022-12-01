@@ -7,7 +7,8 @@ void USectionCompSpikeLine::PopulateRoom(ASectionGenerator* aGenerator, const FP
 {
 	FVector2D first;
 	FVector2D second;
-	GetRandomCrossSection(aRoom, first, second); 
+	if (!GetRandomCrossSection(aRoom, first, second))
+		return;
 		
 	const FVector2D middle = (first + second) * 0.5f;
 	const FRotator rot = UKismetMathLibrary::FindLookAtRotation(

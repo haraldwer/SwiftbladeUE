@@ -1,8 +1,7 @@
-// 
-
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GeneratorStructs.h"
 #include "GameFramework/Actor.h"
 #include "GeneratorBase.generated.h"
 
@@ -31,69 +30,74 @@ public:
 protected:
 
 	template <class T>
-	static TArray<T*> GetComponents(const TArray<T*>& someComps)
+	static void AddSortedComponent(const TArray<FGeneratorCompEntry<T>>& aBase, TArray<FGeneratorCompEntry<T>>& aResult, const FGeneratorCompEntry<T>& aComp, const int32 aDepth)
+	{
+		CHECK_RETURN_LOG(!aComp.myPtr, "Component null");
+		CHECK_RETURN_LOG(aDepth > 10, "Recursive component dependency found, exiting loop");
+
+		// Contains? 
+		auto find = aResult.FindByPredicate(
+			[&aComp](const FGeneratorCompEntry<T>& anEntry) { return anEntry.myPtr == aComp.myPtr; });
+		CHECK_RETURN(find);
+		
+		// This component requires these components to be prioritized above it
+		const TArray<TSubclassOf<UGeneratorCompBase>>& requiredComps = aComp.myRequiredComps;
+		for (const TSubclassOf<UGeneratorCompBase>& requiredComp : requiredComps)
+		{	
+			// Add required comp before current comp
+			// We've only got the type, find the actual object
+			const auto objFind = aBase.FindByPredicate(
+				[&requiredComp](const FGeneratorCompEntry<T>& aCompare)
+				{ return aCompare.myPtr->IsA(requiredComp); });
+			CHECK_RETURN(!objFind);
+			AddSortedComponent(aBase, aResult, *objFind, aDepth + 1);
+		}
+
+		// Add this comp
+		aResult.Add(aComp);
+	}
+	
+	template <class T>
+	static TArray<FGeneratorCompEntry<T>> GetComponents(const TArray<FGeneratorCompEntry<T>>& someComps)
 	{
 		CHECK_RETURN_LOG(!someComps.Num(), "No components", {});
 
 		// Sort components based on requirements
 		// Any requirement means that the required component has to come before
 	
-		TArray<T*> sortedComps;
-		for (const auto comp : someComps)
+		TArray<FGeneratorCompEntry<T>> sortedComps;
+		for (const FGeneratorCompEntry<T>& comp : someComps)
 			AddSortedComponent(someComps, sortedComps, comp, 0);
 	
 		// Filter out blocked components
-		const auto isBlocked = [&](const T& aComp)
+		const auto isBlocked = [&](const FGeneratorCompEntry<T>& aComp)
 		{
-			const auto& blockingComps = aComp.GetBlockingComps();
-			for (auto& blockingComp : blockingComps)
+			const TArray<TSubclassOf<UGeneratorCompBase>>& blockingComps = aComp.myBlockingComps;
+			for (const TSubclassOf<UGeneratorCompBase>& blockingComp : blockingComps)
 			{
-				const auto find = sortedComps.FindByPredicate(
-					[&blockingComp, &aComp] (const T* aCompare)
+				const FGeneratorCompEntry<T>* find = sortedComps.FindByPredicate(
+					[&blockingComp, &aComp] (const FGeneratorCompEntry<T>& aCompare)
 					{
-						if (aCompare != &aComp)
-							return aCompare->IsA(blockingComp);
+						if (aCompare.myPtr != aComp.myPtr)
+							return aCompare.myPtr->IsA(blockingComp);
 					   return false;
 				   });
 			
-				if (find && *find)
+				if (find && find->myPtr)
 					return true;
 			}
 			return false; 
 		};
-		TArray<T*> filteredComps;
-		for (auto& comp : sortedComps)
+		
+		TArray<FGeneratorCompEntry<T>> filteredComps;
+		for (const FGeneratorCompEntry<T>& comp : sortedComps)
 		{
-			CHECK_CONTINUE_LOG(!comp, "Component null");
-			if (!isBlocked(*comp))
+			CHECK_CONTINUE_LOG(!comp.myPtr, "Component null");
+			if (!isBlocked(comp))
 				filteredComps.Add(comp);
 		}
 
 		return filteredComps;
-	}
-
-	template <class T>
-	static void AddSortedComponent(const TArray<T*>& aBase, TArray<T*>& aResult, T* aComp, const int32 aDepth)
-	{
-		CHECK_RETURN_LOG(!aComp, "Component null");
-		CHECK_RETURN_LOG(aDepth > 10, "Recursive component dependency found, exiting loop");
-		CHECK_RETURN(aResult.Contains(aComp));
-		
-		// This component requires these components to be prioritized above it
-		const auto& requiredComps = aComp->GetReqiredComps();
-		for (auto& requiredComp : requiredComps)
-		{	
-			// Add required comp before current comp
-			// We've only got the type, find the actual object
-			const auto objFind = aBase.FindByPredicate(
-				[&requiredComp](const T* aCompare)
-				{ return aCompare->IsA(requiredComp); });
-			CHECK_RETURN_LOG(!objFind || !(*objFind), "Could not find required component in config components");
-			AddSortedComponent(aBase, aResult, *objFind, aDepth + 1);
-		}
-
-		// Add this comp
-		aResult.Add(aComp);
 	}
 	
 	UPROPERTY(EditAnywhere, Category="Generation")

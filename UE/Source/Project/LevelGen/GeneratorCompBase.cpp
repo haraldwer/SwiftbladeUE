@@ -4,6 +4,8 @@
 
 FVector2D UGeneratorCompBase::GetBlendVert(const TArray<FVector2D>& someVerts, const float anIndex)
 {
+	if (someVerts.Num() == 1)
+		return someVerts[0]; 
 	const float clampedIndex = FMath::Clamp(anIndex, 0.0f, someVerts.Num());
 	const int32 firstVertI = FMath::Clamp(FMath::FloorToInt(clampedIndex), 0, someVerts.Num() - 1);
 	const int32 secondVertI = FMath::Clamp(FMath::CeilToInt(clampedIndex), 0, someVerts.Num() - 1);

@@ -1,10 +1,8 @@
 #include "LevelManager.h"
 
-#include "LevelEndLocation.h"
+#include "LevelEnd.h"
 #include "NiagaraComponent.h"
 #include "Components/LightComponent.h"
-#include "Components/LightComponentBase.h"
-#include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
@@ -162,21 +160,28 @@ void ALevelManager::SetupLevels()
 
 		// Set offset
 		ptr->ApplyWorldOffset(previousPosition, false);
-		level.myOffset = previousPosition;		
+		level.myOffset = previousPosition;
+
+		const ALevelEnd* levelEnd = nullptr;
 		
 		// Generate
-		AActor** sectionGen = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ASectionGenerator::StaticClass()); });
-		if (sectionGen && *sectionGen)
+		if (AActor** sectionGen = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ASectionGenerator::StaticClass()); }))
 		{
 			if (const auto sectionGenPtr = Cast<ASectionGenerator>(*sectionGen))
+			{
 				sectionGenPtr->Generate();
+				levelEnd = sectionGenPtr->GetLevelEnd();
+			}
 		}
 		
 		// Get level end
-		AActor** end = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ALevelEndLocation::StaticClass()); });
-		if (end && *end)
+		if (!levelEnd)
+			if (AActor** levelEndPtr = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ALevelEnd::StaticClass()); }))
+				levelEnd = Cast<ALevelEnd>(*levelEndPtr);
+		
+		if (levelEnd)
 		{
-			previousPosition = (*end)->GetActorLocation();
+			previousPosition = levelEnd->GetActorLocation();
 			if (previousPosition.Z < myLowestEnd)
 				myLowestEnd = previousPosition.Z;
 		}

@@ -33,8 +33,8 @@ protected:
 	{
 		for (auto& comp : aRoom.components)
 		{
-			if (comp->IsA(T::StaticClass()))
-				return Cast<T>(comp);
+			if (comp.myPtr && comp.myPtr->IsA(T::StaticClass()))
+				return Cast<T>(comp.myPtr);
 		}
 		return nullptr;
 	}

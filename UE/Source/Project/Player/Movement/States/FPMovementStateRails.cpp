@@ -2,6 +2,7 @@
 
 #include "FPMovementStateDash.h"
 #include "FPMovementStateInAir.h"
+#include "Components/SphereComponent.h"
 #include "Components/SplineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Gameplay/RailComponent.h"
@@ -57,6 +58,16 @@ UClass* UFPMovementStateRails::Check()
 	// Check overlaps
 	TArray<AActor*> overlaps;
 	GetCharacter().GetOverlappingActors(overlaps);
+
+	if (const auto interact = GetCharacter().GetInteractionCollider())
+	{
+		TArray<AActor*> interactOverlaps;
+		interact->GetOverlappingActors(interactOverlaps);
+		if (!interactOverlaps.Num())
+			LOG("Interact rail overlap");
+		overlaps.Append(interactOverlaps);
+	}
+	
 	for (const auto& overlap : overlaps)
 	{
 		TArray<URailComponent*> rails;

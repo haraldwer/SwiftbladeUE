@@ -8,7 +8,7 @@ class USectionCompBase;
 struct FProcSection;
 struct FProcRoom;
 class USectionDataConfig;
-class ALevelEndLocation;
+class ALevelEnd;
 
 UCLASS()
 class PROJECT_API ASectionGenerator : public AGeneratorBase
@@ -19,7 +19,7 @@ public:
 
 	virtual void Generate() override;
 	
-	ALevelEndLocation* GetLevelEnd() const { return myLevelEnd.Get(); }
+	ALevelEnd* GetLevelEnd() const { return myLevelEnd.Get(); }
 
 protected:
 
@@ -33,8 +33,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Generation")
 	TArray<TSubclassOf<USectionDataConfig>> myConfigs;
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<ALevelEndLocation> myLevelEnd;
+	UPROPERTY(EditAnywhere, Category="Generation")
+	TSubclassOf<ALevelEnd> myLevelEndClass;
 	
 private:
 
@@ -46,5 +46,7 @@ private:
 	void GenerateRoomPath(FProcSection& aSection) const;
 	void GenerateGroundCeil(FProcSection& aSection, const USectionDataConfig& aConfig, const float aStartHeight) const;
 	void Populate(FProcSection& aSection, const USectionDataConfig& aConfig);
+
+	TWeakObjectPtr<ALevelEnd> myLevelEnd; 
 	
 };

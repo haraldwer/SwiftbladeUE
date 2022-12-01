@@ -23,7 +23,16 @@ protected:
 	int32 myMaxNumWalls = -1;
 
 	UPROPERTY(EditAnywhere)
-	float myWallDist = 0.0f; 
+	float myWallDist = 0.0f;
+
+	UPROPERTY(EditAnywhere)
+	float myGroundOffset = 0.0f;
+
+	UPROPERTY(EditAnywhere)
+	float myHeightOverride = 0.0f;
+
+	UPROPERTY(EditAnywhere)
+	float myIndexPadding = 0.0f; 
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateWall(ASectionGenerator* aGenerator, const TArray<FVector2D>& anArray, int32 anIndex, float aGroundOffset, float aCeilHeight);

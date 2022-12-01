@@ -1,9 +1,7 @@
 #include "GeneratorBase.h"
 
 #include "DrawDebugHelpers.h"
-#include "GeneratorCompBase.h"
 #include "LevelRand.h"
-#include "Kismet/GameplayStatics.h"
 #include "Project/Utility/EngineUtility.h"
 
 AGeneratorBase::AGeneratorBase()

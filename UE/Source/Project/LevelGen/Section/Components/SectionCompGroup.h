@@ -9,8 +9,8 @@ class PROJECT_API USectionCompGroup : public USectionCompBase
 	GENERATED_BODY()
 
 public:
-
-	TArray<USectionCompBase*> GetSubComponents(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom) const;
+	
+	TArray<FGeneratorCompEntry<USectionCompBase>> GetSubComponents(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom) const;
 	
 protected:
 

@@ -7,7 +7,8 @@ void USectionCompGroundSpikes::PopulateRoom(ASectionGenerator* aGenerator, const
 {
 	FVector2D first;
 	FVector2D second;
-	GetRandomCrossSection(aRoom, first, second);
+	if (!GetRandomCrossSection(aRoom, first, second))
+		return;
 
 	const FRotator rot = UKismetMathLibrary::FindLookAtRotation(
 		FVector(first.X, first.Y, 0.0f),

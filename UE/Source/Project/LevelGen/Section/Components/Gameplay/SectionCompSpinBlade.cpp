@@ -22,7 +22,8 @@ void USectionCompSpinBlade::PopulateRoom(ASectionGenerator* aGenerator, const FP
 		{
 			FVector2D first;
 			FVector2D second;
-			GetRandomCrossSection(aRoom, first, second); 
+			if (!GetRandomCrossSection(aRoom, first, second))
+				break;
 			spline->AddSplinePoint(FVector(first.X, first.Y, aRoom.groundOffset + myFloorHeight), ESplineCoordinateSpace::World, false);
 			spline->AddSplinePoint(FVector(second.X, second.Y, aRoom.groundOffset + myFloorHeight), ESplineCoordinateSpace::World, false);
 			SetRoll(actor, 90.0f); 
@@ -48,6 +49,8 @@ void USectionCompSpinBlade::PopulateRoom(ASectionGenerator* aGenerator, const FP
 		}
 	}
 
+	spline->UpdateSpline();
+	
 	if (!spline->GetNumberOfSplinePoints())
 	{
 		LOG("No spline points, destroying"); 
@@ -55,8 +58,6 @@ void USectionCompSpinBlade::PopulateRoom(ASectionGenerator* aGenerator, const FP
 		return; 
 	}
 	
-	spline->UpdateSpline();
-
 	for (int32 i = 0; i < spline->GetNumberOfSplinePoints(); i++)
 	{
 		auto tangent = spline->GetTangentAtSplinePoint(i, ESplineCoordinateSpace::Local);

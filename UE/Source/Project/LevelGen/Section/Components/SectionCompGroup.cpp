@@ -2,9 +2,9 @@
 
 #include "Project/LevelGen/LevelRand.h"
 
-TArray<USectionCompBase*> USectionCompGroup::GetSubComponents(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom) const
+TArray<FGeneratorCompEntry<USectionCompBase>> USectionCompGroup::GetSubComponents(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom) const
 {
-	TArray<USectionCompBase*> result; 
+	TArray<FGeneratorCompEntry<USectionCompBase>> result; 
 	TArray<TObjectPtr<USectionCompBase>> pool = myComponents;
 	const int32 numComps = ULevelRand::RandRange(myMinNumComps, myMaxNumComps);
 	for (int32 i = 0; i < numComps; i++)
@@ -22,11 +22,16 @@ TArray<USectionCompBase*> USectionCompGroup::GetSubComponents(ASectionGenerator*
 			CHECK_CONTINUE(!ptr); 
 			randWeight -= ptr->GetChance();
 			CHECK_CONTINUE(randWeight >= 0.0f)
-			result.Add(ptr);
+			auto& entry = result.Emplace_GetRef();
+			entry.myPtr = ptr;
+			entry.myRequiredComps = ptr->GetReqiredComps();
+			entry.myRequiredComps.Append(GetReqiredComps());
+			entry.myBlockingComps = ptr->GetBlockingComps();
+			entry.myBlockingComps.Append(GetBlockingComps());
 			if (!myReuse)
 				pool.RemoveAtSwap(j); 
 			break;
 		}
 	}
-	return result; // Note that result might be sorted later
+	return result; 
 }

@@ -57,11 +57,11 @@ void AArenaGenerator::Generate()
 			subdivision.height = ULevelRand::FRandRange(layerConfig.myMinSubHeight, layerConfig.myMaxSubHeight);
 			
 			// Start with getting components
-			TArray<UArenaCompBase*> comps;
+			TArray<FGeneratorCompEntry<UArenaCompBase>> comps;
 			for (auto& comp : layerConfig.myComponents)
-				if (auto compPtr = comp.Get())
+				if (const auto compPtr = comp.Get())
 					if (ULevelRand::FRandRange(0.0f, 100.0f) < compPtr->GetChance())
-						comps.Add(compPtr);
+						comps.Add({ compPtr });
 			
 			subdivision.components = GetComponents(comps); 
 		}
@@ -105,8 +105,8 @@ void AArenaGenerator::Generate()
 		for (const auto& section : layer.sections)
 			for (const auto& subdivision : section.subdivisions)
 				for (const auto& component : subdivision.components)
-					if (component)
-						component->Populate(this, layer, section, subdivision);
+					if (component.myPtr)
+						component.myPtr->Populate(this, layer, section, subdivision);
 
 	CHECK_RETURN_LOG(!layers.Num(), "No layers");
 	

@@ -2,15 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "LevelEndLocation.generated.h"
+#include "LevelEnd.generated.h"
 
 UCLASS()
-class PROJECT_API ALevelEndLocation : public AActor
+class PROJECT_API ALevelEnd : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	ALevelEndLocation();
+	ALevelEnd();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnEndLocationSet(class ASectionGenerator* aGenerator);
