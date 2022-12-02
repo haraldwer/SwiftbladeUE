@@ -162,7 +162,7 @@ void AFPController::ReachEnd(AGameEnd* aGameEnd)
 	
 	const auto time = character->GetTime();
 	const auto scoreTime = time->GetScoreTime();
-	CHECK_RETURN_LOG(scoreTime < myMinAllowedTime, "Score time less than allowed"); 
+	CHECK_RETURN(scoreTime < myMinAllowedTime); 
 	
 	myHasReachedEnd = true;
 	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();

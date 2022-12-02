@@ -39,7 +39,7 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AEnemy::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser)
 {
-	LOG("Enemy took damage " + FString::SanitizeFloat(aDamageAmount));
+	LOG(GetName() + " enemy took damage " + FString::SanitizeFloat(aDamageAmount));
 	myHealth -= FMath::RoundToInt(aDamageAmount);
 	Super::TakeDamage(aDamageAmount, aDamageEvent, aEventInstigator, aDamageCauser);
 	if (myBehaviour)
@@ -52,7 +52,7 @@ float AEnemy::TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, 
 
 void AEnemy::Die()
 {
-	LOG("Enemy died");
+	LOG(GetName() + " enemy died ");
 	if (myBehaviour)
 		myBehaviour->OnDied();
 	OnDied();

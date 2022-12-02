@@ -7,7 +7,7 @@
 
 class ASectionGenerator;
 
-UCLASS(Abstract, Blueprintable, EditInlineNew)
+UCLASS(Blueprintable, EditInlineNew)
 class PROJECT_API USectionCompBase : public UGeneratorCompBase
 {
 	GENERATED_BODY()

@@ -21,13 +21,14 @@ void UFPCombatStateHug::Exit()
 {
 	auto& movement = GetMovement();
 	movement.SetState<UFPMovementStateInAir>();
+
+	LOG("Exit Value: " + FString::SanitizeFloat(myValue) + " Velocity: " + FString::SanitizeFloat(myVelocity));
 }
 
 UClass* UFPCombatStateHug::Update(float aDT)
 {
 	myValue += myVelocity; 
 	myVelocity = FMath::FInterpTo(myVelocity, 0.0f, aDT, myFriction);
-	LOG("Value: " + FString::SanitizeFloat(myValue) + " Velocity: " + FString::SanitizeFloat(myVelocity));
 	
 	return StaticClass();
 }

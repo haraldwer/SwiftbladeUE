@@ -17,11 +17,7 @@ void USettingsUtility::SetResolutionScale(const int32 aResolution)
 
 void USettingsUtility::SetFeatureEnabled(ERenderFeature aFeature, const bool aEnabled)
 {
-#ifdef UE_BUILD_SHIPPING
-#endif
-	
 	const auto featureName = RenderFeatureCommands[static_cast<int32>(aFeature)];
-	LOG(featureName);
 	GEngine->Exec(GEngine->GetWorld(), *FString(featureName + " " + FString::FromInt(aEnabled)));
 }
 

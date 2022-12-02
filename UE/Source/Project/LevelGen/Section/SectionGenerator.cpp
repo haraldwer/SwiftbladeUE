@@ -18,6 +18,8 @@ void ASectionGenerator::Generate()
 	float lastSectionHeight = levelLoc.Z;
 	for (int i = 0; i < myNumSections; i++)
 	{
+		ULevelRand::Reset(i);
+		
 		const USectionDataConfig* const config = GetRandomConfig();
 		CHECK_RETURN_LOG(!config, "No config");
 		
@@ -425,17 +427,9 @@ void ASectionGenerator::Populate(FProcSection& aSection, const USectionDataConfi
 
 	for (auto& room : aSection.rooms)
 	{
-		LOG("Components before: ");
-		for (auto comp : room.components)
-			LOG(comp.myPtr->GetName());
-		
 		// Sort and filter room components
 		auto comps = GetComponents(room.components);
 		room.components = comps;
-
-		LOG("Components after: ");
-		for (auto comp : room.components)
-			LOG(comp.myPtr->GetName());
 
 		// Then, populate
 		for (const auto& comp : comps)

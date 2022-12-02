@@ -1,10 +1,10 @@
 #pragma once
 
-#include "SectionCompBase.h"
-#include "SectionCompCeiling.generated.h"
+#include "SectionCompGround.h"
+#include "SectionCompGroundMesh.generated.h"
 
 UCLASS(Abstract)
-class PROJECT_API USectionCompCeiling : public USectionCompBase
+class PROJECT_API USectionCompGroundMesh : public USectionCompGround
 {
 	GENERATED_BODY()
 
@@ -15,9 +15,9 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere)
-	float myCeilingThickness = 5000.0f;
+	float myGroundThickness = 5000.0f;
 	
 	UPROPERTY(EditAnywhere)
-	UMaterialInterface* myCeilingMaterial;
+	UMaterialInterface* myGroundMaterial;
 	
 };

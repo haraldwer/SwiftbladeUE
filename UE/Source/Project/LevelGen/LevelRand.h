@@ -14,11 +14,12 @@ public:
 	{
 		myStream.Initialize(aSeed);
 		mySeed = aSeed;
+		LOG("Init Seed: " + FString::FromInt(aSeed));
 	}
 
-	static void Reset()
+	static void Reset(int32 anOffset = 0)
 	{
-		myStream.Initialize(mySeed);
+		myStream.Initialize(mySeed + anOffset);
 	}
 
 	UFUNCTION(BlueprintCallable)
