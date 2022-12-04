@@ -149,7 +149,7 @@ void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunctio
 				controller->ReachEnd(gameEnd);
 
 	// Check lowest Z
-	const float lowestPoint = UMainSingelton::GetLevelGenerator().GetLowestEnd();
+	const float lowestPoint = UMainSingelton::GetLevelManager().GetLowestEnd();
 	if (GetActorLocation().Z < lowestPoint + myKillZ)
 		Die("OutOfBounds");
 }

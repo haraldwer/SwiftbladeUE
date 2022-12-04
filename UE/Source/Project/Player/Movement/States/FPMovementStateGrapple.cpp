@@ -3,7 +3,7 @@
 #include "FPMovementStateInAir.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Project/Gameplay/GrapplePoint.h"
+#include "Project/Gameplay/Abilities/GrapplePoint.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Player/Animation/States/FPAnimationStateGrapple.h"

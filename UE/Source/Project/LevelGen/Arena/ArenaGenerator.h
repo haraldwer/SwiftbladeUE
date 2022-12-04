@@ -17,7 +17,7 @@ class PROJECT_API AArenaGenerator : public AGeneratorBase
 public:
 
 	virtual void BeginPlay() override;
-	virtual void Generate() override;
+	virtual void Generate(ALevelManager* aLevelManager) override;
 	virtual void Clear() override;
 
 protected:

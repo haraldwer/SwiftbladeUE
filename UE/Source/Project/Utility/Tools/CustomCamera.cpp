@@ -62,10 +62,6 @@ void UCustomCamera::AddWidget(UWidgetBase* aWidget, const int32 aZOrder)
 	comp->SetWidgetClass(aWidget->GetClass());
 	comp->SetWidget(aWidget);
 	comp->SetVisibility(true);
-	
-	//comp->SetWindowVisibility(EWindowVisibility::Visible);
-	//comp->SetReceiveHardwareInput(true);
-	//comp->SetWindowFocusable(true);
 }
 
 void UCustomCamera::RemoveWidget(const UWidgetBase* aWidget)
@@ -97,11 +93,6 @@ void UCustomCamera::RefreshComponents()
 		if (auto widgetComponent = Cast<UCustomWidgetComponent>(c))
 		{
 			widgetComponent->SetVisibility(false);
-			
-			//widgetComponent->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
-			//widgetComponent->SetReceiveHardwareInput(false);
-			//widgetComponent->SetWindowFocusable(false);
-			
 			myUnusedComponents.Add(widgetComponent);
 		}
 	}
@@ -125,11 +116,6 @@ void UCustomCamera::ReturnWidgetComponent(UCustomWidgetComponent* aComp)
 	aComp->SetWidgetClass(nullptr);
 	aComp->SetWidget(nullptr);
 	aComp->SetVisibility(false);
-	
-	//aComp->SetWindowVisibility(EWindowVisibility::SelfHitTestInvisible);
-	//aComp->SetReceiveHardwareInput(false);
-	//aComp->SetWindowFocusable(false);
-	
 	myUnusedComponents.Add(aComp);
 }
 

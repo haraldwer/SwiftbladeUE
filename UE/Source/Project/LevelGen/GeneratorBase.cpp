@@ -9,15 +9,7 @@ AGeneratorBase::AGeneratorBase()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AGeneratorBase::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (UEngineUtility::IsInBaseLevel())
-		Generate(); 
-}
-
-void AGeneratorBase::Generate()
+void AGeneratorBase::Generate(ALevelManager* aLevelManager)
 {
 	Clear();
 	FlushPersistentDebugLines(GetWorld());

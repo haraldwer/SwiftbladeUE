@@ -214,7 +214,7 @@ bool USectionCompProp::FindOverlaps(const ASectionGenerator& aGenerator, const A
 			volumeComp->GetRelativeLocation());
 		auto trans = compTrans * aTrans;
 		
-		DrawDebugBox(aGenerator.GetWorld(), trans.GetLocation(), shape.GetExtent(), trans.GetRotation(), FColor::Emerald, true); 
+		//DrawDebugBox(aGenerator.GetWorld(), trans.GetLocation(), shape.GetExtent(), trans.GetRotation(), FColor::Emerald, true); 
 		
 		TArray<FOverlapResult> overlaps;
 		FCollisionQueryParams params;

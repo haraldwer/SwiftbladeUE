@@ -11,21 +11,16 @@
 
 void AArenaGenerator::BeginPlay()
 {
-	Super::BeginPlay();
-
 	if (!UEngineUtility::IsInBaseLevel())
 	{
 		if (!myConfig.Get())
-			Generate();
-		
-		if (const auto config = myConfig.Get())
-			UMainSingelton::GetEnemyManager().Init(config->myEnemyConfig);
+			Generate(nullptr);
 	}
 }
 
-void AArenaGenerator::Generate()
+void AArenaGenerator::Generate(ALevelManager* aLevelManager)
 {
-	Super::Generate(); 
+	Super::Generate(aLevelManager);
 
 	// Select random config
 	UArenaConfig* config = GetRandomConfig();

@@ -5,13 +5,27 @@
 #include "SectionDataStructs.h"
 #include "Components/SectionCompBase.h"
 #include "Components/SectionCompGroup.h"
+#include "Components/SplineComponent.h"
 #include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Level/LevelEnd.h"
+#include "Project/LevelGen/Level/LevelManager.h"
+#include "Project/Utility/EngineUtility.h"
 #include "Project/Utility/Math/LineIntersection.h"
 
-void ASectionGenerator::Generate()
+void ASectionGenerator::BeginPlay()
 {
-	Super::Generate();
+	Super::BeginPlay();
+
+	if (!UEngineUtility::IsInBaseLevel())
+	{
+		if (!myLevelEnd.Get())
+			Generate(nullptr);
+	}
+}
+
+void ASectionGenerator::Generate(ALevelManager* aLevelManager)
+{
+	Super::Generate(aLevelManager);
 	
 	const FVector levelLoc = GetActorLocation();
 	FVector2D lastSectionEnd = FVector2D(levelLoc.X, levelLoc.Y);
@@ -30,6 +44,29 @@ void ASectionGenerator::Generate()
 		GenerateRoomPath(section);
 		GenerateGroundCeil(section, *config, lastSectionHeight);
 		Populate(section, *config);
+
+		if (aLevelManager && section.rooms.Num())
+		{
+			if (const auto pathSpline = aLevelManager->GetPathSpline())
+			{
+				for (const auto& room : section.rooms)
+					for (int j = 0; j < room.path.Num() - 1; j++)
+						pathSpline->AddSplinePoint(
+							FVector(room.path[j].X, room.path[j].Y, room.groundOffset + 200.0f),
+							ESplineCoordinateSpace::World,
+							false);
+
+				pathSpline->AddSplinePoint(
+					FVector(
+						section.lastEdgeLoc.X,
+						section.lastEdgeLoc.Y,
+						section.rooms.Last().groundOffset + 200.0f),
+					ESplineCoordinateSpace::World,
+					false);
+				
+				pathSpline->UpdateSpline();
+			}
+		}
 		
 		lastSectionEnd = section.lastEdgeLoc;
 		lastSectionHeight = section.rooms.Last().groundOffset;
@@ -43,6 +80,8 @@ void ASectionGenerator::Generate()
 	}
 	else LOG("Failed to spawn level end");
 }
+
+
 
 USectionDataConfig* ASectionGenerator::GetRandomConfig() const
 {

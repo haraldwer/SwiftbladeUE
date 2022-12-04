@@ -17,7 +17,8 @@ class PROJECT_API ASectionGenerator : public AGeneratorBase
 	
 public:
 
-	virtual void Generate() override;
+	virtual void BeginPlay() override;
+	virtual void Generate(ALevelManager* aLevelManager) override;
 	
 	ALevelEnd* GetLevelEnd() const { return myLevelEnd.Get(); }
 

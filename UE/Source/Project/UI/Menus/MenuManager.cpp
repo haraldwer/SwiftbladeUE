@@ -131,6 +131,7 @@ void AMenuManager::SetInputMode(const FMenuInputMode& aInputMode)
 	controller->SetInputMode(mode);
 	controller->SetShowMouseCursor(!aInputMode.myHideCursor);
 	controller->SetEnablePawnControls(aInputMode.myAllowPlayerControl);
+	LOG("Set input mode");
 }
 
 void AMenuManager::ResetInputMode()
@@ -140,4 +141,5 @@ void AMenuManager::ResetInputMode()
 	controller->SetInputMode(FInputModeGameOnly());
 	controller->SetShowMouseCursor(false);
 	controller->SetEnablePawnControls(true);
+	LOG("Reset input mode");
 }

@@ -13,10 +13,11 @@ class PROJECT_API AGeneratorBase : public AActor
 public:
 	
 	AGeneratorBase();
-	virtual void BeginPlay() override;
 
 	UFUNCTION(CallInEditor, Category="Generation")
-	virtual void Generate();
+	void Generate() { Generate(nullptr); }
+	
+	virtual void Generate(class ALevelManager* aLevelManager);
 
 	UFUNCTION(CallInEditor, Category="Generation")
 	virtual void Clear();

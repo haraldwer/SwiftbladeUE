@@ -2,7 +2,7 @@
 
 #include "FPMovementStateInAir.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Project/Gameplay/BoostPad.h"
+#include "Project/Gameplay/Abilities/BoostPad.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Animation/States/FPAnimationStateInAir.h"
 

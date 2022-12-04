@@ -1,6 +1,6 @@
 #include "SectionCompGrapple.h"
 #include "../SectionCompCeiling.h"
-#include "Project/Gameplay/GrapplePoint.h"
+#include "Project/Gameplay/Abilities/GrapplePoint.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
 void USectionCompGrapple::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)

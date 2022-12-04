@@ -25,8 +25,8 @@ public:
 	static class AEnemyManager& GetEnemyManager();
 
 	UFUNCTION(BlueprintCallable, Category="MainSingelton Getter")
-	static class ALevelManager* GetLevelGeneratorPtr();
-	static class ALevelManager& GetLevelGenerator();
+	static class ALevelManager* GetLevelManagerPtr();
+	static class ALevelManager& GetLevelManager();
 
 	UFUNCTION(BlueprintCallable, Category="MainSingelton Getter")
 	static class AGameDB* GetGameDBPtr();

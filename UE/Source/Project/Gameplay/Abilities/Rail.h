@@ -1,18 +1,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "RailComponent.generated.h"
+#include "Rail.generated.h"
 
 class USplineComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_API URailComponent : public UActorComponent
+class PROJECT_API URail : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	
-	URailComponent();
+	URail();
 
 	virtual void BeginPlay() override;
 

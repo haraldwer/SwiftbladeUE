@@ -50,7 +50,7 @@ void AFPController::OnStateLoaded(const FFPControllerState aState)
 			time->SetInitialTime(myState.myTime);
 		
 	// Load level
-	auto& levelGen = UMainSingelton::GetLevelGenerator();
+	auto& levelGen = UMainSingelton::GetLevelManager();
 	levelGen.GenerateLevelOrder(myState.mySeed + myState.myArenaIndex);
 	myState.myInArena ?
 		levelGen.LoadArena(myState.myArenaIndex) :
@@ -87,6 +87,9 @@ void AFPController::CharacterKilled()
 	character->DisableInput(this);
 
 	LOG("Character killed");
+
+	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
+	lb.Write("Global", FMath::Rand());
 }
 
 void AFPController::Respawn()

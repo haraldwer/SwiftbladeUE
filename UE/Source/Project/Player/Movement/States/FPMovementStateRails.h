@@ -4,7 +4,7 @@
 #include "FPMovementStateBase.h"
 #include "FPMovementStateRails.generated.h"
 
-class URailComponent;
+class URail;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_API UFPMovementStateRails : public UFPMovementStateBase
@@ -48,8 +48,8 @@ protected:
 
 private:
 	
-	TWeakObjectPtr<URailComponent> myRail;
-	TWeakObjectPtr<URailComponent> myPrevRail;
+	TWeakObjectPtr<URail> myRail;
+	TWeakObjectPtr<URail> myPrevRail;
 
 	float myExitTimestamp = 0.0f;
 	float mySplineDist = 0.0f;

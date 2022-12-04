@@ -7,39 +7,7 @@ ULeaderboard::ULeaderboard()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void ULeaderboard::Create(const FString& aLeaderboardID) const
-{
-	const FString json = "{ \"LeaderboardID\" : \"" + aLeaderboardID + "\" }";
-
-	FOnRPC OnCreateSuccces;
-	OnCreateSuccces.AddDynamic(this, &ULeaderboard::OnCreateResult);
-	FOnError OnCreateError;
-	OnCreateError.AddDynamic(this, &ULeaderboard::OnCreateError);
-	
-	const auto& db = GetDB();
-	db.myClient->RPC(
-		db.myUserSession, 
-		"CreateLeaderboard_Lua",
-		json,
-		OnCreateSuccces,
-		OnCreateError);
-
-	UE_LOG(LogGameDB, Display, TEXT("Creating leaderboard: %s"), *aLeaderboardID);
-}
-
-void ULeaderboard::OnCreateResult(const FNakamaRPC& aResult)
-{
-	UE_LOG(LogGameDB, Display, TEXT("Leaderboard created with result: %s"), *aResult.Payload);
-	myOnCreateSuccess.Broadcast();
-}
-
-void ULeaderboard::OnCreateError(const FNakamaError& anError)
-{
-	UE_LOG(LogGameDB, Display, TEXT("Failed to create leaderboard: %s"), *anError.Message);
-	myOnCreateError.Broadcast(anError.Message);
-}
-
-void ULeaderboard::List(const FString& aLeaderboardID) const
+void ULeaderboard::List(const FLeaderboardRequest& aRequest) const
 {
 	FOnListLeaderboardRecords OnListSuccess;
 	OnListSuccess.AddDynamic(this, &ULeaderboard::OnListResult);
@@ -80,26 +48,22 @@ void ULeaderboard::OnListError(const FNakamaError& anError)
 	myOnListError.Broadcast(anError.Message);
 }
 
-void ULeaderboard::Write(const FString& aLeaderboardID, const float aScore) const
+void ULeaderboard::Write(const FLeaderboardSubmission& aSubmission) const
 {
-	// TODO: Maybe write custom function and do this in one call?
-	// Or wait for create result?
-	Create(aLeaderboardID);
-
 	FOnWriteLeaderboardRecord OnWriteSuccess;
 	OnWriteSuccess.AddDynamic(this, &ULeaderboard::OnWriteResult);
 	FOnError OnWriteError;
 	OnWriteError.AddDynamic(this, &ULeaderboard::OnWriteError);
+
+	// Payload
+	aLeaderboardID,
+	aScore * myTimePrecision,
 	
-	const int64 subScore = 0;
-	const FString meta = "";
 	const auto& db = GetDB();
-	db.myClient->WriteLeaderboardRecord(
-		db.myUserSession,
-		aLeaderboardID,
-		aScore * myTimePrecision,
-		subScore,
-		meta,
+	db.myClient->RPC(
+		db.myUserSession, 
+		"WriteLeaderboard_Lua",
+		json,
 		OnWriteSuccess,
 		OnWriteError);
 

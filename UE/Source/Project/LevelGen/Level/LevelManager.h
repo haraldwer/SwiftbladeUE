@@ -3,9 +3,9 @@
 #include "CoreMinimal.h"
 
 #include "GameFramework/Actor.h"
-#include "Project/Player/FPController.h"
 #include "LevelManager.generated.h"
 
+class USplineComponent;
 UCLASS()
 class PROJECT_API ALevelManager : public AActor
 {
@@ -23,6 +23,7 @@ public:
 	void LoadArena(int anArenaIndex);
 	
 	float GetLowestEnd() const { return myLowestEnd; }
+	USplineComponent* GetPathSpline() const { return myPathSpline.Get(); }
 
 protected:
 	
@@ -40,6 +41,7 @@ protected:
 	
 private:
 
+
 	void LoadLevels(const TArray<int32>& someLevelsToLoad);
 
 	static FString ChopLevelName(const FString& aName);
@@ -48,6 +50,7 @@ private:
 	void SetupLevels();
 	void EnableOverlapEvents() const;
 	void OptimizeObjectRendering() const;
+	
 
 	TArray<FString> myLevels;
 	TArray<int32> myArenaIndices;
@@ -63,4 +66,7 @@ private:
 	TArray<LoadedLevelData> myLoadedLevels;
 	int32 myLoadCount = -1;
 	float myLowestEnd = 0.0f;
+	
+	UPROPERTY()
+	TObjectPtr<USplineComponent> myPathSpline; 
 };

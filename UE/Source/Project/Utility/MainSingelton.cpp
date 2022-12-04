@@ -43,16 +43,16 @@ AEnemyManager& UMainSingelton::GetEnemyManager()
 	return *GetEnemyManagerPtr();
 }
 
-ALevelManager* UMainSingelton::GetLevelGeneratorPtr()
+ALevelManager* UMainSingelton::GetLevelManagerPtr()
 {
 	const auto& gameMode = GetGameMode();
 	CHECK_ASSERT(!gameMode.myLevelGenerator, "LevelGenerator nullptr");
 	return gameMode.myLevelGenerator;
 }
 
-ALevelManager& UMainSingelton::GetLevelGenerator()
+ALevelManager& UMainSingelton::GetLevelManager()
 {
-	return *GetLevelGeneratorPtr();
+	return *GetLevelManagerPtr();
 }
 
 AGameDB* UMainSingelton::GetGameDBPtr()

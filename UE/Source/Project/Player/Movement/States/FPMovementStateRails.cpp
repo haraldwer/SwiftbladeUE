@@ -5,9 +5,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/SplineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Project/Gameplay/RailComponent.h"
+#include "Project/Gameplay/Abilities/Rail.h"
 #include "Project/Player/FPCharacter.h"
-#include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Player/Animation/States/FPAnimationStateRails.h"
 #include "Project/Player/Movement/FPMovement.h"
 
@@ -24,7 +23,6 @@ UClass* UFPMovementStateRails::Update(float aDT)
 	
 	if (mySplineDist < 0.0f)
 	{
-		
 		const FVector worldLoc = GetActorTransform().GetLocation() + GetCharacter().GetDefaultHalfHeight();
 		const FVector velOff = movement.Velocity * myInitialVelOffsetMul;
 		const float key = spline->FindInputKeyClosestToWorldLocation(worldLoc + velOff);
@@ -70,8 +68,8 @@ UClass* UFPMovementStateRails::Check()
 	
 	for (const auto& overlap : overlaps)
 	{
-		TArray<URailComponent*> rails;
-		overlap->GetComponents<URailComponent>(rails);
+		TArray<URail*> rails;
+		overlap->GetComponents<URail>(rails);
 		for (const auto& rail : rails)
 		{
 			if (rail == myPrevRail.Get())

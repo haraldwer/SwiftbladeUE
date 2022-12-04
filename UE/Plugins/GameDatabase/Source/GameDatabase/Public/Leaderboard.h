@@ -21,26 +21,17 @@ public:
 	
 	ULeaderboard();
 	
-	void Create(const FString& aLeaderboardID) const;
-	FOnCreateSuccess myOnCreateSuccess;
-	FOnLeaderboardError myOnCreateError;
-	
-	void List(const FString& aLeaderboardID) const;
+	void List(const FLeaderboardRequest& aRequest) const;
 	FOnListSuccess myOnListSuccess;
 	FOnLeaderboardError myOnListError;
 	
-	void Write(const FString& aLeaderboardID, float aScore) const;
+	void Write(const FLeaderboardSubmission& aSubmission) const;
 	FOnWriteSuccess myOnWriteSuccess;
 	FOnLeaderboardError myOnWriteError;
 
 private:
 	
 	class AGameDB& GetDB() const;
-
-	UFUNCTION()
-	void OnCreateResult(const FNakamaRPC& aResult);
-	UFUNCTION()
-	void OnCreateError(const FNakamaError& anError);
 	
 	UFUNCTION()
 	void OnListResult(const FNakamaLeaderboardRecordList& aResult);

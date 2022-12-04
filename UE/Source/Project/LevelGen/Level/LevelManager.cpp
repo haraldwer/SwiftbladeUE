@@ -3,6 +3,7 @@
 #include "LevelEnd.h"
 #include "NiagaraComponent.h"
 #include "Components/LightComponent.h"
+#include "Components/SplineComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
@@ -12,6 +13,8 @@
 ALevelManager::ALevelManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	myPathSpline = CreateDefaultSubobject<USplineComponent>("PathSpline");
 }
 
 void ALevelManager::Tick(float DeltaTime)
@@ -151,6 +154,9 @@ void ALevelManager::SetupLevels()
 	// Sort by index
 	myLoadedLevels.Sort([](const LoadedLevelData& aFirst, const LoadedLevelData& aSecond){ return aFirst.myIndex < aSecond.myIndex; });
 
+	if (const auto pathSpline = myPathSpline.Get())
+		pathSpline->ClearSplinePoints();
+	
 	myLowestEnd = 0.0f;
 	FVector previousPosition = FVector(0, 0, 0);
 	for (auto& level : myLoadedLevels)
@@ -165,12 +171,13 @@ void ALevelManager::SetupLevels()
 		const ALevelEnd* levelEnd = nullptr;
 		
 		// Generate
-		if (AActor** sectionGen = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ASectionGenerator::StaticClass()); }))
+		if (AActor** generator = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(AGeneratorBase::StaticClass()); }))
 		{
-			if (const auto sectionGenPtr = Cast<ASectionGenerator>(*sectionGen))
+			if (const auto genPtr = Cast<AGeneratorBase>(*generator))
 			{
-				sectionGenPtr->Generate();
-				levelEnd = sectionGenPtr->GetLevelEnd();
+				genPtr->Generate(this);
+				if (const auto sectionGen = Cast<ASectionGenerator>(genPtr))
+					levelEnd = sectionGen->GetLevelEnd();
 			}
 		}
 		

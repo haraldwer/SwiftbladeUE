@@ -1,13 +1,13 @@
-#include "RailComponent.h"
+#include "Rail.h"
 
 #include "Components/SplineComponent.h"
 
-URailComponent::URailComponent()
+URail::URail()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void URailComponent::BeginPlay()
+void URail::BeginPlay()
 {
 	Super::BeginPlay();
 

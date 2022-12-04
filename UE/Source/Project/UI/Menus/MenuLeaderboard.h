@@ -14,7 +14,7 @@ public:
 	virtual ~UMenuLeaderboard() override = default;  
 	
 	UFUNCTION(BlueprintCallable)
-	void FetchData();
+	void FetchData(ELeaderboardType aType, ELeaderboardSeed aSeed);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDataLoaded(const FLeaderboardData& someData);
