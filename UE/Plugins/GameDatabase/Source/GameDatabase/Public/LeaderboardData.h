@@ -30,12 +30,15 @@ struct FLeaderboardEntry
 
 	UPROPERTY(BlueprintReadOnly)
 	FString myName = "";
-	
 	UPROPERTY(BlueprintReadOnly)
-	float myTime = 0.0f;
-	
+	FString myUserID = "";
 	UPROPERTY(BlueprintReadOnly)
-	int32 mySeed = -1; 
+	int32 myRank = -1;
+	UPROPERTY(BlueprintReadOnly)
+	int32 myScore = -1;
+	UPROPERTY(BlueprintReadOnly)
+	int32 mySeed = -1;
+	
 };
 
 USTRUCT(BlueprintType)
@@ -44,11 +47,11 @@ struct FLeaderboardData
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly)
-	ELeaderboardType myType;
-
+	ELeaderboardType myType = ELeaderboardType::PERSONAL;
 	UPROPERTY(BlueprintReadOnly)
-	ELeaderboardSeed mySeed;
-	
+	ELeaderboardSeed mySeedType = ELeaderboardSeed::ANY;
+	UPROPERTY(BlueprintReadOnly)
+	int32 mySeed = -1;
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FLeaderboardEntry> myEntries; 
 };
@@ -62,7 +65,6 @@ struct FLeaderboardSubmission
 
 	UPROPERTY()
 	float myTime = 0.0f;
-
 	UPROPERTY()
 	int32 mySeed = -1;
 	
@@ -70,14 +72,27 @@ struct FLeaderboardSubmission
 
 // - Requests - //
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FLeaderboardRequest
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadWrite)
+	ELeaderboardType myType = ELeaderboardType::PERSONAL;
+	UPROPERTY(BlueprintReadWrite)
+	ELeaderboardSeed mySeedType = ELeaderboardSeed::ANY;
+	UPROPERTY(BlueprintReadWrite)
+	int32 mySeed = -1;
+	
 	UPROPERTY()
-	ELeaderboardSeed mySeed;
-	UPROPERTY()
-	ELeaderboardType myType;
+	int32 myEntries = 10;
+
+	bool operator==(const FLeaderboardRequest& anOther) const
+	{
+		return myType == anOther.myType &&
+			mySeedType == anOther.mySeedType &&
+			mySeed == anOther.mySeed &&
+			myEntries == anOther.myEntries;
+	}
 	
 };

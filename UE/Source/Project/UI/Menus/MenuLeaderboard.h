@@ -11,15 +11,21 @@ class PROJECT_API UMenuLeaderboard : public UMenuBase
 
 public:
 
-	virtual ~UMenuLeaderboard() override = default;  
-	
+	virtual ~UMenuLeaderboard() override = default;
+
 	UFUNCTION(BlueprintCallable)
-	void FetchData(ELeaderboardType aType, ELeaderboardSeed aSeed);
+	void FetchData(bool aForce);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDataLoaded(const FLeaderboardData& someData);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoadingFailed(const FString& anError);
+
+protected:
+
+	UPROPERTY(BlueprintReadWrite)
+	FLeaderboardRequest myRequest;
+	FLeaderboardRequest myLastRequest;
 
 };

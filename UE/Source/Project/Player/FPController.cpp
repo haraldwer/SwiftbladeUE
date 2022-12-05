@@ -88,8 +88,11 @@ void AFPController::CharacterKilled()
 
 	LOG("Character killed");
 
+	FLeaderboardSubmission submission;
+	submission.mySeed = FMath::Rand();
+	submission.myTime = FMath::Rand();
 	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
-	lb.Write("Global", FMath::Rand());
+	lb.Write(submission);
 }
 
 void AFPController::Respawn()
@@ -168,8 +171,12 @@ void AFPController::ReachEnd(AGameEnd* aGameEnd)
 	CHECK_RETURN(scoreTime < myMinAllowedTime); 
 	
 	myHasReachedEnd = true;
+
+	FLeaderboardSubmission submission;
+	submission.mySeed = FMath::Rand();
+	submission.myTime = scoreTime;
 	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
-	lb.Write("Global", scoreTime);
+	lb.Write(submission);
 	aGameEnd->SetTime(scoreTime);
 	
 }

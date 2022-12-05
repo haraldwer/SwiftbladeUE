@@ -14,7 +14,6 @@ class GAMEDATABASE_API ULeaderboard : public UActorComponent
 
 public:
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCreateSuccess);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnListSuccess, const FLeaderboardData&, someData);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWriteSuccess);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLeaderboardError, const FString&, anError);
@@ -34,15 +33,15 @@ private:
 	class AGameDB& GetDB() const;
 	
 	UFUNCTION()
-	void OnListResult(const FNakamaLeaderboardRecordList& aResult);
+	void OnListResult(const FNakamaRPC& aResult);
 	UFUNCTION()
 	void OnListError(const FNakamaError& anError); 
-	
+
 	UFUNCTION()
-	void OnWriteResult(const FNakamaLeaderboardRecord& aResult);
+	void OnWriteResult(const FNakamaRPC& aResult);
 	UFUNCTION()
 	void OnWriteError(const FNakamaError& anError); 
 
-	static constexpr float myTimePrecision = 1000.0f;  
+	static constexpr float myTimePrecision = 1000.0f;
 	
 };

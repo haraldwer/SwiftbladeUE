@@ -14,6 +14,8 @@ public class GameDatabase : ModuleRules
 			"Core",
 			"CoreUObject",
 			"Engine",
+			"Json", 
+			"JsonUtilities"
 		});
 		
 		PrivateDependencyModuleNames.AddRange(new string[]
