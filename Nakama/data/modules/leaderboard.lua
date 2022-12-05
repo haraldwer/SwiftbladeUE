@@ -39,11 +39,11 @@ local function ListLeaderboard_Lua(context, payload)
 
 		["FRIENDS"] = function()
 				-- User friends?
-				return {}
+				return nil
 			end,
 
 		["GLOBAL"] = function()
-				return {}
+				return nil
 			end
 	}
 	local owners = type_switch[type]()
@@ -119,6 +119,42 @@ end
 
 -- Submit score
 
+local function CreateLeaderboard(id)
+
+	--if (LeaderboardExists(id)) then
+	--	return nil
+	--end
+
+	local authoritative = false
+	local sort = "desc"
+	local operator = "best"
+	local reset = "0 0 * * 1"
+	local lb_meta = { }
+	local create_error = nk.leaderboard_create(id, authoritative, sort, operator, reset, lb_meta)
+	if (create_error) then 
+		nk.logger_error("Failed to create leaderboard" .. id)
+		return create_error
+	end
+	return nil
+end
+
+local function SubmitScore(id, seed, owner, username, score)
+
+	local create_error = CreateLeaderboard(id)
+	if (create_error) then 
+		return create_error
+	end
+
+	local subscore = 0
+	local score_meta = { ["seed"] = seed }
+	local new_record, write_error = nk.leaderboard_record_write(id, owner, username, score, subscore, score_meta)
+	if (write_error) then 
+		nk.logger_error("Failed to write to leaderboard " .. id);
+		return write_error
+	end
+	return nil
+end
+
 local function WriteLeaderboard_Lua(context, payload)
 
 	nk.logger_info("Write Leaderboard")
@@ -132,44 +168,8 @@ local function WriteLeaderboard_Lua(context, payload)
 	local owner = context.user_id
 	local username = context.username
 
-	-- Function
-	local submit_score = function(id, seed, owner, username, score)
-
-		local create_leaderboard = function(id)
-			if (LeaderboardExists(id)) then
-				return nil
-			end
-
-			local authoritative = false
-			local sort = "desc"
-			local operator = "best"
-			local reset = "0 0 * * 1"
-			local lb_meta = { }
-			local create_error = nk.leaderboard_create(id, authoritative, sort, operator, reset, lb_meta)
-			if (create_error) then 
-				nk.logger_error("Failed to create leaderboard" .. id)
-				return create_error
-			end
-			return nil
-		end
-
-		local create_error = create_leaderboard(id)
-		if (create_error) then 
-			return create_error
-		end
-
-		local subscore = 0
-		local score_meta = { ["seed"] = seed }
-		local new_record, write_error = nk.leaderboard_record_write(id, owner, username, score, subscore, score_meta)
-		if (write_error) then 
-			nk.logger_error("Failed to write to leaderboard " .. id);
-			return write_error
-		end
-		return nil
-	end
-
 	-- Submit score to global lb
-	local global_error = submit_score("Global", seed, owner, username, score)
+	local global_error = SubmitScore("Global", seed, owner, username, score)
 	if (global_error) then
 		return nk.json_encode({ 
 				["payload"] = payload,
@@ -178,7 +178,7 @@ local function WriteLeaderboard_Lua(context, payload)
 	end
 
 	-- Submit score to seed lb
-	local submit_error = submit_score(seed, seed, owner, username, score)
+	local submit_error = SubmitScore(seed, seed, owner, username, score)
 	if (submit_error) then
 		return nk.json_encode({ 
 				["payload"] = payload,

@@ -64,7 +64,7 @@ struct FLeaderboardSubmission
 	GENERATED_BODY()
 
 	UPROPERTY()
-	float myTime = 0.0f;
+	int32 myScore = 0.0f;
 	UPROPERTY()
 	int32 mySeed = -1;
 	
