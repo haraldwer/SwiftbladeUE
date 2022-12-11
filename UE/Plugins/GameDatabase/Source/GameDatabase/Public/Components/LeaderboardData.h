@@ -38,7 +38,6 @@ struct FLeaderboardEntry
 	int32 myScore = -1;
 	UPROPERTY(BlueprintReadOnly)
 	int32 mySeed = -1;
-	
 };
 
 USTRUCT(BlueprintType)
@@ -67,7 +66,6 @@ struct FLeaderboardSubmission
 	int32 myScore = 0.0f;
 	UPROPERTY()
 	int32 mySeed = -1;
-	
 };
 
 // - Requests - //
@@ -94,5 +92,4 @@ struct FLeaderboardRequest
 			mySeed == anOther.mySeed &&
 			myEntries == anOther.myEntries;
 	}
-	
 };

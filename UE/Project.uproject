@@ -367,6 +367,10 @@
 		{
 			"Name": "ActorLayerUtilities",
 			"Enabled": false
+		},
+		{
+			"Name": "Utility",
+			"Enabled": true
 		}
 	]
 }

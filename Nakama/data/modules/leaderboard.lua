@@ -1,5 +1,6 @@
 local nk = require("nakama")
 local utility = require("utility")
+local blob = require("blob")
 
 nk.logger_info("Lua Leaderboard module loaded.")
 
@@ -18,9 +19,8 @@ end
 
 -- List leaderboard
 
-local function ListLeaderboard_Lua(context, payload)
+local function Lua_LB_List(context, payload)
 	
-	nk.logger_info("List Leaderboard")
 	utility.print_table(context)
 	utility.print_table(payload)
 	
@@ -54,8 +54,7 @@ local function ListLeaderboard_Lua(context, payload)
 				return "Global"
 			end,
 		["LAST_PLAYED"] = function()
-				-- Store in user blob? 
-				return "Global"
+				return tostring(blob.get_last_seed(context.user_id))
 			end,
 		["SPECIFIC"] = function()
 				return tostring(seed)
@@ -78,19 +77,19 @@ local function ListLeaderboard_Lua(context, payload)
 	end
 
 	-- Layout:
--- 	[{
--- 		\"create_time\":1670191318,
--- 		\"expiry_time\":1670198400,
--- 		\"leaderboard_id\":\"Global\",
--- 		\"max_num_score\":1000000,
--- 		\"metadata\":{},
--- 		\"num_score\":1,
--- 		\"owner_id\":\"6f2faca1-b9a7-4967-8bd3-e136f9d94a21\",
--- 		\"rank\":1,
--- 		\"score\":11113,
--- 		\"subscore\":0,
--- 		\"update_time\":1670191318,
--- 		\"username\":\"haral\"
+	-- 	[{
+	-- 		\"create_time\":1670191318,
+	-- 		\"expiry_time\":1670198400,
+	-- 		\"leaderboard_id\":\"Global\",
+	-- 		\"max_num_score\":1000000,
+	-- 		\"metadata\":{},
+	-- 		\"num_score\":1,
+	-- 		\"owner_id\":\"6f2faca1-b9a7-4967-8bd3-e136f9d94a21\",
+	-- 		\"rank\":1,
+	-- 		\"score\":11113,
+	-- 		\"subscore\":0,
+	-- 		\"update_time\":1670191318,
+	-- 		\"username\":\"haral\"
 	-- }]
 
 	-- Convert to matching structure
@@ -125,7 +124,7 @@ local function CreateLeaderboard(id)
 	--	return nil
 	--end
 
-	local authoritative = false
+	local authoritative = true
 	local sort = "desc"
 	local operator = "best"
 	local reset = "0 0 * * 1"
@@ -155,9 +154,8 @@ local function SubmitScore(id, seed, owner, username, score)
 	return nil
 end
 
-local function WriteLeaderboard_Lua(context, payload)
+local function Lua_LB_Write(context, payload)
 
-	nk.logger_info("Write Leaderboard")
 	utility.print_table(context)
 	utility.print_table(payload)
 
@@ -193,5 +191,7 @@ local function WriteLeaderboard_Lua(context, payload)
 	})
 end
 
-nk.register_rpc(ListLeaderboard_Lua, "ListLeaderboard_Lua")
-nk.register_rpc(WriteLeaderboard_Lua, "WriteLeaderboard_Lua")
+-- Register RPCs 
+
+nk.register_rpc(Lua_LB_List, "Lua_LB_List")
+nk.register_rpc(Lua_LB_Write, "Lua_LB_Write")

@@ -1,14 +1,13 @@
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "DBComponent.h"
 #include "LeaderboardData.h"
 #include "NakamaClient.h"
 
 #include "Leaderboard.generated.h"
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class GAMEDATABASE_API ULeaderboard : public UActorComponent
+UCLASS(ClassGroup=(GameDB))
+class GAMEDATABASE_API ULeaderboard : public UDBComponent
 {
 	GENERATED_BODY()
 
@@ -17,8 +16,6 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnListSuccess, const FLeaderboardData&, someData);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWriteSuccess);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLeaderboardError, const FString&, anError);
-	
-	ULeaderboard();
 	
 	void List(const FLeaderboardRequest& aRequest) const;
 	FOnListSuccess myOnListSuccess;
@@ -29,8 +26,6 @@ public:
 	FOnLeaderboardError myOnWriteError;
 
 private:
-	
-	class AGameDB& GetDB() const;
 	
 	UFUNCTION()
 	void OnListResult(const FNakamaRPC& aResult);

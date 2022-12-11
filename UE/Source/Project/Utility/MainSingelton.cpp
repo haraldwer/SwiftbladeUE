@@ -6,6 +6,7 @@
 #include "Project/Player/FPController.h"
 #include "Project/CustomGameMode.h"
 #include "Project/LevelGen/Level/LevelManager.h"
+#include "GameDatabase.h"
 
 AMenuManager* UMainSingelton::GetMenuMangerPtr()
 {
@@ -55,14 +56,14 @@ ALevelManager& UMainSingelton::GetLevelManager()
 	return *GetLevelManagerPtr();
 }
 
-AGameDB* UMainSingelton::GetGameDBPtr()
+UGameDatabase* UMainSingelton::GetGameDBPtr()
 {
-	const auto& gameMode = GetGameMode();
-	CHECK_ASSERT(!gameMode.myGameDB, "EnemyManager nullptr");
-	return gameMode.myGameDB; 
+	const auto gameDB = GetGameInstance().GetSubsystem<UGameDatabase>();
+	CHECK_ASSERT(!gameDB, "GameDB nullptr");
+	return gameDB;
 }
 
-AGameDB& UMainSingelton::GetGameDB()
+UGameDatabase& UMainSingelton::GetGameDB()
 {
 	return *GetGameDBPtr(); 
 }

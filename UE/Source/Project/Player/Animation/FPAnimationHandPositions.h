@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Project/Player/Actors/HandStateEnum.h"
-#include "Project/Utility/Math/LerpTransform.h"
+#include "Utility/Math/LerpTransform.h"
 #include "FPAnimationHandPositions.generated.h"
 
 USTRUCT()

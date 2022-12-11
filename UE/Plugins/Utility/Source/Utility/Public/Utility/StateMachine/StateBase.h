@@ -4,8 +4,8 @@
 #include "Components/SceneComponent.h"
 #include "StateBase.generated.h"
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_API UStateBase : public USceneComponent
+UCLASS(ClassGroup=(Utility), meta=(BlueprintSpawnableComponent))
+class UTILITY_API UStateBase : public USceneComponent
 {
 	GENERATED_BODY()
 	

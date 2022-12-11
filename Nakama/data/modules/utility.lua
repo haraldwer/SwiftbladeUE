@@ -7,4 +7,6 @@ function PrintTable(table)
 	nk.logger_debug("print_table : " .. json)
 end
 
+-- Expose functions
+
 return { print_table = PrintTable }

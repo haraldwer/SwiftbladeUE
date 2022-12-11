@@ -5,8 +5,8 @@
 #include "Components/SceneComponent.h"
 #include "StateMachine.generated.h"
 
-UCLASS(ClassGroup=(Custom))
-class PROJECT_API UStateMachine : public USceneComponent
+UCLASS(ClassGroup=(Utility))
+class UTILITY_API UStateMachine : public USceneComponent
 {
 	GENERATED_BODY()
 

@@ -2,7 +2,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "LevelRand.h"
-#include "Project/Utility/EngineUtility.h"
+#include "Project/Utility/GameUtility.h"
 
 AGeneratorBase::AGeneratorBase()
 {
@@ -15,7 +15,7 @@ void AGeneratorBase::Generate(ALevelManager* aLevelManager)
 	FlushPersistentDebugLines(GetWorld());
 	
 	// Set seed
-	if (UEngineUtility::IsInBaseLevel())
+	if (UGameUtility::IsInBaseLevel())
 		ULevelRand::Reset();
 	else if (mySeed)
 		ULevelRand::Init(mySeed);

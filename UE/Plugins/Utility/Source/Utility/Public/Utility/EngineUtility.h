@@ -5,8 +5,8 @@
 #include "UObject/Object.h"
 #include "EngineUtility.generated.h"
 
-UCLASS()
-class PROJECT_API UEngineUtility : public UObject
+UCLASS(ClassGroup=(Utility))
+class UTILITY_API UEngineUtility : public UObject
 {
 	GENERATED_BODY()
 
@@ -16,7 +16,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static bool IsShipping();
-
-	UFUNCTION(BlueprintCallable)
-	static bool IsInBaseLevel();
+	
 };

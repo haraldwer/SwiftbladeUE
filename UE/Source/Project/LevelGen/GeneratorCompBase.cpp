@@ -1,6 +1,6 @@
 #include "GeneratorCompBase.h"
 
-#include "Project/Utility/Math/LineIntersection.h"
+#include "Utility/Math/LineIntersection.h"
 
 FVector2D UGeneratorCompBase::GetBlendVert(const TArray<FVector2D>& someVerts, const float anIndex)
 {

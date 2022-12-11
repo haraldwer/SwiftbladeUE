@@ -1,7 +1,7 @@
 #include "MenuLeaderboard.h"
 
-#include "GameDB.h"
-#include "Leaderboard.h"
+#include "GameDatabase.h"
+#include "Components/Leaderboard.h"
 #include "Project/Utility/MainSingelton.h"
 
 void UMenuLeaderboard::FetchData(bool aForce)
@@ -11,7 +11,7 @@ void UMenuLeaderboard::FetchData(bool aForce)
 	myLastRequest = myRequest;
 	
 	auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
-	lb.myOnListSuccess.AddDynamic(this, &UMenuLeaderboard::OnDataLoaded);
-	lb.myOnListError.AddDynamic(this, &UMenuLeaderboard::OnLoadingFailed);
+	lb.myOnListSuccess.AddUniqueDynamic(this, &UMenuLeaderboard::OnDataLoaded);
+	lb.myOnListError.AddUniqueDynamic(this, &UMenuLeaderboard::OnLoadingFailed);
 	lb.List(myRequest);
 }

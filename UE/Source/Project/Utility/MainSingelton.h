@@ -29,8 +29,8 @@ public:
 	static class ALevelManager& GetLevelManager();
 
 	UFUNCTION(BlueprintCallable, Category="MainSingelton Getter")
-	static class AGameDB* GetGameDBPtr();
-	static class AGameDB& GetGameDB();
+	static class UGameDatabase* GetGameDBPtr();
+	static class UGameDatabase& GetGameDB();
 	
 	UFUNCTION(BlueprintCallable, Category="MainSingelton Getter")
 	static class AFPController* GetLocalController();

@@ -10,7 +10,7 @@
 #include "Project/LevelGen/Props/PropConfig.h"
 #include "Project/LevelGen/Props/PropGroup.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
-#include "Project/Utility/Math/LineIntersection.h"
+#include "Utility/Math/LineIntersection.h"
 
 void USectionCompProp::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
 {

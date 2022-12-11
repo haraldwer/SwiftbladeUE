@@ -20,9 +20,8 @@
 #include "Project/Gameplay/Door.h"
 #include "Project/Gameplay/GameEnd.h"
 #include "Project/LevelGen/Level/LevelManager.h"
-#include "Project/Utility/EngineUtility.h"
+#include "Project/Utility/GameUtility.h"
 #include "Project/Utility/MainSingelton.h"
-#include "Project/Utility/Utility.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 #include "Project/Utility/Tools/Effect.h"
 
@@ -105,7 +104,7 @@ void AFPCharacter::BeginPlay()
 		}
 	}
 
-	if (UEngineUtility::IsInBaseLevel())
+	if (UGameUtility::IsInBaseLevel())
 	{
 		if (const auto controller = GetFPController())
 			controller->LoadState();	

@@ -3,10 +3,11 @@
 
 #include "FPCharacter.h"
 #include "FPTime.h"
-#include "GameDB.h"
-#include "Leaderboard.h"
+#include "GameDatabase.h"
+#include "Components/Leaderboard.h"
 #include "Camera/CameraActor.h"
 #include "Combat/FPCombat.h"
+#include "Components/Blob.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/Gameplay/GameEnd.h"
@@ -93,6 +94,11 @@ void AFPController::CharacterKilled()
 	submission.myScore = FMath::Rand();
 	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
 	lb.Write(submission);
+
+	auto& blob = UMainSingelton::GetGameDB().GetBlob();
+	auto blobData = blob.Get();
+	blobData.mySeedData.mySeed = myState.mySeed;
+	blob.Set(blobData);
 }
 
 void AFPController::Respawn()
@@ -178,7 +184,11 @@ void AFPController::ReachEnd(AGameEnd* aGameEnd)
 	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
 	lb.Write(submission);
 	aGameEnd->SetTime(scoreTime);
-	
+
+	auto& blob = UMainSingelton::GetGameDB().GetBlob();
+	auto blobData = blob.Get();
+	blobData.mySeedData.mySeed = myState.mySeed;
+	blob.Set(blobData);
 }
 
 void AFPController::SetEnablePawnControls(const bool aEnabled)

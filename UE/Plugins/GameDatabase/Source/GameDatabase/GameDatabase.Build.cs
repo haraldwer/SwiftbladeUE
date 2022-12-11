@@ -9,19 +9,27 @@ public class GameDatabase : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PublicDependencyModuleNames.AddRange(new string[]
-		{
-			"Core",
-			"CoreUObject",
-			"Engine",
-			"Json", 
-			"JsonUtilities"
-		});
+		PublicDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"Core",
+				"CoreUObject",
+				"Engine",
+				"Json", 
+				"JsonUtilities"
+			});
+
+		PublicDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"Utility"
+			});
 		
-		PrivateDependencyModuleNames.AddRange(new string[]
-		{
-			"NakamaUnreal", 
-			"NakamaCore"
-		});
+		PrivateDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"NakamaUnreal", 
+				"NakamaCore"
+			});
 	}
 }

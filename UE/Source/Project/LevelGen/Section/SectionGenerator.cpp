@@ -9,14 +9,14 @@
 #include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Level/LevelEnd.h"
 #include "Project/LevelGen/Level/LevelManager.h"
-#include "Project/Utility/EngineUtility.h"
-#include "Project/Utility/Math/LineIntersection.h"
+#include "Project/Utility/GameUtility.h"
+#include "Utility/Math/LineIntersection.h"
 
 void ASectionGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!UEngineUtility::IsInBaseLevel())
+	if (!UGameUtility::IsInBaseLevel())
 	{
 		if (!myLevelEnd.Get())
 			Generate(nullptr);
@@ -56,13 +56,13 @@ void ASectionGenerator::Generate(ALevelManager* aLevelManager)
 							ESplineCoordinateSpace::World,
 							false);
 
-				pathSpline->AddSplinePoint(
-					FVector(
-						section.lastEdgeLoc.X,
-						section.lastEdgeLoc.Y,
-						section.rooms.Last().groundOffset + 200.0f),
-					ESplineCoordinateSpace::World,
-					false);
+				//pathSpline->AddSplinePoint(
+				//	FVector(
+				//		section.lastEdgeLoc.X,
+				//		section.lastEdgeLoc.Y,
+				//		section.rooms.Last().groundOffset + 200.0f),
+				//	ESplineCoordinateSpace::World,
+				//	false);
 				
 				pathSpline->UpdateSpline();
 			}

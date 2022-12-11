@@ -17,12 +17,24 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float myDistanceOffset = 500.0f;
+	float myDistanceOffset = 1000.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myOffsetNoiseScale = 0.01f;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float mySmoothing = 10.0f;
+	float myOffsetNoiseTimeScale = 2.0f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float myOffsetNoiseStrength = 100.0f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float mySmoothing = 2.0f; 
+
+private:
 	
+	static FTransform GetSplineTrans(FVector aLocation, float aDistanceOffset = 0.0f);
+
+	float myDistance = 0.0f; 
 	
 };

@@ -6,12 +6,12 @@
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/LevelGen/LevelRand.h"
 #include "Project/Player/FPCharacter.h"
-#include "Project/Utility/EngineUtility.h"
+#include "Project/Utility/GameUtility.h"
 #include "Project/Utility/MainSingelton.h"
 
 void AArenaGenerator::BeginPlay()
 {
-	if (!UEngineUtility::IsInBaseLevel())
+	if (!UGameUtility::IsInBaseLevel())
 	{
 		if (!myConfig.Get())
 			Generate(nullptr);
@@ -108,7 +108,7 @@ void AArenaGenerator::Generate(ALevelManager* aLevelManager)
 	CreateCheckpoint(config, layers[0]);
 	CreateDoor(config, layers.Last());
 
-	if (UEngineUtility::IsInBaseLevel())
+	if (UGameUtility::IsInBaseLevel())
 		UMainSingelton::GetEnemyManager().Init(config->myEnemyConfig);
 }
 
@@ -131,7 +131,7 @@ void AArenaGenerator::CreateDoor(const UArenaConfig* aConfig, const FArenaLayer&
 	const FVector location = FVector(0.0f, -aLayer.endRadius * aConfig->myDoorRadiusPart, aConfig->myDoorHeight);
 	SpawnGeneratedActor(aConfig->myDoorClass, FTransform(location));
 
-	if (UEngineUtility::IsInBaseLevel())
+	if (UGameUtility::IsInBaseLevel())
 		if (const auto player = UMainSingelton::GetLocalPlayer())
 			player->SetActorLocation(location - FVector::RightVector * 250.0f + FVector::UpVector * 75.0f);
 }

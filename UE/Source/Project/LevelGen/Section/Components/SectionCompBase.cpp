@@ -1,8 +1,6 @@
 #include "SectionCompBase.h"
 
-#include "DrawDebugHelpers.h"
 #include "Project/LevelGen/LevelRand.h"
-#include "Project/Utility/Math/LineIntersection.h"
 
 TArray<int32> USectionCompBase::PopulateSection(ASectionGenerator* aGenerator, const FProcSection& aSection)
 {

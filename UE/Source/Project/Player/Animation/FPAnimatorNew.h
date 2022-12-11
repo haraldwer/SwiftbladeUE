@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "FPAnimationCameraData.h"
 #include "FPAnimationHandPositions.h"
-#include "Project/Utility/Tools/StateMachine/StateMachine.h"
+#include "Utility/StateMachine/StateMachine.h"
 #include "FPAnimatorNew.generated.h"
 
 UCLASS(ClassGroup=(Custom))

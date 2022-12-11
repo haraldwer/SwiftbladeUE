@@ -8,18 +8,42 @@ public class Project : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.NoSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent" });
+		PublicDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"Core", 
+				"CoreUObject", 
+				"Engine", 
+				"InputCore", 
+				"ProceduralMeshComponent"
+			});
 		
-		// Database and server
-		PublicDependencyModuleNames.AddRange(new string[] { "GameDatabase", "NakamaUnreal", "NakamaCore" });
+		PublicDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"GameDatabase", 
+				"NakamaUnreal", 
+				"NakamaCore"
+			});
+		
+		// Utility
+		PublicDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"Utility"
+			});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "Niagara", "ProceduralMeshComponent"});
+		PrivateDependencyModuleNames.AddRange(
+			new string[]
+			{
+				"UMG", 
+				"Slate", 
+				"SlateCore", 
+				"Niagara", 
+				"ProceduralMeshComponent"
+			});
 
 		PrivatePCHHeaderFile = "Project.h";
 		
-		// Uncomment if you are using online features
-		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
-
-		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 	}
 }

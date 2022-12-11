@@ -19,7 +19,6 @@ private:
 	void CreatePromptManager();
 	void CreateEnemyManager();
 	void CreateLevelGenerator();
-	void CreateGameDB();
 	
 	UPROPERTY()
 	class AMenuManager* myMenuManager;
@@ -29,7 +28,5 @@ private:
 	class AEnemyManager* myEnemyManager;
 	UPROPERTY()
 	class ALevelManager* myLevelGenerator;
-	UPROPERTY()
-	class AGameDB* myGameDB;
 	
 };

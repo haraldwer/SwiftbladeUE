@@ -27,7 +27,7 @@ public:
 	
 	virtual ~UMenuBase() override = default;
 	void Init(EMenuType aMenuType);
-
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnOpen();
 	UFUNCTION(BlueprintImplementableEvent)
