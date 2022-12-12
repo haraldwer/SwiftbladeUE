@@ -14,30 +14,41 @@ ASwordSoul::ASwordSoul()
 void ASwordSoul::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	const auto player = UMainSingelton::GetLocalPlayer();
 	CHECK_RETURN(!player);
-	
-	const auto targetTrans = GetSplineTrans(player->GetActorLocation() + myDistanceOffset);
-	const auto currentSplineTrans = GetSplineTrans(GetActorLocation());
-	const FVector interpLoc = FMath::VInterpTo(currentSplineTrans.GetLocation(), targetTrans.GetLocation(), DeltaTime, mySmoothing);
 
+	const auto& levelMan = UMainSingelton::GetLevelManager();
+	const auto spline = levelMan.GetPathSpline();
+	CHECK_RETURN(!spline);
+	const float locKey = spline->FindInputKeyClosestToWorldLocation(player->GetActorLocation());
+	const float desiredDist = spline->GetDistanceAlongSplineAtSplineInputKey(locKey) + myDistanceOffset;
+	DrawDebugSphere(GetWorld(), spline->GetLocationAtSplineInputKey(locKey, ESplineCoordinateSpace::World), 10.0f, 8, FColor::Green);
+	
+	myDistance = FMath::FInterpTo(myDistance, desiredDist, DeltaTime, mySmoothing);
+	const auto trans = spline->GetTransformAtDistanceAlongSpline(myDistance, ESplineCoordinateSpace::World); 
+	DrawDebugSphere(GetWorld(), trans.GetLocation(), 10.0f, 8, FColor::Magenta);
+
+	
 	const float timeOffset = GetWorld()->GetTimeSeconds() * myOffsetNoiseTimeScale;
-	const FVector offset =
-		currentSplineTrans.InverseTransformVector(FVector::UpVector) * FMath::PerlinNoise1D(myDistance * myOffsetNoiseScale + timeOffset) * myOffsetNoiseStrength +
-		currentSplineTrans.InverseTransformVector(FVector::RightVector) * FMath::PerlinNoise1D(myDistance * myOffsetNoiseScale + timeOffset + 1000.0f) * myOffsetNoiseStrength;
-
-	const FVector loc = interpLoc + offset; 
-	const FVector delta = loc - GetActorLocation();
-	myDistance += delta.Size();
-	SetActorLocation(interpLoc);
-
-	LOG("Distance: " + FString::SanitizeFloat(myDistance));
-
-	const FVector forwardLoc = currentSplineTrans.InverseTransformVector(FVector::ForwardVector * 100.0f);	
-	const FRotator rot = UKismetMathLibrary::FindLookAtRotation(loc, forwardLoc);
-	SetActorRotation(rot);
+	const FVector offset = trans.TransformVector(FVector(
+			FMath::PerlinNoise1D(myDistance * myOffsetNoiseScale + timeOffset) * myOffsetNoiseStrength,
+			FMath::PerlinNoise1D(myDistance * myOffsetNoiseScale + timeOffset + 1000.0f) * myOffsetNoiseStrength,
+			FMath::PerlinNoise1D(myDistance * myOffsetNoiseScale + timeOffset + 2000.0f) * myOffsetNoiseStrength
+		) * myOffsetMul);
 	
+	
+	const FVector loc = trans.GetLocation() + offset;
+	
+	const FVector forwardLook = trans.GetRotation().Vector();
+	const FVector headingLook = (loc - GetActorLocation()).GetSafeNormal();
+	const FVector look = forwardLook + headingLook;
+	const FRotator rot = UKismetMathLibrary::FindLookAtRotation(FVector::ZeroVector, look);
+
+	const FRotator smoothRot = FMath::RInterpTo(GetActorRotation(), rot, DeltaTime, myRotSmoothing); 
+	SetActorRotation(smoothRot);
+
+	SetActorLocation(loc);
 }
 
 FTransform ASwordSoul::GetSplineTrans(const FVector aLocation, const float aDistanceOffset)

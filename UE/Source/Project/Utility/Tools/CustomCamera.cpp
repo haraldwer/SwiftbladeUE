@@ -30,9 +30,9 @@ void UCustomCamera::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	float fov;
 	FTransform offset;
 	GetAdditiveOffset(offset, fov);
-	for (const auto& widget : myWidgets)
-		if (const auto comp = widget.myComponent.Get())
-			comp->SetRelativeLocation(offset.GetLocation());
+	for (int32 i = 0; i < myWidgets.Num(); i++)
+		if (const auto comp = myWidgets[i].myComponent.Get())
+			comp->SetRelativeLocation(offset.GetLocation() + FVector::ForwardVector * i * 0.01f);
 }
 
 void UCustomCamera::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -55,7 +55,7 @@ void UCustomCamera::AddWidget(UWidgetBase* aWidget, const int32 aZOrder)
 	const auto comp = GetWidgetComponent();
 	CHECK_RETURN_LOG(!comp, "Failed to create widget component");
 	myWidgets.Emplace(FWidgetEntry{aWidget, comp});
-	
+
 	comp->SetInitialLayerZOrder(aZOrder);
 	comp->SetWidgetClass(aWidget->GetClass());
 	comp->SetWidget(aWidget);

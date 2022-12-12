@@ -29,7 +29,13 @@ protected:
 	float myOffsetNoiseStrength = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float mySmoothing = 2.0f; 
+	FVector myOffsetMul = FVector::OneVector; 
+
+	UPROPERTY(EditDefaultsOnly)
+	float mySmoothing = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myRotSmoothing = 10.0f;
 
 private:
 	

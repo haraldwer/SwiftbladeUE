@@ -122,12 +122,8 @@ void UBlob::Set(const FBlobData& someData)
 			continue; 
 		}
 			
-		UE_LOG(LogGameDB, Log, TEXT("Blob set compare: %s"), *variableName); 
-		if (property->Identical(currData, newData, 0)) // Maybe adjust these flags? 
-		{
-			UE_LOG(LogGameDB, Log, TEXT("Blob data equal: %s"), *variableName);
+		if (property->Identical(currData, newData, 0))
 			continue;
-		}
 
 		FString json;
 		const bool result = FJsonObjectConverter::UStructToJsonObjectString(

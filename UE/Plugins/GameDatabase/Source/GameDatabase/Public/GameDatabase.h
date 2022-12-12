@@ -57,6 +57,6 @@ private:
 	static constexpr TCHAR* myClientName = TEXT("Main");
 	static constexpr int32 myPort = 7350;
 	static constexpr float myTickInterval = 0.5f;
-	static constexpr float myRealtimeTickInterval = 10.0f;
+	static constexpr float myRealtimeTickInterval = 0.5f;
 	
 };
