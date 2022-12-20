@@ -1,9 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FPController.h"
 #include "GameFramework/Character.h"
 #include "FPCharacter.generated.h"
 
+class UFPToombstone;
 UCLASS()
 class PROJECT_API AFPCharacter : public ACharacter
 {
@@ -16,6 +18,8 @@ public:
 	virtual void BeginDestroy() override;
 	virtual void TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void OnStateLoaded(const FFPControllerState& aState) const;
 
 	// Input getters
 	float GetSensitivity() const						{ return mySensitivity; }
@@ -34,7 +38,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UFPCombat* GetCombat() const					{ return myFPCombat; }
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
-	class UFPTime* GetTime() const						{ return myFPTime; };
+	class UFPTime* GetTime() const						{ return myFPTime; }
+	
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UFPPostProcessing* GetPostProcessing() const	{ return myFPPP; }
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
@@ -95,6 +100,8 @@ protected:
 	UFPTime* myFPTime;
 	UPROPERTY(EditDefaultsOnly, Category="Components")
 	UFPPostProcessing* myFPPP;
+	UPROPERTY(EditDefaultsOnly, Category="Components")
+	UFPToombstone* myFPToombstone;
 
 	UPROPERTY(EditDefaultsOnly, Category="Components")
 	UCapsuleComponent* myWallDetection;

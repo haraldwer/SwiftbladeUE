@@ -39,7 +39,7 @@ class PROJECT_API AFPController : public APlayerController
 	GENERATED_BODY()
 
 public:
-	
+
 	virtual ~AFPController() override = default;
 	virtual void BeginPlay() override;
 
@@ -96,6 +96,7 @@ public:
 	// -- Other -- // 
 	
 	// UI helper function
+	UFUNCTION(BlueprintCallable)
 	void SetEnablePawnControls(bool aEnabled);
 	
 protected:
@@ -118,7 +119,7 @@ private:
 	
 	virtual void SetupInputComponent() override;
 	void PausePressed();
-
+	
 	TWeakObjectPtr<ACheckpoint> myCheckpoint;
 	FFPControllerState myState;
 	EFPTravelReason myTravelReason = EFPTravelReason::NONE;

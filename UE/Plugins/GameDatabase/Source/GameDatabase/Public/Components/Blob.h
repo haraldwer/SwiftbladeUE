@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DBComponent.h"
-#include "BlobData.h"
+#include "Data/BlobData.h"
 #include "Blob.generated.h"
 
 UCLASS(ClassGroup=(GameDB))
@@ -27,7 +27,6 @@ private:
 	void OnWriteSuccess(const FNakamaStoreObjectAcks& someObjects);
 	UFUNCTION()
 	void OnWriteError(const FNakamaError& anError);
-	
 	
 	FBlobData myData;
 	

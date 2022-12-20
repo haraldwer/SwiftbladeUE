@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Components/AuthenticationData.h"
+#include "Data/AuthenticationData.h"
 #include "MenuBase.h"
 #include "MenuAuthentication.generated.h"
 

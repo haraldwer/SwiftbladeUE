@@ -53,7 +53,7 @@ private:
 	TObjectPtr<UNakamaSession> myUserSession;
 
 	static constexpr TCHAR* myServerKey = TEXT("defaultkey");
-	static constexpr TCHAR* myHost = TEXT("localhost");
+	static constexpr TCHAR* myHost = TEXT("83.251.170.62");
 	static constexpr TCHAR* myClientName = TEXT("Main");
 	static constexpr int32 myPort = 7350;
 	static constexpr float myTickInterval = 0.5f;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MenuBase.h"
-#include "Components/LeaderboardData.h"
+#include "Data/LeaderboardData.h"
 #include "MenuLeaderboard.generated.h"
 
 UCLASS(Blueprintable)

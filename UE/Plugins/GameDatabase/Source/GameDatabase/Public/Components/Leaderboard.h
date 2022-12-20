@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DBComponent.h"
-#include "LeaderboardData.h"
+#include "Data/LeaderboardData.h"
 #include "NakamaClient.h"
 
 #include "Leaderboard.generated.h"

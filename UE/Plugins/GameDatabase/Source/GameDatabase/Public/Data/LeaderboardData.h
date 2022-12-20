@@ -93,3 +93,14 @@ struct FLeaderboardRequest
 			myEntries == anOther.myEntries;
 	}
 };
+
+// - Blob - //
+
+USTRUCT()
+struct FBlobLeaderboard
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	TArray<FLeaderboardEntry> myEntries;
+};

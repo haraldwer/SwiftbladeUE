@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AuthenticationData.h"
+#include "Data/AuthenticationData.h"
 #include "DBComponent.h"
 #include "NakamaClient.h"
 

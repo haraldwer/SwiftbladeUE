@@ -45,11 +45,7 @@ void AFPController::OnStateLoaded(const FFPControllerState aState)
 	myState = aState;
 	if (!myState.mySeed)
 		myState.mySeed = FMath::Rand();
-
-	if (const auto character = GetFPCharacter())
-		if (const auto time = character->GetTime())
-			time->SetInitialTime(myState.myTime);
-		
+	
 	// Load level
 	auto& levelGen = UMainSingelton::GetLevelManager();
 	levelGen.GenerateLevelOrder(myState.mySeed + myState.myArenaIndex);
@@ -57,10 +53,8 @@ void AFPController::OnStateLoaded(const FFPControllerState aState)
 		levelGen.LoadArena(myState.myArenaIndex) :
 		levelGen.LoadSection(myState.myArenaIndex);
 
-	if (myState.myHasSword)
-		if (const auto character = GetFPCharacter())
-			if (const auto combat = character->GetCombat())
-				combat->SetHasSword(true);
+	if (const auto character = GetFPCharacter())
+		character->OnStateLoaded(aState);
 }
 
 FFPControllerState AFPController::GetState() const

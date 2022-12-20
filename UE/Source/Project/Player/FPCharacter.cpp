@@ -24,6 +24,7 @@
 #include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 #include "Project/Utility/Tools/Effect.h"
+#include "Toombstone/FPToombstone.h"
 
 AFPCharacter::AFPCharacter()
 {
@@ -56,6 +57,9 @@ AFPCharacter::AFPCharacter()
 
 	myFPPP = CreateDefaultSubobject<UFPPostProcessing>("FPPostProcessing");
 	CHECK_ASSERT(!myFPPP, "Failed to create pp component");
+
+	myFPToombstone = CreateDefaultSubobject<UFPToombstone>("FPToombstone");
+	CHECK_ASSERT(!myFPToombstone, "Failed to create toombstone component");
 	
 	myInteractionCollider = CreateDefaultSubobject<USphereComponent>("InteractionCollider");
 	CHECK_ASSERT(!myInteractionCollider, "Failed to create interaction collider");
@@ -177,6 +181,18 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	InputComponent->BindAction("Block", IE_Pressed, myFPCombat, &UFPCombat::Block); 
 }
 
+void AFPCharacter::OnStateLoaded(const FFPControllerState& aState) const
+{	
+	if (myFPTime)
+		myFPTime->SetInitialTime(aState.myTime);
+	if (myFPToombstone)
+		myFPToombstone->CreateStones();
+
+	if (aState.myHasSword)
+		if (myFPCombat)
+			myFPCombat->SetHasSword(true);
+}
+
 AFPController* AFPCharacter::GetFPController() const
 {
 	return Cast<AFPController>(GetController());
@@ -210,8 +226,10 @@ void AFPCharacter::Die(const FString& anObjectName)
 {
 	CHECK_RETURN(!myAlive);
 	myAlive = false;
+	myFPToombstone->StoreLocation();
 	if (const auto animator = GetAnimator())
 		animator->SetState<UFPAnimationStateDeath>();
+
 	const auto controller = GetFPController();
 	CHECK_RETURN_LOG(!controller, "Controller nullptr");
 	controller->CharacterKilled();

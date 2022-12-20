@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "LeaderboardData.h"
+#include "ToombstoneData.h"
 #include "BlobData.generated.h"
 
 // Each data type is synced automatically when changed
@@ -16,15 +17,6 @@ struct FBlobSeed
 };
 
 USTRUCT()
-struct FBlobLB
-{
-	GENERATED_BODY()
-	
-	UPROPERTY()
-	TArray<FLeaderboardEntry> myEntries;
-};
-
-USTRUCT()
 struct FBlobData
 {
 	GENERATED_BODY()
@@ -36,5 +28,8 @@ struct FBlobData
 	FBlobSeed mySeedData;
 
 	UPROPERTY()
-	FBlobLB myLBData;
+	FBlobLeaderboard myLeaderboardData;
+
+	UPROPERTY()
+	FBlobToombstone myToombstoneData;
 };

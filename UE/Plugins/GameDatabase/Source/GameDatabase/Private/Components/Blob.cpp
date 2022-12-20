@@ -89,6 +89,7 @@ void UBlob::Set(const FBlobData& someData)
 {
 	if (!someData.myInitialized)
 	{
+		myData = someData;
 		UE_LOG(LogGameDB, Error, TEXT("Blob not yet initialized"));
 		return;
 	}
