@@ -27,6 +27,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Crouch")
 	float myCamHeightMul = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Crouch")
+	float myEnterSlideSpeed = 200.0f;
 	
 private:
 	

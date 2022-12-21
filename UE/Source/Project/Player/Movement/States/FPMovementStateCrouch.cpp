@@ -86,7 +86,7 @@ UClass* UFPMovementStateCrouch::CheckCrouch(const bool aLanded) const
 	if (HasMagic())
 		if (const auto slide = GetState<UFPMovementStateSlide>())
 			if (!slide->IsOnCooldown())
-				if (movement.GetLastUpdateVelocity().Size2D() > movement.MaxWalkSpeedCrouched)
+				if (movement.GetLastUpdateVelocity().Size2D() > myEnterSlideSpeed)
 					return UFPMovementStateSlide::StaticClass();
 
 	return StaticClass();

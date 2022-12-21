@@ -90,6 +90,13 @@ UFPPostProcessing& UFPActorComponentBase::GetPostProcessing() const
 	return *ptr;
 }
 
+UFPCutscene& UFPActorComponentBase::GetCutscene() const
+{
+	const auto ptr = GetCharacter().GetCutscene();
+	CHECK_ASSERT(!ptr, "Cutscene nullptr");
+	return *ptr;
+}
+
 AEffect* UFPActorComponentBase::CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const
 {
 	return GetCharacter().CreateEffect(aBP, aTransform);
@@ -179,6 +186,13 @@ UFPPostProcessing& UFPSceneComponentBase::GetPostProcessing() const
 {
 	const auto ptr = GetCharacter().GetPostProcessing();
 	CHECK_ASSERT(!ptr, "PostProcessing nullptr");
+	return *ptr;
+}
+
+UFPCutscene& UFPSceneComponentBase::GetCutscene() const
+{
+	const auto ptr = GetCharacter().GetCutscene();
+	CHECK_ASSERT(!ptr, "Cutscene nullptr");
 	return *ptr;
 }
 

@@ -23,11 +23,11 @@ void ASwordSoul::Tick(float DeltaTime)
 	CHECK_RETURN(!spline);
 	const float locKey = spline->FindInputKeyClosestToWorldLocation(player->GetActorLocation());
 	const float desiredDist = spline->GetDistanceAlongSplineAtSplineInputKey(locKey) + myDistanceOffset;
-	DrawDebugSphere(GetWorld(), spline->GetLocationAtSplineInputKey(locKey, ESplineCoordinateSpace::World), 10.0f, 8, FColor::Green);
+	//DrawDebugSphere(GetWorld(), spline->GetLocationAtSplineInputKey(locKey, ESplineCoordinateSpace::World), 10.0f, 8, FColor::Green);
 	
 	myDistance = FMath::FInterpTo(myDistance, desiredDist, DeltaTime, mySmoothing);
 	const auto trans = spline->GetTransformAtDistanceAlongSpline(myDistance, ESplineCoordinateSpace::World); 
-	DrawDebugSphere(GetWorld(), trans.GetLocation(), 10.0f, 8, FColor::Magenta);
+	//DrawDebugSphere(GetWorld(), trans.GetLocation(), 10.0f, 8, FColor::Magenta);
 
 	
 	const float timeOffset = GetWorld()->GetTimeSeconds() * myOffsetNoiseTimeScale;

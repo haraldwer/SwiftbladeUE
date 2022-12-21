@@ -27,6 +27,7 @@ public:
 	class UFPCombat& GetCombat() const;
 	class UFPTime& GetTime() const;
 	class UFPPostProcessing& GetPostProcessing() const;
+	class UFPCutscene& GetCutscene() const;
 
 	// Interface for creating player-related effects
 	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;
@@ -54,6 +55,7 @@ public:
 	class UFPCombat& GetCombat() const;
 	class UFPTime& GetTime() const;
 	class UFPPostProcessing& GetPostProcessing() const;
+	class UFPCutscene& GetCutscene() const;
 
 	// Interface for creating player-related effects
 	class AEffect* CreateEffect(const TSubclassOf<AEffect>& aBP, const FTransform& aTransform) const;

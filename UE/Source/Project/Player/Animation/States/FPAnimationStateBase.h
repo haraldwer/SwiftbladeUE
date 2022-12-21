@@ -25,6 +25,8 @@ class PROJECT_API UFPAnimationStateBase : public UFPStateBase
 public:
 	
 	virtual UClass* Update(float aDT) override;
+
+	FTransform GetDefaultHandTransform() const;
 	
 protected:
 
@@ -52,10 +54,6 @@ protected:
 	void OverrideVelocityData(FFPAnimationHandPositions& someData, float aVelocityWeight) const;
 	
 	float GetVelocityCameraTilt() const;
-
-	// Properties
-	
-	FTransform GetDefaultHandTransform() const;
 
 private:
 	float myTime = 0.0f;

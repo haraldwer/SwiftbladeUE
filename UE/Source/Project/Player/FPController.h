@@ -100,9 +100,6 @@ public:
 	void SetEnablePawnControls(bool aEnabled);
 	
 protected:
-
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	TSubclassOf<AFPCharacter> myCharacterBlueprint;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	int myRespawns = 3;

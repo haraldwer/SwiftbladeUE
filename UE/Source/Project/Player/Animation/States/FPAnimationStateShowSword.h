@@ -5,7 +5,7 @@
 #include "FPAnimationStateDeath.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_API UFPAnimationStateDeath : public UFPAnimationStateBase
+class PROJECT_API UFPAnimationStateShowSword : public UFPAnimationStateBase
 {
 	GENERATED_BODY()
 
@@ -17,8 +17,5 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float myDuration = 2.0f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float myInitialLerpTime = 0.5f;
 	
 };

@@ -2,6 +2,7 @@
 
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
+#include "Project/Player/FPCutscene.h"
 #include "Project/Player/Actors/Hand.h"
 #include "Project/Player/Actors/Sword.h"
 #include "Project/Player/Animation/FPAnimatorNew.h"
@@ -72,9 +73,11 @@ void UFPCombat::PickupSword()
 	const auto sword = mySword.Get();
 	CHECK_RETURN_LOG(!sword, "Sword ptr not set");
 	LOG("PickupSword");
-	sword->SetPlayer(&GetCharacter());
+	auto& character = GetCharacter();
+	sword->SetPlayer(&character);
 	SetState<UFPCombatStateIdle>();
-	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::INTRO);
+	if (const auto cutscene = GetCharacter().GetCutscene())
+		cutscene->StartCutscene(INTRO);
 }
 
 void UFPCombat::ReturnSword()

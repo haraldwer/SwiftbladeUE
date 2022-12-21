@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "FPCharacter.generated.h"
 
+class UFPCutscene;
 class UFPToombstone;
 UCLASS()
 class PROJECT_API AFPCharacter : public ACharacter
@@ -39,6 +40,8 @@ public:
 	class UFPCombat* GetCombat() const					{ return myFPCombat; }
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UFPTime* GetTime() const						{ return myFPTime; }
+	UFUNCTION(BlueprintPure, Category = "Gameplay")
+	class UFPCutscene* GetCutscene() const				{ return myFPCutscene; }
 	
 	UFUNCTION(BlueprintPure, Category = "Gameplay")
 	class UFPPostProcessing* GetPostProcessing() const	{ return myFPPP; }
@@ -102,6 +105,9 @@ protected:
 	UFPPostProcessing* myFPPP;
 	UPROPERTY(EditDefaultsOnly, Category="Components")
 	UFPToombstone* myFPToombstone;
+	UPROPERTY(EditDefaultsOnly, Category="Components")
+	UFPCutscene* myFPCutscene; 
+	
 
 	UPROPERTY(EditDefaultsOnly, Category="Components")
 	UCapsuleComponent* myWallDetection;

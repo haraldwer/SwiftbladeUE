@@ -3,6 +3,7 @@
 
 #include "FPCamera.h"
 #include "FPController.h"
+#include "FPCutscene.h"
 #include "FPTime.h"
 #include "Actors/Hand.h"
 #include "Actors/Sword.h"
@@ -60,6 +61,9 @@ AFPCharacter::AFPCharacter()
 
 	myFPToombstone = CreateDefaultSubobject<UFPToombstone>("FPToombstone");
 	CHECK_ASSERT(!myFPToombstone, "Failed to create toombstone component");
+
+	myFPCutscene = CreateDefaultSubobject<UFPCutscene>("FPCutscene");
+	CHECK_ASSERT(!myFPCutscene, "Failed to create cutscene component");
 	
 	myInteractionCollider = CreateDefaultSubobject<USphereComponent>("InteractionCollider");
 	CHECK_ASSERT(!myInteractionCollider, "Failed to create interaction collider");
@@ -189,8 +193,12 @@ void AFPCharacter::OnStateLoaded(const FFPControllerState& aState) const
 		myFPToombstone->CreateStones();
 
 	if (aState.myHasSword)
+	{
 		if (myFPCombat)
 			myFPCombat->SetHasSword(true);
+		if (aState.myRespawnCount != 0)
+			myFPAnimator->SetState<UFPAnimationStateDeath>(); 
+	}
 }
 
 AFPController* AFPCharacter::GetFPController() const
