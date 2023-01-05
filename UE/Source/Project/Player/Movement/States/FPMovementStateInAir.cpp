@@ -3,6 +3,8 @@
 #include "FPMovementStateRun.h"
 #include "FPMovementStateWall.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Project/Player/Animation/FPAnimatorNew.h"
+#include "Project/Player/Animation/States/FPAnimationStateHeavyLanding.h"
 #include "Project/Player/Animation/States/FPAnimationStateInAir.h"
 
 void UFPMovementStateInAir::Init()
@@ -93,6 +95,12 @@ UClass* UFPMovementStateInAir::OnLanded()
 		myJumpedSinceTouchedGround = true;
 		return StaticClass();
 	}
+
+	// Heavy landing anim
+	LOG("Landing Z vel " + FString::SanitizeFloat(GetCharacterMovement().GetLastUpdateVelocity().Z))
+	if (-GetCharacterMovement().GetLastUpdateVelocity().Z > myHeavyLandingAnimThreshold)
+		GetAnimator().SetState<UFPAnimationStateHeavyLanding>();
+	
 	return UFPMovementStateRun::StaticClass();
 }
 

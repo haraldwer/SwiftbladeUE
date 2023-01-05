@@ -46,7 +46,7 @@ protected:
 
 private:
 	
-	FTransform ApplyHitEffects(const AActor* anActor) const;
+	FTransform ApplyHit(const AActor* anActor) const;
 
 	bool myHasHit = false; 
 	float myStrikeTimestamp = 0.0f; 

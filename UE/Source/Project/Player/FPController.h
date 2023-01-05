@@ -23,8 +23,8 @@ struct FFPControllerState
 	bool myHasSword = false;
 };
 
-UENUM()
-enum class EFPTravelReason
+UENUM(BlueprintType)
+enum class EFPTravelReason : uint8
 {
 	NONE,
 	RESPAWN,
@@ -83,7 +83,8 @@ public:
 	void UseCheckpoint(const class ACheckpoint* aCheckpoint);
 
 	// -- Travelling -- //
-	
+
+	UFUNCTION(BlueprintCallable)
 	void StartTravel(EFPTravelReason aReason);
 	
 	UFUNCTION(BlueprintCallable)

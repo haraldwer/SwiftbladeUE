@@ -168,7 +168,7 @@ void AFPController::ReachEnd(AGameEnd* aGameEnd)
 	
 	const auto time = character->GetTime();
 	const auto scoreTime = time->GetScoreTime();
-	CHECK_RETURN(scoreTime < myMinAllowedTime); 
+	//CHECK_RETURN(scoreTime < myMinAllowedTime); 
 	
 	myHasReachedEnd = true;
 
@@ -177,12 +177,13 @@ void AFPController::ReachEnd(AGameEnd* aGameEnd)
 	submission.myScore = scoreTime;
 	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
 	lb.Write(submission);
-	aGameEnd->SetTime(scoreTime);
 
 	auto& blob = UMainSingelton::GetGameDB().GetBlob();
 	auto blobData = blob.Get();
 	blobData.mySeedData.mySeed = myState.mySeed;
 	blob.Set(blobData);
+
+	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::OUTRO);
 }
 
 void AFPController::SetEnablePawnControls(const bool aEnabled)

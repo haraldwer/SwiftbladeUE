@@ -12,7 +12,5 @@ class PROJECT_API AGameEnd : public AActor
 public:
 	
 	AGameEnd();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetTime(float aScoreTime);
+	
 };

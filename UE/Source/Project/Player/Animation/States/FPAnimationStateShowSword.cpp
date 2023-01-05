@@ -1,15 +1,14 @@
-﻿#include "FPAnimationStateDeath.h"
+﻿#include "FPAnimationStateShowSword.h"
 
 #include "FPAnimationStateIdle.h"
-#include "Project/Player/FPTime.h"
 
-void UFPAnimationStateDeath::Enter()
+void UFPAnimationStateShowSword::Enter()
 {
 	Super::Enter();
 	ResetStateTime(); 
 }
 
-UClass* UFPAnimationStateDeath::Update(const float aDT)
+UClass* UFPAnimationStateShowSword::Update(const float aDT)
 {
 	Super::Update(aDT);
 
@@ -24,8 +23,8 @@ UClass* UFPAnimationStateDeath::Update(const float aDT)
 	FFPAnimationHandPositions hands;
 	hands.myRight = lerpTrans;
 	
-	hands.myPosInterpSpd = 10.0f;
-	hands.myRotInterpSpd = 10.0f;
+	hands.myPosInterpSpd = 5.0f;
+	hands.myRotInterpSpd = 5.0f;
 
 	OverrideSwordData(hands, 0.0f, 0.0f, true);
 	OverrideVelocityData(hands, 0.1f);

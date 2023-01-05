@@ -1,7 +1,7 @@
 #include "FPCutscene.h"
 
-#include "Project/UI/Prompts/PromptManager.h"
-#include "Project/Utility/MainSingelton.h"
+#include "Animation/FPAnimatorNew.h"
+#include "Animation/States/FPAnimationStateShowSword.h"
 
 UFPCutscene::UFPCutscene()
 {
@@ -16,7 +16,6 @@ void UFPCutscene::StartCutscene(const EFPCutsceneType aType)
 		{
 			// TODO: Play "show sword" animation
 			GetAnimator().SetState<UFPAnimationStateShowSword>();
-			
 		}
 		break;
 	case ENTER_ARENA:

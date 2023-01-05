@@ -27,6 +27,8 @@ protected:
 	float myCoyoteTime = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "InAir")
 	int myNumAirJumps = 1;
+	UPROPERTY(EditDefaultsOnly, Category = "InAir")
+	float myHeavyLandingAnimThreshold = 1400.0f;  
 	
 private:
 	bool myJumpedSinceTouchedGround = false;

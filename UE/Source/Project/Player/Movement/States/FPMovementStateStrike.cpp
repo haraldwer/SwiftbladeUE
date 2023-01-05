@@ -15,6 +15,8 @@ void UFPMovementStateStrike::Enter()
 
 void UFPMovementStateStrike::Exit()
 {
+	// TODO: Limit
+	
 	auto& movement = GetCharacterMovement();
 	movement.Velocity += movement.GetLastInputVector().GetSafeNormal2D() * myExitVelocity.X;
 	if (movement.Velocity.Z < myExitVelocity.Z && !movement.IsWalking())

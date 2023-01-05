@@ -17,7 +17,7 @@ void UInteraction::BeginPlay()
 	myInteracting = false; 
 	
 	TArray<USceneComponent*> children; 
-	GetChildrenComponents(false, children);
+	GetChildrenComponents(true, children);
 	for (const auto& child : children)
 		if (const auto hand = Cast<UInteractionHand>(child))
 			myHandComponents.Add(hand);

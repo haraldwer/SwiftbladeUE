@@ -21,6 +21,7 @@
 #include "Project/Gameplay/Door.h"
 #include "Project/Gameplay/GameEnd.h"
 #include "Project/LevelGen/Level/LevelManager.h"
+#include "Project/UI/Prompts/PromptManager.h"
 #include "Project/Utility/GameUtility.h"
 #include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Tools/CustomCamera.h"
@@ -251,10 +252,7 @@ void AFPCharacter::OnLivesChanged(const int32 aNewLifeCount) const
 
 void AFPCharacter::DoorOpened(ADoor* aDoor) const
 {
-	// Arena door
-	const auto controller = GetFPController();
-	CHECK_RETURN_LOG(!controller, "No controller");
-	controller->StartTravel(EFPTravelReason::ARENA);
+	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::LEVEL_END); 
 }
 
 bool AFPCharacter::HasMagic() const

@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "FPAnimationStateBase.h"
-#include "FPAnimationStateDeath.generated.h"
+#include "FPAnimationStateShowSword.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_API UFPAnimationStateShowSword : public UFPAnimationStateBase
@@ -16,6 +16,6 @@ public:
 	virtual int32 Priority() const override { return 1; }
 
 	UPROPERTY(EditDefaultsOnly)
-	float myDuration = 2.0f;
+	float myDuration = 1.0f;
 	
 };

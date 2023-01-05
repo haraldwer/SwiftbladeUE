@@ -15,6 +15,7 @@ enum class EMenuType : uint8
 	OPTIONS,
 	LEADERBOARD,
 	AUTHENTICATION,
+	END,
 	COUNT
 };
 

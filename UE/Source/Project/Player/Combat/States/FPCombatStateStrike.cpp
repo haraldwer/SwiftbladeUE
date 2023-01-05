@@ -51,7 +51,7 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 		if (const auto checkpoint = Cast<ACheckpoint>(owner))
 		{
 			if (GetController().TrySetCheckpoint(checkpoint))
-				ApplyHitEffects(checkpoint);
+				ApplyHit(checkpoint);
 			
 			myHasHit = true;
 			
@@ -61,7 +61,7 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 		// Enemies
 		if (const auto enemy = Cast<AEnemy>(owner))
 		{
-			const auto hitTrans = ApplyHitEffects(enemy);
+			const auto hitTrans = ApplyHit(enemy);
 			const FVector impulse = (enemy->GetActorLocation() - character.GetActorLocation()).GetSafeNormal() * myStrikeImpulse;
 			if (const auto enemyCollider = enemy->GetCollider())
 				enemyCollider->AddImpulseAtLocation(impulse, hitTrans.GetLocation());
@@ -84,7 +84,7 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 		// Breakable stuff
 		if (const auto breakable = Cast<UBreakable>(owner->GetComponentByClass(UBreakable::StaticClass())))
 		{
-			ApplyHitEffects(owner);
+			ApplyHit(owner);
 			
 			const auto position = sword->GetActorLocation();
 			const auto normal = sword->GetActorRightVector(); 
@@ -124,7 +124,7 @@ TSubclassOf<UFPAnimationStateBase> UFPCombatStateStrike::GetResetAnimation() con
 	return UFPAnimationStateIdle::StaticClass();
 }
 
-FTransform UFPCombatStateStrike::ApplyHitEffects(const AActor* anActor) const
+FTransform UFPCombatStateStrike::ApplyHit(const AActor* anActor) const
 {
 	const auto sword = GetSword();
 	CHECK_RETURN_LOG(!sword, "No sword", FTransform::Identity);
