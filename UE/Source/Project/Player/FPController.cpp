@@ -115,10 +115,10 @@ bool AFPController::TrySetCheckpoint(ACheckpoint* aCheckpoint)
 	return true;
 }
 
-void AFPController::UseCheckpoint(const ACheckpoint* aCheckpoint)
+void AFPController::UseCheckpoint(const ACheckpoint* aCheckpoint) const
 {
 	CHECK_RETURN_LOG(aCheckpoint != myCheckpoint, "Attempted to travel to unknown checkpoint");
-	StartTravel(EFPTravelReason::CHECKPOINT);
+	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::CHECKPOINT);
 }
 
 void AFPController::StartTravel(const EFPTravelReason aReason)

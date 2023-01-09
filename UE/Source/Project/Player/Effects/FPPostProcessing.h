@@ -9,7 +9,8 @@ enum EFPPostProcess
 {
 	PP_NONE,
 	PP_EYE,
-	PP_MAGIC
+	PP_MAGIC,
+	PP_CRYSTAL,
 };
 
 USTRUCT(BlueprintType)
@@ -29,7 +30,7 @@ struct FPPEntry
 	UPROPERTY(EditDefaultsOnly)
 	bool myDefaultEnable = false;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly)	
 	class UMaterialParameterCollection* myParamCollection = nullptr;
 };
 

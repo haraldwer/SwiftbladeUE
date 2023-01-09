@@ -236,8 +236,8 @@ void AFPCharacter::Die(const FString& anObjectName)
 	CHECK_RETURN(!myAlive);
 	myAlive = false;
 	myFPToombstone->StoreLocation();
-	if (const auto animator = GetAnimator())
-		animator->SetState<UFPAnimationStateDeath>();
+	//if (const auto animator = GetAnimator())
+	//	animator->SetState<UFPAnimationStateDeath>();
 
 	const auto controller = GetFPController();
 	CHECK_RETURN_LOG(!controller, "Controller nullptr");

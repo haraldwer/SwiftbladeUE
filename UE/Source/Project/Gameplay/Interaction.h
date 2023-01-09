@@ -49,7 +49,7 @@ public:
 	bool HasFinished() const { return myFinished; }
 
 	UFUNCTION(BlueprintPure)
-	bool IsInteracting() const { return myInteracting; }
+	bool IsInteracting() const { return myInteracting; } 
 
 	bool GetHand(int32 anIndex, FTransform& aTrans, EHandState& aHandState);
 	bool GetLeft(FTransform& aTrans, EHandState& aHandState) { return GetHand(0, aTrans, aHandState); }
@@ -71,6 +71,9 @@ protected:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnClickInteraction myOnClickInteraction;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool myCanBeAborted = true; 
 	
 private:
 

@@ -15,6 +15,8 @@ void UFPMovementStateStrike::Enter()
 
 void UFPMovementStateStrike::Exit()
 {
+	return;
+	
 	// TODO: Limit
 	
 	auto& movement = GetCharacterMovement();

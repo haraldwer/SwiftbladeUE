@@ -1,7 +1,6 @@
 ﻿#include "FPCombatStateInteract.h"
 
 #include "FPCombatStateIdle.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Gameplay/Interaction.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Animation/States/FPAnimationStateIdle.h"
@@ -17,8 +16,7 @@ void UFPCombatStateInteract::Init()
 UClass* UFPCombatStateInteract::Update(float aDT)
 {	
 	const auto interaction = myInteraction.Get();
-	if (!interaction)
-		return UFPCombatStateIdle::StaticClass();
+	CHECK_RETURN(!interaction, UFPCombatStateIdle::StaticClass());
 
 	auto& character = GetCharacter();
 	if (!IsCloseToSpecificInteraction(interaction))
@@ -103,9 +101,6 @@ bool UFPCombatStateInteract::IsCloseToSpecificInteraction(const UInteraction* an
 	CHECK_RETURN(!anInteraction, false);
 	const auto interactions = FindPossibleInteractions();
 	CHECK_RETURN(!interactions.Contains(anInteraction), false);
-	const auto diff = anInteraction->GetComponentLocation() - GetCharacter().GetTransform().GetLocation();
-	const auto dot = diff.GetSafeNormal().Dot(GetCamera().GetForwardVector());
-	CHECK_RETURN(dot < myAcceptableDot, false);
 	return true; 
 }
 

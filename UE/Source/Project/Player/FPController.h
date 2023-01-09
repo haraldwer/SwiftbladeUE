@@ -80,7 +80,7 @@ public:
 	
 	// Called when checkpoint is set
 	bool TrySetCheckpoint(class ACheckpoint* aCheckpoint);
-	void UseCheckpoint(const class ACheckpoint* aCheckpoint);
+	void UseCheckpoint(const class ACheckpoint* aCheckpoint) const;
 
 	// -- Travelling -- //
 

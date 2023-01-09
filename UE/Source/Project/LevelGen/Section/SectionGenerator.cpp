@@ -44,33 +44,14 @@ void ASectionGenerator::Generate(ALevelManager* aLevelManager)
 		GenerateRoomPath(section);
 		GenerateGroundCeil(section, *config, lastSectionHeight);
 		Populate(section, *config);
-
-		if (aLevelManager && section.rooms.Num())
-		{
-			if (const auto pathSpline = aLevelManager->GetPathSpline())
-			{
-				for (const auto& room : section.rooms)
-					for (int j = 0; j < room.path.Num() - 1; j++)
-						pathSpline->AddSplinePoint(
-							FVector(room.path[j].X, room.path[j].Y, room.groundOffset + 200.0f),
-							ESplineCoordinateSpace::World,
-							false);
-
-				//pathSpline->AddSplinePoint(
-				//	FVector(
-				//		section.lastEdgeLoc.X,
-				//		section.lastEdgeLoc.Y,
-				//		section.rooms.Last().groundOffset + 200.0f),
-				//	ESplineCoordinateSpace::World,
-				//	false);
-				
-				pathSpline->UpdateSpline();
-			}
-		}
 		
 		lastSectionEnd = section.lastEdgeLoc;
 		lastSectionHeight = section.rooms.Last().groundOffset;
 	}
+
+	if (aLevelManager)
+		if (const auto pathSpline = aLevelManager->GetPathSpline())
+			pathSpline->UpdateSpline();
 
 	const FTransform trans = FTransform(FVector(lastSectionEnd.X, lastSectionEnd.Y, lastSectionHeight));
 	if (const auto levelEnd = Cast<ALevelEnd>(SpawnGeneratedActor(myLevelEndClass, trans)))
@@ -80,8 +61,6 @@ void ASectionGenerator::Generate(ALevelManager* aLevelManager)
 	}
 	else LOG("Failed to spawn level end");
 }
-
-
 
 USectionDataConfig* ASectionGenerator::GetRandomConfig() const
 {
