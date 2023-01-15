@@ -11,7 +11,14 @@ void USettingsUtility::SetResolutionScale(const int32 aResolution)
 	const auto resolution = settings->GetScreenResolution();
 	const float height = resolution.Y;
 	const float screenPercentage = (static_cast<float>(aResolution) / height) * 100.0f;
+
+	//#if WITH_EDITOR
 	GEngine->Exec(GEngine->GetWorld(), *FString("r.ScreenPercentage " + FString::SanitizeFloat(screenPercentage)));
+	//#else
+	//GEngine->Exec(GEngine->GetWorld(), *FString("r.SetRes " +
+	//	FString::FromInt(static_cast<int>(resolution.X * screenPercentage)) + "x" +
+	//	FString::FromInt(static_cast<int>(resolution.Y * screenPercentage)) + "wf"));
+	//#endif
 	GEngine->Exec(GEngine->GetWorld(), *FString("r.Upscale.Quality 0"));
 }
 

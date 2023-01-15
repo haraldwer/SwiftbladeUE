@@ -29,5 +29,5 @@ void ACheckpoint::Enable()
 void ACheckpoint::FinishActivate(AFPController* anInstigator)
 {
 	CHECK_RETURN_LOG(!anInstigator, "No instigator");
-	anInstigator->UseCheckpoint(this);
+	anInstigator->UseCheckpoint(*this);
 }

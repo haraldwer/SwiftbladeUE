@@ -39,11 +39,9 @@ void ALevelManager::LevelLoaded()
 	SetActorTickEnabled(true);
 }
 
-void ALevelManager::GenerateLevelOrder(const int aSeed)
+void ALevelManager::GenerateLevelOrder()
 {
 	LOG("Deciding level order");
-
-	ULevelRand::Init(aSeed);
 
 	myLevels.Reset();
 	myLevels.Add("SL_Start_0"); // Start of game

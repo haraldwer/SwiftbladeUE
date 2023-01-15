@@ -61,8 +61,6 @@ UClass* UFPMovementStateRails::Check()
 	{
 		TArray<AActor*> interactOverlaps;
 		interact->GetOverlappingActors(interactOverlaps);
-		if (!interactOverlaps.Num())
-			LOG("Interact rail overlap");
 		overlaps.Append(interactOverlaps);
 	}
 	

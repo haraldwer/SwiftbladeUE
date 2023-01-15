@@ -24,7 +24,8 @@ class PROJECT_API UMenuBase : public UWidgetBase
 	GENERATED_BODY()
 	
 public:
-	
+
+	UMenuBase();
 	virtual ~UMenuBase() override = default;
 	void Init(EMenuType aMenuType);
 	

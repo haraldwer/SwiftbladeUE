@@ -51,7 +51,7 @@ void USectionCompSpinBlade::PopulateRoom(ASectionGenerator* aGenerator, const FP
 
 	spline->UpdateSpline();
 	
-	if (!spline->GetNumberOfSplinePoints())
+	if (spline->GetNumberOfSplinePoints() < 2)
 	{
 		LOG("No spline points, destroying"); 
 		actor->Destroy();

@@ -50,7 +50,7 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 		// Checkpoints
 		if (const auto checkpoint = Cast<ACheckpoint>(owner))
 		{
-			if (GetController().TrySetCheckpoint(checkpoint))
+			if (GetController().TrySetCheckpoint(*checkpoint))
 				ApplyHit(checkpoint);
 			
 			myHasHit = true;

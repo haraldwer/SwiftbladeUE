@@ -1,37 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FPState.h"
 #include "GameFramework/PlayerController.h"
 #include "FPController.generated.h"
 
-USTRUCT(BlueprintType)
-struct FFPControllerState
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 myArenaIndex = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool myInArena = false; 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 myRespawnCount = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 mySeed = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float myTime = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool myHasSword = false;
-};
-
-UENUM(BlueprintType)
-enum class EFPTravelReason : uint8
-{
-	NONE,
-	RESPAWN,
-	CHECKPOINT,
-	ARENA,
-	COUNT
-};
+class ACheckpoint;
+class AGameEnd;
 
 UCLASS()
 class PROJECT_API AFPController : public APlayerController
@@ -47,56 +22,29 @@ public:
 	class AFPCharacter* GetFPCharacter() const;
 	class UCustomCamera* GetCamera() const;
 
-	// -- State -- //
+	FFPState GetState() const;
+	void SetState(const FFPState& aState) const;
+	void UpdateState(FFPState& aState) const;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void LoadState();
-	
-	UFUNCTION(BlueprintImplementableEvent)
-	void SaveState();
-	
-	UFUNCTION(BlueprintCallable)
-	void OnStateLoaded(FFPControllerState aState);
-
-	UFUNCTION(BlueprintCallable)
-	FFPControllerState GetState() const;
-
-	// -- Respawning -- // 
-	
-	// Called when character dies
 	void CharacterKilled();
-
-	// Called when it's time to respawn
+	
+	UFUNCTION(BlueprintPure)
+	int32 GetRespawns() const;
+	UFUNCTION(BlueprintPure)
+	int32 GetRemainingLives() const;
 	UFUNCTION(BlueprintCallable)
 	void Respawn();
 
-	UFUNCTION(BlueprintPure)
-	int32 GetRemainingLives() const { return myRespawns - myState.myRespawnCount; }
-
-	UFUNCTION(BlueprintPure)
-	int32 GetRespawns() const { return myRespawns; } 
-	
-	// -- Checkpoints -- // 
-	
-	// Called when checkpoint is set
-	bool TrySetCheckpoint(class ACheckpoint* aCheckpoint);
-	void UseCheckpoint(const class ACheckpoint* aCheckpoint) const;
-
-	// -- Travelling -- //
+	bool TrySetCheckpoint(ACheckpoint& aCheckpoint);
+	void UseCheckpoint(const ACheckpoint& aCheckpoint) const;
 
 	UFUNCTION(BlueprintCallable)
 	void StartTravel(EFPTravelReason aReason);
-	
 	UFUNCTION(BlueprintCallable)
 	void FinishTravel();
 
-	// -- Reaching the end -- //
-
-	void ReachEnd(class AGameEnd* aGameEnd);
+	void ReachEnd(const AGameEnd& aGameEnd);
 	
-	// -- Other -- // 
-	
-	// UI helper function
 	UFUNCTION(BlueprintCallable)
 	void SetEnablePawnControls(bool aEnabled);
 	
@@ -111,16 +59,14 @@ protected:
 private:
 
 	// Enter the next section. Will reload level.
-	void EnterSection();
+	void EnterSection() const;
 	// Enter the next arena. Will reload level.
-	void EnterArena();
+	void EnterArena() const;
 	
 	virtual void SetupInputComponent() override;
 	void PausePressed();
 	
 	TWeakObjectPtr<ACheckpoint> myCheckpoint;
-	FFPControllerState myState;
-	EFPTravelReason myTravelReason = EFPTravelReason::NONE;
 
 	bool myHasReachedEnd = false;
 };

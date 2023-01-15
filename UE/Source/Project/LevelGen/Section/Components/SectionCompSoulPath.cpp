@@ -6,6 +6,9 @@
 
 void USectionCompSoulPath::PopulateRoom(ASectionGenerator* aGenerator, const FProcSection& aSection, const FProcRoom& aRoom)
 {
+	if (!IsValid(GEngine->GetCurrentPlayWorld()))
+		return; 
+	
 	if (const auto pathSpline = UMainSingelton::GetLevelManager().GetPathSpline())
 	{
 		const float part = 1.0f / static_cast<float>(myPathPrecision + 1);

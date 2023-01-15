@@ -18,7 +18,7 @@ public:
 	UFUNCTION()
 	void LevelLoaded();
 
-	void GenerateLevelOrder(int aSeed);
+	void GenerateLevelOrder();
 	void LoadSection(int anArenaIndex);
 	void LoadArena(int anArenaIndex);
 	

@@ -97,7 +97,6 @@ UClass* UFPMovementStateInAir::OnLanded()
 	}
 
 	// Heavy landing anim
-	LOG("Landing Z vel " + FString::SanitizeFloat(GetCharacterMovement().GetLastUpdateVelocity().Z))
 	if (-GetCharacterMovement().GetLastUpdateVelocity().Z > myHeavyLandingAnimThreshold)
 		GetAnimator().SetState<UFPAnimationStateHeavyLanding>();
 	

@@ -116,7 +116,7 @@ void AFPCharacter::BeginPlay()
 	if (UGameUtility::IsInBaseLevel())
 	{
 		if (const auto controller = GetFPController())
-			controller->LoadState();	
+			InitFromState(controller->GetState()); 
 	}
 	else
 	{
@@ -154,7 +154,7 @@ void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunctio
 	for (const auto actor : ends)
 		if (const auto gameEnd = Cast<AGameEnd>(actor))
 			if (const auto controller = GetFPController())
-				controller->ReachEnd(gameEnd);
+				controller->ReachEnd(*gameEnd);
 
 	// Check lowest Z
 	const float lowestPoint = UMainSingelton::GetLevelManager().GetLowestEnd();
@@ -186,7 +186,7 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	InputComponent->BindAction("Block", IE_Pressed, myFPCombat, &UFPCombat::Block); 
 }
 
-void AFPCharacter::OnStateLoaded(const FFPControllerState& aState) const
+void AFPCharacter::InitFromState(const FFPState& aState) const
 {	
 	if (myFPTime)
 		myFPTime->SetInitialTime(aState.myTime);
@@ -197,7 +197,7 @@ void AFPCharacter::OnStateLoaded(const FFPControllerState& aState) const
 	{
 		if (myFPCombat)
 			myFPCombat->SetHasSword(true);
-		if (aState.myRespawnCount != 0)
+		if (aState.myRespawnCount != 0 && aState.myTravelReason == EFPTravelReason::RESPAWN)
 			myFPAnimator->SetState<UFPAnimationStateDeath>(); 
 	}
 }
@@ -242,6 +242,8 @@ void AFPCharacter::Die(const FString& anObjectName)
 	const auto controller = GetFPController();
 	CHECK_RETURN_LOG(!controller, "Controller nullptr");
 	controller->CharacterKilled();
+
+	//myFPTime->AddDilation(EDilationType::PAUSE, 0); 
 }
 
 void AFPCharacter::OnLivesChanged(const int32 aNewLifeCount) const
