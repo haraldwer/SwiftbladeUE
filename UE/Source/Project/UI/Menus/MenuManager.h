@@ -37,6 +37,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PopMenu();
 	UFUNCTION(BlueprintCallable)
+	void CloseAll();
+	UFUNCTION(BlueprintCallable)
 	bool IsMenuOpen(EMenuType aMenu) const;
 	UFUNCTION(BlueprintCallable)
 	bool IsMenuTop(EMenuType aMenu) const;
@@ -52,7 +54,6 @@ public:
 	const UMenuBase* GetMenuConst(EMenuType aMenu) const;
 
 protected:
-	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly)
 	TMap<EMenuType, TSubclassOf<class UMenuBase>> myMenuBlueprints;

@@ -27,7 +27,6 @@ class PROJECT_API APromptManager : public AActor
 public:
 	APromptManager();
 	virtual ~APromptManager() override = default;
-	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
 	class UPromptBase* CreatePrompt(EPromptType aPrompt);

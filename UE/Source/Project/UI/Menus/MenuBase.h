@@ -11,11 +11,11 @@ struct FMenuInputMode
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool myLockMouseToViewport;
+	bool myLockMouseToViewport = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool myHideCursor;
+	bool myHideCursor = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool myAllowPlayerControl;
+	bool myAllowPlayerControl = false;
 };
 
 UCLASS()
@@ -25,7 +25,6 @@ class PROJECT_API UMenuBase : public UWidgetBase
 	
 public:
 
-	UMenuBase();
 	virtual ~UMenuBase() override = default;
 	void Init(EMenuType aMenuType);
 	

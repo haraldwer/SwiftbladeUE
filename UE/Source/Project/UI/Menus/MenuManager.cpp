@@ -1,6 +1,7 @@
 ﻿#include "MenuManager.h"
 
 #include "MenuBase.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Project/Player/FPController.h"
 #include "Project/Utility/MainSingelton.h"
 
@@ -20,13 +21,16 @@ void AMenuManager::ToggleMenu(const EMenuType aMenu)
 void AMenuManager::OpenMenu(const EMenuType aMenu)
 {
 	CHECK_RETURN_LOG(IsMenuOpen(aMenu), "Menu already open");
-	const auto menuBase = GetMenuInstance(aMenu);
-	CHECK_RETURN_LOG(!menuBase, "Menu instance nullptr");
-	myMenuStack.Add(menuBase);
-	menuBase->AddToCamera();
-	SetInputMode(menuBase->GetInputMode());
+	const auto menu = GetMenuInstance(aMenu);
+	CHECK_RETURN_LOG(!menu, "Menu instance nullptr");
+	myMenuStack.Add(menu);
+	menu->AddToCamera();
+	menu->bIsFocusable = true; 
+	menu->SetFocus();
+	menu->SetKeyboardFocus();
+	SetInputMode(menu->GetInputMode());
 	UpdateExclusiveVisibility();
-	menuBase->OnOpen();
+	menu->OnOpen();
 }
 
 void AMenuManager::CloseMenu(const EMenuType aMenu)
@@ -34,10 +38,17 @@ void AMenuManager::CloseMenu(const EMenuType aMenu)
 	const auto menu = GetMenu(aMenu);
 	CHECK_RETURN_LOG(!menu, "Menu already closed");
 	menu->OnClose();
+	menu->SetVisibility(ESlateVisibility::Collapsed);
 	menu->RemoveFromCamera();
+	menu->bIsFocusable = false; 
 	myMenuStack.Remove(menu);
 	if (myMenuStack.Num() > 0)
-		SetInputMode(myMenuStack.Top()->GetInputMode());
+	{
+		const auto top = myMenuStack.Top();
+		top->SetFocus();
+		top->SetKeyboardFocus(); 
+		SetInputMode(top->GetInputMode());
+	}
 	else ResetInputMode();
 	UpdateExclusiveVisibility();
 }
@@ -47,6 +58,12 @@ void AMenuManager::PopMenu()
 	if (myMenuStack.Num() <= 0)
 		return;
 	CloseMenu(myMenuStack.Last()->GetMenuType());
+}
+
+void AMenuManager::CloseAll()
+{
+	while (IsAnyMenuOpen())
+		PopMenu();
 }
 
 bool AMenuManager::IsMenuOpen(const EMenuType aMenu) const
@@ -79,12 +96,6 @@ const UMenuBase* AMenuManager::GetMenuConst(const EMenuType aMenu) const
 		if (it->GetMenuType() == aMenu)
 			return it;
 	return nullptr;
-}
-
-void AMenuManager::BeginPlay()
-{
-	Super::BeginPlay();
-	
 }
 
 UMenuBase* AMenuManager::GetMenuInstance(const EMenuType aMenu)
@@ -141,5 +152,7 @@ void AMenuManager::ResetInputMode()
 	controller->SetInputMode(FInputModeGameOnly());
 	controller->SetShowMouseCursor(false);
 	controller->SetEnablePawnControls(true);
+	FSlateApplication::Get().ClearKeyboardFocus();
+	FSlateApplication::Get().ClearAllUserFocus();
 	LOG("Reset input mode");
 }

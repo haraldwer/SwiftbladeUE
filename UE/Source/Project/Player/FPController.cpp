@@ -42,6 +42,12 @@ void AFPController::BeginPlay()
 	}
 }
 
+void AFPController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	SetInputMode(FInputModeGameOnly());
+}
+
 AFPCharacter* AFPController::GetFPCharacter() const
 {
 	return Cast<AFPCharacter>(GetPawn());
@@ -90,7 +96,6 @@ void AFPController::UpdateState(FFPState& aState) const
 void AFPController::CharacterKilled()
 {
 	FFPState state = GetState();
-	UpdateState(state); 
 	state.myRespawnCount++;
 	SetState(state); 
 	if (const auto character = GetFPCharacter())
@@ -161,6 +166,7 @@ void AFPController::StartTravel(const EFPTravelReason aReason)
 	LOG("Start travel ");
 	auto state = GetState();
 	state.myTravelReason = aReason;
+	UpdateState(state);
 	SetState(state);
 	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::LEVEL_FADEOUT);
 }

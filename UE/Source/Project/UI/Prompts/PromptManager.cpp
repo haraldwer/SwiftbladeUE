@@ -8,12 +8,6 @@ APromptManager::APromptManager()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void APromptManager::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
 UPromptBase* APromptManager::CreatePrompt(const EPromptType aPrompt)
 {
 	CHECK_RETURN_LOG(aPrompt == EPromptType::UNKNOWN, "Unknown prompt type", nullptr);

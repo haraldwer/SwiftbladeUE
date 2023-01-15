@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "FPState.h"
 #include "GameFramework/PlayerController.h"
+#include "Project/UI/Menus/MenuBase.h"
 #include "FPController.generated.h"
 
 class ACheckpoint;
@@ -17,6 +18,7 @@ public:
 
 	virtual ~AFPController() override = default;
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION(BlueprintCallable)
 	class AFPCharacter* GetFPCharacter() const;
@@ -47,7 +49,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetEnablePawnControls(bool aEnabled);
-	
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
@@ -69,4 +71,5 @@ private:
 	TWeakObjectPtr<ACheckpoint> myCheckpoint;
 
 	bool myHasReachedEnd = false;
+	
 };

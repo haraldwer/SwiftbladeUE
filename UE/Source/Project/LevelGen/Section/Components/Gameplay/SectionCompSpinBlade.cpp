@@ -1,7 +1,6 @@
 #include "SectionCompSpinBlade.h"
 
 #include "Components/SplineComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 #include "Project/ProcGen/ProcSpline.h"
