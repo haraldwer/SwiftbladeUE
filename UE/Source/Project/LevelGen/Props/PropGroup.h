@@ -17,8 +17,7 @@ enum class EPropPlacementStrategy : uint8
 UENUM()
 enum class EPropPlacementMode : uint8
 {
-	AGAINST_WALL,
-	RANDOM,
+	WALL,
 	CORNER
 };
 
@@ -38,7 +37,6 @@ public:
 	float GetYawRot() const { return myYawRot; }
 	float GetMinWallDist() const { return myMinWallDist; }
 	float GetMaxWallDist() const { return myMaxWallDist; }
-	float GetHeightPart() const { return myHeightPart; }
 	EPropPlacementMode GetPlacementMode() const { return myPlacementMode; }
 
 protected:
@@ -68,7 +66,7 @@ protected:
 	USceneComponent* myRoot = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
-	EPropPlacementMode myPlacementMode = EPropPlacementMode::AGAINST_WALL;
+	EPropPlacementMode myPlacementMode = EPropPlacementMode::WALL;
 	
 	UPROPERTY(EditDefaultsOnly)
 	float myMinWallDist = 0.0f;
@@ -80,10 +78,7 @@ protected:
 	float myWallOffset = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float myCornerDist = 20.0f; 
-	
-	UPROPERTY(EditDefaultsOnly)
-	float myHeightPart = 0.0f;
+	float myCornerDist = 20.0f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myYawRot = 360.0f;

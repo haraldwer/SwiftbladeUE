@@ -56,7 +56,7 @@ void USectionCompProp::CreateGroup(ASectionGenerator& aGenerator, const FProcRoo
 		const float yaw = FMath::RadiansToDegrees(FMath::Atan2(dir.Y, dir.X));
 		const float yawRot = defaultObject->GetYawRot();
 		const float rotOffset = ULevelRand::FRandRange(-yawRot * 0.5f, yawRot * 0.5f);
-		const float height = aRoom.groundOffset + aRoom.ceilHeight * defaultObject->GetHeightPart();
+		const float height = aRoom.groundOffset;// + aRoom.ceilHeight * defaultObject->GetHeightPart();
 		const FTransform trans = FTransform(FRotator(0.0f, yaw + rotOffset + 90.0f, 0.0f), FVector(loc.X, loc.Y, height));
 
 		// Avoid overlaps with existing stuff
@@ -96,7 +96,7 @@ FVector2D USectionCompProp::GetPlacement(const FProcRoom& aRoom, const APropGrou
 	const EPropPlacementMode placementMode = aGroupObject.GetPlacementMode();
 	switch (placementMode)
 	{
-	case EPropPlacementMode::AGAINST_WALL:
+	case EPropPlacementMode::WALL:
 	case EPropPlacementMode::CORNER:
 		{
 			if (aRoom.walls.Num())

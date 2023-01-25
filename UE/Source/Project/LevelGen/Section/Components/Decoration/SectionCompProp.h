@@ -7,6 +7,8 @@ class APropGroup;
 class UPropConfig;
 struct FPropEntry;
 
+// TODO: Replace with prop generator actor
+
 UCLASS(Abstract)
 class PROJECT_API USectionCompProp : public USectionCompBase
 {

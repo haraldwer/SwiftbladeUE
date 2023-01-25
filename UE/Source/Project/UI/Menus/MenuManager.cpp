@@ -152,7 +152,8 @@ void AMenuManager::ResetInputMode()
 	controller->SetInputMode(FInputModeGameOnly());
 	controller->SetShowMouseCursor(false);
 	controller->SetEnablePawnControls(true);
-	FSlateApplication::Get().ClearKeyboardFocus();
-	FSlateApplication::Get().ClearAllUserFocus();
+
+	//FSlateApplication::Get().ClearKeyboardFocus();
+	//FSlateApplication::Get().ClearAllUserFocus();
 	LOG("Reset input mode");
 }
