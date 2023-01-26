@@ -1,5 +1,6 @@
 # Visual Studio 2015 user specific files
 UE/.vs/
+UE/.vscode/
 UE/Project.sln.DotSettings.user
 
 # Rider user specific files
@@ -79,14 +80,11 @@ UE/Plugins/Developer/*/Intermediate/*
 # Cache files for the editor to use
 UE/DerivedDataCache/*
 
+# RiderLink plugin
 UE/Plugins/Developer/RiderLink/*
 
+# Nakama
+!UE/Plugins/Nakama/Binaries/*
+
+# Build folder
 Builds/*
-
-GitSyncer/GitSyncer/bin/
-GitSyncer/GitSyncer/obj/
-
-GameDatabase/.vs/
-GameDatabase/.idea/
-GameDatabase/bin/
-GameDatabase/obj/
