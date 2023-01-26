@@ -3,6 +3,7 @@
 #include "JsonObjectConverter.h"
 #include "NakamaClient.h"
 #include "NakamaSession.h"
+#include "UObject/UnrealTypePrivate.h"
 
 void UBlob::Init()
 {
@@ -20,9 +21,10 @@ void UBlob::Init()
 	error.AddUniqueDynamic(this, &UBlob::OnReadError);
 
 	TArray<FNakamaReadStorageObjectId> objects;
-	for (TFieldIterator<UProperty> itr(myData.StaticStruct()); itr; ++itr)
+	
+	for (TFieldIterator<FProperty> itr(myData.StaticStruct()); itr; ++itr)
 	{
-		const auto property = Cast<UStructProperty>(*itr);
+		const auto property = CastField<FStructProperty>(*itr);
 		if (!property)
 			continue; // Not a struct
 		
@@ -50,7 +52,7 @@ void UBlob::OnReadSuccess(const TArray<FNakamaStoreObjectData>& someObjects)
 		FString propertyName = object.Key;
 		FString json = object.Value;
 
-		const auto property = Cast<UStructProperty>(dataStruct->FindPropertyByName(FName(propertyName)));
+		const auto property = Cast<FStructProperty>(dataStruct->FindPropertyByName(FName(propertyName)));
 		if (!property)
 		{
 			UE_LOG(LogGameDB, Error, TEXT("Failed to find property: %s"), *propertyName);
@@ -108,9 +110,9 @@ void UBlob::Set(const FBlobData& someData)
 	error.AddUniqueDynamic(this, &UBlob::OnWriteError);
 	
 	TArray<FNakamaStoreObjectWrite> objects;
-	for (TFieldIterator<UProperty> itr(myData.StaticStruct()); itr; ++itr)
+	for (TFieldIterator<FProperty> itr(myData.StaticStruct()); itr; ++itr)
 	{
-		const auto property = Cast<UStructProperty>(*itr);
+		const auto property = CastField<FStructProperty>(*itr);
 		if (!property)
 			continue; // Not a struct
 		
@@ -122,7 +124,7 @@ void UBlob::Set(const FBlobData& someData)
 			UE_LOG(LogGameDB, Error, TEXT("Failed to get property data: %s"), *variableName);
 			continue; 
 		}
-			
+
 		if (property->Identical(currData, newData, 0))
 			continue;
 
