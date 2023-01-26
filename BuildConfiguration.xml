@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Configuration xmlns="https://www.unrealengine.com/BuildConfiguration">
+	<BuildConfiguration>
+		<MaxParallelActions>16</MaxParallelActions>
+	</BuildConfiguration>
+	<ParallelExecutor>
+		<MaxProcessorCount>8</MaxProcessorCount>
+		<ProcessorCountMultiplier>2</ProcessorCountMultiplier>
+		<ProcessPriority>High</ProcessPriority>
+		<bShowCompilationTimes>true</bShowCompilationTimes>
+		<MemoryPerActionBytes>1073741824</MemoryPerActionBytes>
+	</ParallelExecutor>
+</Configuration>
