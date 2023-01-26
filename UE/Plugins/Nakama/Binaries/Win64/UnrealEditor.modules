@@ -1,0 +1,9 @@
+{
+	"BuildId": "19505902",
+	"Modules": 
+	{
+		"NakamaBlueprints": "UnrealEditor-NakamaBlueprints.dll",
+		"NakamaCore": "UnrealEditor-NakamaCore.dll",
+		"NakamaUnreal": "UnrealEditor-NakamaUnreal.dll"
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"BuildId": "23058290",
+	"Modules": 
+	{
+		"NakamaBlueprints": "UnrealEditor-NakamaBlueprints-Win64-DebugGame.dll",
+		"NakamaCore": "UnrealEditor-NakamaCore-Win64-DebugGame.dll",
+		"NakamaUnreal": "UnrealEditor-NakamaUnreal-Win64-DebugGame.dll"
+	}
+}

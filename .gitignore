@@ -84,7 +84,7 @@ UE/DerivedDataCache/*
 UE/Plugins/Developer/RiderLink/*
 
 # Nakama
-!UE/Plugins/Nakama/Binaries/*
+!UE/Plugins/Nakama/Binaries/**
 
 # Build folder
 Builds/*
