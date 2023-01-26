@@ -45,6 +45,8 @@ UE/.idea/
 *.sdf
 *.VC.db
 *.VC.opendb
+*.code-workspace
+.ignore
 
 # Precompiled Assets
 UE/SourceArt/**/*.png
@@ -84,7 +86,8 @@ UE/DerivedDataCache/*
 UE/Plugins/Developer/RiderLink/*
 
 # Nakama
-!UE/Plugins/Nakama/Binaries/**
+!UE/Plugins/Nakama/**
+UE/Plugins/Nakama/Intermediate/*
 
 # Build folder
 Builds/*
