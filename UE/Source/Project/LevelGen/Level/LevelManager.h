@@ -6,6 +6,7 @@
 #include "LevelManager.generated.h"
 
 class USplineComponent;
+
 UCLASS()
 class PROJECT_API ALevelManager : public AActor
 {
@@ -13,7 +14,6 @@ class PROJECT_API ALevelManager : public AActor
 	
 public:	
 	ALevelManager();
-	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
 	void LevelLoaded();
@@ -28,10 +28,7 @@ public:
 protected:
 	
 	UPROPERTY(EditDefaultsOnly)
-	int myNumbArenas = 0;
-
-	UPROPERTY(EditDefaultsOnly)
-	bool myEnableOverlapEvents = false;
+	int myNumbArenas = 2;
 
 	UPROPERTY(EditDefaultsOnly)
 	float myMeshDistance = 5000.0f;
@@ -41,31 +38,31 @@ protected:
 	
 private:
 
-
+	// Will not unload currently loaded levels, assuming fresh base level
 	void LoadLevels(const TArray<int32>& someLevelsToLoad);
+	void LoadNextLevel();
 
 	static FString ChopLevelName(const FString& aName);
 
 	// On levels loaded 
 	void SetupLevels();
-	void EnableOverlapEvents() const;
 	void OptimizeObjectRendering() const;
 	
-
 	TArray<FString> myLevels;
 	TArray<int32> myArenaIndices;
+	TArray<int32> myLevelsToLoad;
+	TWeakObjectPtr<ULevelStreaming> myPendingLevel;  
 
-	struct LoadedLevelData
+	struct FLoadedLevel
 	{
-		FVector myOffset;
-		FString myName;
-		TWeakObjectPtr<ULevel> myPtr;
-		int32 myIndex;
+		TWeakObjectPtr<ULevelStreaming> myStreamingLevel;
+		TWeakObjectPtr<ULevel> myLevel; 
+		FTransform myEndTransform = FTransform::Identity;
 	};
+	TArray<FLoadedLevel> myLoadedLevels; 
 	
-	TArray<LoadedLevelData> myLoadedLevels;
-	int32 myLoadCount = -1;
 	float myLowestEnd = 0.0f;
+	
 	
 	UPROPERTY()
 	TObjectPtr<USplineComponent> myPathSpline; 

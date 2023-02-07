@@ -1,48 +1,21 @@
 #include "LevelManager.h"
 
 #include "LevelEnd.h"
-#include "NiagaraComponent.h"
 #include "Components/LightComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
-#include "Project/LevelGen/LevelRand.h"
 #include "Project/LevelGen/Section/SectionGenerator.h"
 
 ALevelManager::ALevelManager()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 	myPathSpline = CreateDefaultSubobject<USplineComponent>("PathSpline");
-}
-
-void ALevelManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if(myLoadCount == 0)
-	{
-		myLoadCount = -1;
-		
-		SetupLevels();
-		EnableOverlapEvents();
-		OptimizeObjectRendering(); 
-		SetActorTickEnabled(false);
-	}
-}
-
-void ALevelManager::LevelLoaded()
-{
-	LOG("Level loaded");
-	myLoadCount--;
-	SetActorTickEnabled(true);
 }
 
 void ALevelManager::GenerateLevelOrder()
 {
-	LOG("Deciding level order");
-
 	myLevels.Reset();
 	myLevels.Add("SL_Start_0"); // Start of game
 	myLevels.Add("SL_Proc_0");
@@ -89,33 +62,81 @@ void ALevelManager::LoadArena(const int anArenaIndex)
 
 void ALevelManager::LoadLevels(const TArray<int32>& someLevelsToLoad)
 {
-	myLoadedLevels.Reset();
+	myLevelsToLoad.Insert(someLevelsToLoad, myLevelsToLoad.Num());
+	LoadNextLevel();
+}
+
+void ALevelManager::LoadNextLevel()
+{
+	CHECK_RETURN(!myLevelsToLoad.Num());
 	
 	FLatentActionInfo loadInfo;
 	loadInfo.CallbackTarget = this;
 	loadInfo.ExecutionFunction = "LevelLoaded";
 	loadInfo.Linkage = 0;
-	for (const auto& index : someLevelsToLoad)
+
+	const int32 levelIndex = myLevelsToLoad[0];
+	myLevelsToLoad.RemoveAt(0);
+	
+	const FString name = myLevels[levelIndex];
+	const FString choppedName = ChopLevelName(name);
+	CHECK_RETURN_LOG(choppedName.IsEmpty(), "Invalid name");
+
+	LOG("Loading level " + name);
+
+	// First apply transform
+	if (myLoadedLevels.Num())
 	{
-		CHECK_CONTINUE_LOG(index < 0 || index >= myLevels.Num(), "Level index out of range");
-
-		const FString name = myLevels[index];
-		const FString choppedName = ChopLevelName(name);
-		CHECK_CONTINUE_LOG(choppedName.IsEmpty(), "Invalid name")
-		
-		loadInfo.UUID = index;
-		UGameplayStatics::LoadStreamLevel(this, *choppedName, true, true, loadInfo);
-		if (myLoadCount < 0)
-			myLoadCount = 0; 
-		myLoadCount++;
-
 		if (const auto streamingLevel = UGameplayStatics::GetStreamingLevel(this, *choppedName))
-		{
-			streamingLevel->SetShouldBeLoaded(true);
-			streamingLevel->SetShouldBeVisible(true); 
-		}
+			streamingLevel->LevelTransform = myLoadedLevels.Last().myEndTransform;
+	}
+	
+	loadInfo.UUID = levelIndex;
+	UGameplayStatics::LoadStreamLevel(this, *choppedName, true, true, loadInfo);
+}
+
+void ALevelManager::LevelLoaded()
+{
+	LOG("Level loaded")
+
+	ULevelStreaming* pendingLevel = myPendingLevel.Get();
+	CHECK_RETURN_LOG(!pendingLevel, "Invalid pending level on loaded");
+	
+	// Add level
+	FLoadedLevel& loadedLevel = myLoadedLevels.Emplace_GetRef();
+	loadedLevel.myStreamingLevel = pendingLevel;
+
+	auto level = pendingLevel->GetLoadedLevel(); 
+	loadedLevel.myLevel = level; 
+
+	// Figure out end transform
+
+	// Some rooms use levelend, some use room
+	const ALevelEnd* levelEnd = nullptr;
+	if (AActor** levelEndPtr = level->Actors.FindByPredicate([](const AActor* aActor)
+		{ return aActor->IsA(ALevelEnd::StaticClass()); }))
+		levelEnd = Cast<ALevelEnd>(*levelEndPtr);
 		
-		myLoadedLevels.Add(LoadedLevelData{FVector(), name, nullptr, index});
+	if (levelEnd)
+	{
+		previousPosition = levelEnd->GetActorLocation();
+		if (previousPosition.Z < myLowestEnd)
+			myLowestEnd = previousPosition.Z;
+	}
+	else LOG("Missing end location for level " + loadedLevel$.myName);
+	
+	loadedLevel.myEndTransform = 
+	
+	if (myLevelsToLoad.Num())
+	{
+		// try load next level
+		LoadNextLevel();
+	}
+	else
+	{
+		// Set up all loaded levels
+		SetupLevels();
+		OptimizeObjectRendering();		
 	}
 }
 
@@ -191,22 +212,6 @@ void ALevelManager::SetupLevels()
 				myLowestEnd = previousPosition.Z;
 		}
 		else LOG("Missing end location for level " + level.myName);
-	}
-}
-
-void ALevelManager::EnableOverlapEvents() const
-{
-	if (!myEnableOverlapEvents)
-		return;
-	
-	LOG("Enabling overlap events");
-
-	TArray<AActor*> actors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AActor::StaticClass(), actors);
-	for(const auto& it : actors)
-	{
-		if (const auto comp = Cast<UStaticMeshComponent>(it->GetComponentByClass(UStaticMeshComponent::StaticClass())))
-			comp->SetGenerateOverlapEvents(true);
 	}
 }
 
