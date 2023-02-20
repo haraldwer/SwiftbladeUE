@@ -45,5 +45,9 @@ public class Project : ModuleRules
 
 		PrivatePCHHeaderFile = "Project.h";
 		
+		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
+		UnsafeTypeCastWarningLevel = WarningLevel.Warning;
+		ShadowVariableWarningLevel = WarningLevel.Warning; 
+
 	}
 }

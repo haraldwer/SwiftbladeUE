@@ -12,6 +12,8 @@ AEnemyManager::AEnemyManager()
 
 void AEnemyManager::Init(UEnemyConfig* aConfig)
 {
+	if (!aConfig)
+		aConfig = myDefaultConfig.GetDefaultObject();
 	CHECK_RETURN_LOG(!aConfig, "Config null");
 	myConfig = aConfig;
 	InitWave(0);

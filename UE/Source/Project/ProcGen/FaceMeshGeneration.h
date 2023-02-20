@@ -3,16 +3,10 @@
 #include "Project/LevelGen/GeneratorBase.h"
 #include "ProceduralMeshComponent.h"
 
-inline UProceduralMeshComponent* CreateFaceMesh(AGeneratorBase* aGenerator, const TArray<FVector2D>& someVertices, const FVector& anOffset, float aHeight, UMaterialInterface* aMaterial)
+inline void CreateFaceMesh(UProceduralMeshComponent* aComponent, const TArray<FVector2D>& someVertices, float aHeight, UMaterialInterface* aMaterial)
 {
-	CHECK_RETURN_LOG(!aGenerator, "No level data", nullptr);
-	CHECK_RETURN_LOG(someVertices.Num() < 3, "Can't generate mesh from less than three vertices", nullptr);
-	
-	UProceduralMeshComponent* meshComp = NewObject<UProceduralMeshComponent>(aGenerator);
-	aGenerator->AddGeneratedObject(meshComp);
-	meshComp->AttachToComponent(aGenerator->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-	meshComp->SetWorldLocation(anOffset);
-	meshComp->RegisterComponent();
+	CHECK_RETURN_LOG(!aComponent, "No proc mesh comp");
+	CHECK_RETURN_LOG(someVertices.Num() < 3, "Can't generate mesh from less than three vertices");
 
 	const int32 numVertices = someVertices.Num();
 	TArray<FVector> vertices;
@@ -27,7 +21,17 @@ inline UProceduralMeshComponent* CreateFaceMesh(AGeneratorBase* aGenerator, cons
 	vertexColors.Reserve(numVertices * 4);
 	tangents.Reserve(numVertices * 4);
 
+	FVector2D middle;
+	for (auto& vert : someVertices)
+		middle += vert;
+	middle /= someVertices.Num();
+
 	// Add top face
+	vertices.Add(FVector(middle.X, middle.Y, 0));
+	uvs.Add(FVector2D(0, 0));
+	normals.Add(FVector::UpVector);
+	vertexColors.Add(FLinearColor(1, 1, 1));
+	tangents.Add(FProcMeshTangent(1.0f, 0.0f, 0.0f));
 	for (auto& flatVert : someVertices)
 	{
 		vertices.Add(FVector(flatVert.X, flatVert.Y, 0));
@@ -36,14 +40,19 @@ inline UProceduralMeshComponent* CreateFaceMesh(AGeneratorBase* aGenerator, cons
 		vertexColors.Add(FLinearColor(1, 1, 1));
 		tangents.Add(FProcMeshTangent(1.0f, 0.0f, 0.0f));
 	}
-	for (int32 i = numVertices - 2; i >= 1; i--)
+	for (int32 i = 0; i < numVertices + 1; i++)
 	{
-		triangles.Add(numVertices - 1);
-		triangles.Add(i);
-		triangles.Add(i - 1);
+		triangles.Add(0);
+		triangles.Add(1 + (i + 1) % numVertices);
+		triangles.Add(1 + i % numVertices);
 	}
 
 	// Add bottom face
+	vertices.Add(FVector(middle.X, middle.Y, -aHeight));
+	uvs.Add(FVector2D(0, 0));
+	normals.Add(FVector::DownVector);
+	vertexColors.Add(FLinearColor(1, 1, 1));
+	tangents.Add(FProcMeshTangent(1.0f, 0.0f, 0.0f));
 	for (auto& flatVert : someVertices)
 	{
 		vertices.Add(FVector(flatVert.X, flatVert.Y, -aHeight));
@@ -52,11 +61,11 @@ inline UProceduralMeshComponent* CreateFaceMesh(AGeneratorBase* aGenerator, cons
 		vertexColors.Add(FLinearColor(1, 1, 1));
 		tangents.Add(FProcMeshTangent(1.0f, 0.0f, 0.0f));
 	}
-	for (int32 i = numVertices + 1; i < numVertices * 2 - 1; i++)
+	for (int32 i = 0; i < numVertices + 1; i++)
 	{
-		triangles.Add(numVertices);
-		triangles.Add(i);
-		triangles.Add(i + 1);
+		triangles.Add(numVertices + 2 + (i % numVertices));
+		triangles.Add(numVertices + 2 + (i + 1) % numVertices);
+		triangles.Add(numVertices + 2);
 	}
 
 	const TArray<FVector> prevVertices = vertices;
@@ -64,19 +73,19 @@ inline UProceduralMeshComponent* CreateFaceMesh(AGeneratorBase* aGenerator, cons
 	// Add sides
 	for (int32 i = 0; i < numVertices; i++)
 	{		
-		const int32 indexOffset = numVertices * 2;
 		const int32 currI = i;
 		const int32 nextI = (i + 1) % numVertices;
 		
 		// Add vertex duplicates (for improved normals)
 		
 		// Top
-		vertices.Add(prevVertices[currI]);
-		vertices.Add(prevVertices[nextI]);
+		vertices.Add(prevVertices[currI + 1]);
+		vertices.Add(prevVertices[nextI + 1]);
 		// Bottom
-		vertices.Add(prevVertices[currI + numVertices]);
-		vertices.Add(prevVertices[nextI + numVertices]);
+		vertices.Add(prevVertices[currI + numVertices + 2]);
+		vertices.Add(prevVertices[nextI + numVertices + 2]);
 		
+		const int32 indexOffset = numVertices * 2 + 2;
 		const int32 currIndex = indexOffset + currI * 4;
 		const int32 nextIndex = indexOffset + nextI * 4;
 		
@@ -133,8 +142,23 @@ inline UProceduralMeshComponent* CreateFaceMesh(AGeneratorBase* aGenerator, cons
 		tangents.Add(procTangent);
 	}
 
-	meshComp->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs, vertexColors, tangents, true);
-	meshComp->SetMaterial(0, aMaterial);
+	aComponent->ClearAllMeshSections();
+	aComponent->CreateMeshSection_LinearColor(0, vertices, triangles, normals, uvs, vertexColors, tangents, true);
+	aComponent->SetMaterial(0, aMaterial);
+}
+
+
+inline UProceduralMeshComponent* CreateFaceMesh(AActor* anOwner, const TArray<FVector2D>& someVertices, const FVector& anOffset, float aHeight, UMaterialInterface* aMaterial)
+{
+	CHECK_RETURN_LOG(!anOwner, "No owner", nullptr);
 	
+	UProceduralMeshComponent* meshComp = NewObject<UProceduralMeshComponent>(anOwner);
+	if (const auto generator = Cast<AGeneratorBase>(anOwner))
+		generator->AddGeneratedObject(meshComp);
+	meshComp->AttachToComponent(anOwner->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	meshComp->SetWorldLocation(anOffset);
+	meshComp->RegisterComponent();
+
+	CreateFaceMesh(meshComp, someVertices, aHeight, aMaterial);
 	return meshComp;
 }

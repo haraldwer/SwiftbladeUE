@@ -1,12 +1,16 @@
 #include "LevelManager.h"
 
-#include "LevelEnd.h"
+#include "TimerManager.h"
 #include "Components/LightComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
-#include "Project/LevelGen/Section/SectionGenerator.h"
+#include "Project/Enemies/EnemyManager.h"
+#include "Project/LevelGen/GeneratorBase.h"
+#include "Project/LevelGen/LevelRand.h"
+#include "Project/LevelGen/Room.h"
+#include "Project/Utility/MainSingelton.h"
 
 ALevelManager::ALevelManager()
 {
@@ -18,16 +22,24 @@ void ALevelManager::GenerateLevelOrder()
 {
 	myLevels.Reset();
 	myLevels.Add("SL_Start_0"); // Start of game
-	myLevels.Add("SL_Proc_0");
-	for (int i = 0; i < myNumbArenas; i++)
+	for (int i = 0; i < myNumbArenas + 1; i++)
 	{
 		const FString str = "_" + FString::FromInt(i);
-		
+		if (i > 0)
+			myLevels.Add("SL_Section_Start" + str);
+
+		for (int j = 0; j < myNumRoomsPerSection; j++)
+		{
+			const int32 roomIndex = ULevelRand::RandRange(0, myNumRooms - 1);
+			const FString roomStr = (roomIndex > 9 ? "" : "0") + FString::FromInt(roomIndex);   
+			myLevels.Add("SL_Room_" + roomStr + str);
+		}
+
 		myLevels.Add("SL_Section_End" + str);
+		const FString nextStr = FString("_") + (i > 9 ? "" : "0") + FString::FromInt(i);
 		myArenaIndices.Add(myLevels.Num());
-		myLevels.Add("SL_Arena" + str);
-		myLevels.Add("SL_Section_Start" + str);
-		myLevels.Add("SL_Proc" + str); 
+		if (i <= myNumbArenas)
+			myLevels.Add("SL_Arena" + nextStr + str);
 	}
 	myLevels.Add("SL_End_0"); // End of game
 }
@@ -57,6 +69,7 @@ void ALevelManager::LoadArena(const int anArenaIndex)
 	CHECK_RETURN_LOG(anArenaIndex < 0 || anArenaIndex >= myArenaIndices.Num(), "Arena index out of range");
 	const int32 index = myArenaIndices[anArenaIndex];
 	CHECK_RETURN_LOG(index < 0 || index >= myLevels.Num(), "Level index out of range");
+	mySpawnEnemies = true; 
 	LoadLevels({ index });
 }
 
@@ -70,11 +83,6 @@ void ALevelManager::LoadNextLevel()
 {
 	CHECK_RETURN(!myLevelsToLoad.Num());
 	
-	FLatentActionInfo loadInfo;
-	loadInfo.CallbackTarget = this;
-	loadInfo.ExecutionFunction = "LevelLoaded";
-	loadInfo.Linkage = 0;
-
 	const int32 levelIndex = myLevelsToLoad[0];
 	myLevelsToLoad.RemoveAt(0);
 	
@@ -84,60 +92,17 @@ void ALevelManager::LoadNextLevel()
 
 	LOG("Loading level " + name);
 
-	// First apply transform
-	if (myLoadedLevels.Num())
-	{
-		if (const auto streamingLevel = UGameplayStatics::GetStreamingLevel(this, *choppedName))
-			streamingLevel->LevelTransform = myLoadedLevels.Last().myEndTransform;
-	}
-	
-	loadInfo.UUID = levelIndex;
+	ULevelStreaming* pendingLevel = UGameplayStatics::GetStreamingLevel(this, *choppedName);
+	CHECK_RETURN_LOG(!IsValid(pendingLevel), "Failed to find streaming level" + choppedName);
+
+	FLatentActionInfo loadInfo;
+	loadInfo.CallbackTarget = this;
+	loadInfo.ExecutionFunction = "LevelLoaded";
+	loadInfo.Linkage = 0;
+	loadInfo.UUID = 0;
 	UGameplayStatics::LoadStreamLevel(this, *choppedName, true, true, loadInfo);
-}
-
-void ALevelManager::LevelLoaded()
-{
-	LOG("Level loaded")
-
-	ULevelStreaming* pendingLevel = myPendingLevel.Get();
-	CHECK_RETURN_LOG(!pendingLevel, "Invalid pending level on loaded");
 	
-	// Add level
-	FLoadedLevel& loadedLevel = myLoadedLevels.Emplace_GetRef();
-	loadedLevel.myStreamingLevel = pendingLevel;
-
-	auto level = pendingLevel->GetLoadedLevel(); 
-	loadedLevel.myLevel = level; 
-
-	// Figure out end transform
-
-	// Some rooms use levelend, some use room
-	const ALevelEnd* levelEnd = nullptr;
-	if (AActor** levelEndPtr = level->Actors.FindByPredicate([](const AActor* aActor)
-		{ return aActor->IsA(ALevelEnd::StaticClass()); }))
-		levelEnd = Cast<ALevelEnd>(*levelEndPtr);
-		
-	if (levelEnd)
-	{
-		previousPosition = levelEnd->GetActorLocation();
-		if (previousPosition.Z < myLowestEnd)
-			myLowestEnd = previousPosition.Z;
-	}
-	else LOG("Missing end location for level " + loadedLevel$.myName);
-	
-	loadedLevel.myEndTransform = 
-	
-	if (myLevelsToLoad.Num())
-	{
-		// try load next level
-		LoadNextLevel();
-	}
-	else
-	{
-		// Set up all loaded levels
-		SetupLevels();
-		OptimizeObjectRendering();		
-	}
+	myPendingLevel = pendingLevel;
 }
 
 FString ALevelManager::ChopLevelName(const FString& aName)
@@ -147,72 +112,92 @@ FString ALevelManager::ChopLevelName(const FString& aName)
 	return aName.Left(chopIndex); // Chop this
 }
 
-void ALevelManager::SetupLevels()
+void ALevelManager::LevelLoaded()
 {
-	LOG("Setting up levels");
+	SetupLevel();
+}
+
+void ALevelManager::SetupLevel()
+{
+	ULevelStreaming* pendingLevel = myPendingLevel.Get();
+	CHECK_RETURN_LOG(!pendingLevel, "Invalid pending level on loaded");
 	
-	const auto& streamingLevels = GetWorld()->GetStreamingLevels();
-	for(auto& level : streamingLevels)
+	// Add level
+	FLoadedLevel& loadedLevel = myLoadedLevels.Emplace_GetRef();
+	loadedLevel.myStreamingLevel = pendingLevel;
+
+	ULevel* level = pendingLevel->GetLoadedLevel();
+	if (IsValid(level))
 	{
-		CHECK_CONTINUE(!level->ShouldBeLoaded());
-		CHECK_CONTINUE_LOG(!level->IsLevelLoaded(), "Level has not finished loading yet");
-		const auto loadedLevel = level->GetLoadedLevel();
-		CHECK_CONTINUE(!loadedLevel);
+		loadedLevel.myLevel = level;
 
-		const FString levelName = loadedLevel->GetOuter()->GetName();
-		LoadedLevelData* data = myLoadedLevels.FindByPredicate([&](const LoadedLevelData& someData)
-		{
-			const FString chopped = ChopLevelName(someData.myName);
-			return chopped == levelName;
-		});
+		// Find room
+		const ARoom* room = nullptr;
+		if (AActor** roomPtr = level->Actors.FindByPredicate([](const AActor* aActor)
+			{ return aActor->IsA(ARoom::StaticClass()); }))
+			room = Cast<ARoom>(*roomPtr);
+		else LOG("Missing room for level " + level->GetName());
 		
-		CHECK_CONTINUE_LOG(!data, "Invalid streaming level");
-		data->myPtr = loadedLevel;
+		const FTransform enterTrans = IsValid(room) ? room->GetEntry() : FTransform::Identity;
+		const FTransform exitTrans = IsValid(room) ? room->GetExit() : FTransform::Identity;
+		
+		// Find last room exit 
+		FVector lastRoomExit = FVector::ZeroVector;
+		if (myLoadedLevels.Num() > 2)
+			lastRoomExit = myLoadedLevels[myLoadedLevels.Num() - 2].myExitLocation;
+
+		const FVector enterPos = lastRoomExit - enterTrans.GetLocation();
+		level->ApplyWorldOffset(enterPos, false);
+		LOG("Pos: " + enterPos.ToString());
+
+		loadedLevel.myExitLocation = enterPos - enterTrans.GetLocation() + exitTrans.GetLocation(); 
+		if (loadedLevel.myExitLocation.Z < myLowestEnd)
+			myLowestEnd = loadedLevel.myExitLocation.Z;
+		
+		if (USplineComponent* roomPath = (IsValid(room) ? room->GetPath() : nullptr))
+		{
+			TArray<FSplinePoint> points;
+			const int32 startIndex = myPathSpline->GetNumberOfSplinePoints();
+		    for (int32 i = 0; i < roomPath->GetNumberOfSplinePoints(); i++)
+		    {
+			    FSplinePoint& point = points.Emplace_GetRef();
+		    	point.Position = roomPath->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World);
+		    	point.Rotation = roomPath->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World);
+		    	point.Scale = roomPath->GetScaleAtSplinePoint(i);
+		    	point.ArriveTangent = roomPath->GetArriveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+		    	point.LeaveTangent = roomPath->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+		    	point.InputKey = static_cast<float>(startIndex + i); 
+		    }
+		    myPathSpline->AddPoints(points, false); 
+		}
+		else LOG("Missing path in level " + level->GetName())
 	}
-
-	// Sort by index
-	myLoadedLevels.Sort([](const LoadedLevelData& aFirst, const LoadedLevelData& aSecond){ return aFirst.myIndex < aSecond.myIndex; });
-
-	if (const auto pathSpline = myPathSpline.Get())
-		pathSpline->ClearSplinePoints();
+	else LOG("Invalid level on load" + pendingLevel->GetName());
 	
-	myLowestEnd = 0.0f;
-	FVector previousPosition = FVector(0, 0, 0);
-	for (auto& level : myLoadedLevels)
+	if (myLevelsToLoad.Num())
 	{
-		const auto ptr = level.myPtr.Get();
-		CHECK_RETURN(!ptr);
-
-		// Set offset
-		ptr->ApplyWorldOffset(previousPosition, false);
-		level.myOffset = previousPosition;
-
-		const ALevelEnd* levelEnd = nullptr;
-		
-		// Generate
-		if (AActor** generator = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(AGeneratorBase::StaticClass()); }))
-		{
-			if (const auto genPtr = Cast<AGeneratorBase>(*generator))
-			{
-				genPtr->Generate(this);
-				if (const auto sectionGen = Cast<ASectionGenerator>(genPtr))
-					levelEnd = sectionGen->GetLevelEnd();
-			}
-		}
-		
-		// Get level end
-		if (!levelEnd)
-			if (AActor** levelEndPtr = ptr->Actors.FindByPredicate([](const AActor* aActor) { return aActor->IsA(ALevelEnd::StaticClass()); }))
-				levelEnd = Cast<ALevelEnd>(*levelEndPtr);
-		
-		if (levelEnd)
-		{
-			previousPosition = levelEnd->GetActorLocation();
-			if (previousPosition.Z < myLowestEnd)
-				myLowestEnd = previousPosition.Z;
-		}
-		else LOG("Missing end location for level " + level.myName);
+		// try load next level
+		LoadNextLevel();
 	}
+	else
+	{
+		// Set up all loaded levels
+		GenerateRooms();
+		OptimizeObjectRendering();
+		myPathSpline->UpdateSpline(); 
+
+		if (mySpawnEnemies)
+			UMainSingelton::GetEnemyManager().Init(nullptr);
+	}
+}
+
+void ALevelManager::GenerateRooms()
+{
+	TArray<AActor*> generators; 
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGeneratorBase::StaticClass(), generators);
+	for (const auto actor : generators)
+		if (const auto generator = Cast<AGeneratorBase>(actor))
+			generator->Generate(this); 
 }
 
 void ALevelManager::OptimizeObjectRendering() const

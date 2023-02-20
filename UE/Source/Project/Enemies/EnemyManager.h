@@ -31,6 +31,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnEnemiesCleared myOnEnemiesCleared;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UEnemyConfig> myDefaultConfig; 
+
 private:
 
 	UPROPERTY()
