@@ -13,7 +13,7 @@
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/Gameplay/GameEnd.h"
 #include "Project/LevelGen/LevelRand.h"
-#include "Project/LevelGen/Level/LevelManager.h"
+#include "Project/LevelGen/LevelManager.h"
 #include "Project/UI/Menus/MenuManager.h"
 #include "Project/UI/Prompts/PromptManager.h"
 #include "Project/Utility/GameUtility.h"

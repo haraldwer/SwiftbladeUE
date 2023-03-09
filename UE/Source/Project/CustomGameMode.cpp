@@ -1,9 +1,8 @@
 #include "CustomGameMode.h"
 
 #include "CustomGameInstance.h"
-#include "GameDatabase.h"
 #include "Enemies/EnemyManager.h"
-#include "LevelGen/Level/LevelManager.h"
+#include "LevelGen/LevelManager.h"
 #include "UI/Menus/MenuManager.h"
 #include "UI/Prompts/PromptManager.h"
 #include "Utility/MainSingelton.h"

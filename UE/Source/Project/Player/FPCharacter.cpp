@@ -20,7 +20,7 @@
 #include "Movement/FPMovement.h"
 #include "Project/Gameplay/Door.h"
 #include "Project/Gameplay/GameEnd.h"
-#include "Project/LevelGen/Level/LevelManager.h"
+#include "Project/LevelGen/LevelManager.h"
 #include "Project/UI/Prompts/PromptManager.h"
 #include "Project/Utility/GameUtility.h"
 #include "Project/Utility/MainSingelton.h"

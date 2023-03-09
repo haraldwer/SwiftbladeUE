@@ -3,6 +3,7 @@
 #include "FPCombatStateIdle.h"
 #include "FPCombatStateNoSword.h"
 #include "Components/SphereComponent.h"
+#include "Engine/OverlapInfo.h"
 #include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Enemies/Enemy.h"
@@ -132,8 +133,15 @@ FTransform UFPCombatStateStrike::ApplyHit(const AActor* anActor) const
 	// Enter strike movement state
 	auto& movement = GetMovement();
 	movement.SetState<UFPMovementStateStrike>();
-
+	
 	const auto hitTrans = sword->GetHitTransform(anActor);
 	sword->CreateHitEffect(hitTrans);
+	
+	// TODO: Slice effect
+	//if (anActor)
+	//	sword->CreateSliceEffect(FTransform(
+	//		sword->GetActorRightVector().Rotation(),
+	//		sword->GetActorLocation() + sword->GetActorForwardVector() * 150.0f));
+	
 	return hitTrans;
 }

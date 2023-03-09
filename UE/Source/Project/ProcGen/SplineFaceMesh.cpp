@@ -8,7 +8,7 @@ ASplineFaceMesh::ASplineFaceMesh()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	auto root = CreateDefaultSubobject<USceneComponent>("Root");
+	const auto root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(root);
 	root->SetMobility(EComponentMobility::Static);
 	
@@ -25,6 +25,8 @@ ASplineFaceMesh::ASplineFaceMesh()
 void ASplineFaceMesh::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// TODO: Why no collision without this? 
 	Generate();
 }
 
@@ -45,6 +47,7 @@ void ASplineFaceMesh::Generate() const
 			mesh->SetMobility(EComponentMobility::Movable);
 			mesh->SetWorldLocation(GetActorLocation());
 			mesh->SetMobility(EComponentMobility::Static);
+			mesh->bAffectDistanceFieldLighting = true; 
 		}
 		CreateFaceMesh(myMesh.Get(), verts, myHeight, myMaterial);
 	}

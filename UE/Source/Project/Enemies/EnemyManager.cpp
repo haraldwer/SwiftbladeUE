@@ -4,10 +4,18 @@
 #include "EnemySpawner.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/LevelGen/LevelRand.h"
+#include "Project/Utility/GameUtility.h"
 
 AEnemyManager::AEnemyManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
+}
+
+void AEnemyManager::BeginPlay()
+{
+	Super::BeginPlay();
+	if (!UGameUtility::IsInBaseLevel())
+		Init(nullptr); 
 }
 
 void AEnemyManager::Init(UEnemyConfig* aConfig)

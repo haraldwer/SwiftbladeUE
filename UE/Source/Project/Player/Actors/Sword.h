@@ -2,8 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Project/Enemies/Enemy.h"
 #include "Sword.generated.h"
+
+class ASwordSoul; 
 
 UCLASS()
 class PROJECT_API ASword : public AActor
@@ -21,6 +22,7 @@ public:
 
 	FTransform GetHitTransform(const AActor* anActor) const;
 	void CreateHitEffect(const FTransform& aTrans) const;
+	void CreateSliceEffect(const FTransform& aTrans) const;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetCrystalsActive(int32 aCrystalCount, bool aShowEffect);
@@ -44,10 +46,17 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AEffect> myHitEffectBP;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AEffect> mySliceEffectBP;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ASwordSoul> mySoulClass; 
 
 private:
 	
 	TWeakObjectPtr<AFPCharacter> myPlayer;
+	TWeakObjectPtr<ASwordSoul> mySoul; 
 	
 	float myTimer;
 	FVector myStartLocation;

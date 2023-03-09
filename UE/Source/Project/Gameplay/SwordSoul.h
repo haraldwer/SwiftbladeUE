@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Curves/CurveFloat.h"
 #include "GameFramework/Actor.h"
 #include "SwordSoul.generated.h"
 
@@ -12,6 +13,7 @@ class PROJECT_API ASwordSoul : public AActor
 public:
 	
 	ASwordSoul();
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 protected:
@@ -37,10 +39,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float myRotSmoothing = 10.0f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float myVerticalOffset = 200.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	FRuntimeFloatCurve myStartCurve; 
+
 private:
 	
 	static FTransform GetSplineTrans(FVector aLocation, float aDistanceOffset = 0.0f);
 
+	FVector myStartLocation;
+	float myStartTimestamp = 0.0f; 
 	float myDistance = 0.0f; 
 	
 };

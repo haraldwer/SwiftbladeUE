@@ -2,12 +2,11 @@
 
 #include "Project/Player/FPCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project/Gameplay/SwordSoul.h"
 #include "Project/Player/FPController.h"
 
-// Sets default values
 ASword::ASword()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -17,6 +16,12 @@ void ASword::SetPlayer(AFPCharacter* aPlayer)
 	{
 		Return();
 		return;
+	}
+
+	if (const auto world = GetWorld())
+	{
+		const auto soul = Cast<ASwordSoul>(world->SpawnActor(mySoulClass, &GetActorTransform()));
+		mySoul = soul;
 	}
 	
 	AttachToActor(aPlayer, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
@@ -49,7 +54,11 @@ void ASword::CreateHitEffect(const FTransform& aTrans) const
 	myPlayer->CreateEffect(myHitEffectBP, aTrans);
 }
 
-// Called when the game starts or when spawned
+void ASword::CreateSliceEffect(const FTransform& aTrans) const
+{
+	myPlayer->CreateEffect(mySliceEffectBP, aTrans);
+}
+
 void ASword::BeginPlay()
 {
 	Super::BeginPlay();
@@ -58,7 +67,6 @@ void ASword::BeginPlay()
 	myPlayer.Reset();
 }
 
-// Called every frame
 void ASword::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

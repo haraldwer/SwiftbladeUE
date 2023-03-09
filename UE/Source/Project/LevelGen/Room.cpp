@@ -1,6 +1,6 @@
 #include "Room.h"
 
-#include "DrawDebugHelpers.h"
+#include "LevelRand.h"
 
 ARoom::ARoom()
 {
@@ -37,6 +37,57 @@ ARoom::ARoom()
 	myPath = CreateDefaultSubobject<USplineComponent>("Path");
 	myPath->SetupAttachment(myRoot);
 	myPath->SetMobility(EComponentMobility::Static);
+}
+
+void ARoom::BeginPlay()
+{
+	Super::BeginPlay();
+	Generate(nullptr); 
+}
+
+void ARoom::Generate(ALevelManager* aLevelManager)
+{
+	Super::Generate(aLevelManager);
+	
+	CHECK_RETURN(!myPresets.Num()); 
+	
+	TSet<AActor*> affectedActors;
+	TSet<AActor*> enabledActors;
+	
+	int32 index = myPresetIndex;
+
+	constexpr int32 iterations = 32; 
+	for (int32 i = 0; i < iterations && index == -1; i++)
+	{
+		const int32 tryIndex = ULevelRand::RandRange(0, myPresets.Num() - 1);
+		CHECK_CONTINUE(!myPresets.IsValidIndex(tryIndex));
+		auto& preset = myPresets[tryIndex];
+
+		// TODO: Filtering
+		//preset.myDifficuly;
+		//preset.myRequiredAbilities
+		index = tryIndex;
+	}
+
+	CHECK_RETURN(!myPresets.IsValidIndex(index));
+
+	for (auto& preset : myPresets)
+		for (auto& actor : preset.myActors)
+			affectedActors.Add(actor.Get());
+	
+	auto& currentPreset = myPresets[index];
+	for (auto& actor : currentPreset.myActors)
+		enabledActors.Add(actor.Get());
+	
+	for (const auto& actor : affectedActors)
+	{
+		CHECK_CONTINUE(!actor); 
+		if (!enabledActors.Contains(actor))
+		{
+			actor->SetActorHiddenInGame(true);
+			actor->SetActorEnableCollision(false);
+		}
+	}
 }
 
 void ARoom::UpdatePath() const
@@ -83,11 +134,6 @@ void ARoom::UpdatePath() const
 	}
 }
 
-void ARoom::PreviewRadius() const
-{
-	DrawDebugCircle(GetWorld(), GetCenter(), GetRadius(), 64, FColor::Red, true); 
-}
-
 FTransform ARoom::GetEntry() const
 {
 	const auto entry = myEntry.Get();
@@ -100,25 +146,4 @@ FTransform ARoom::GetExit() const
 	const auto exit = myExit.Get();
 	CHECK_RETURN(!exit, FTransform::Identity);
 	return exit->GetComponentTransform(); 
-}
-
-FVector ARoom::GetExitDirection() const
-{
-	const auto exit = myExit.Get();
-	CHECK_RETURN(!exit, FVector::ForwardVector); 
-	return exit->GetForwardVector();
-}
-
-FVector ARoom::GetCenter() const
-{
-	const auto path = myPath.Get();
-	CHECK_RETURN(!path, FVector::ZeroVector);
-	return path->GetLocationAtDistanceAlongSpline(path->GetSplineLength() * 0.5f, ESplineCoordinateSpace::World);
-}
-
-float ARoom::GetRadius() const
-{
-	const auto path = myPath.Get();
-	CHECK_RETURN(!path, 0.0f);
-	return path->GetSplineLength(); 
 }

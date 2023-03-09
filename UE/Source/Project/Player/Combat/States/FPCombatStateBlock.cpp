@@ -4,6 +4,7 @@
 #include "FPCombatStateNoSword.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Project/Enemies/Enemy.h"
 #include "Project/Gameplay/Projectile.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/Actors/Sword.h"

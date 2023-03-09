@@ -16,6 +16,7 @@ public:
 	
 	AEnemyManager();
 
+	virtual void BeginPlay() override;
 	void Init(class UEnemyConfig* aConfig);
 	
 	void CheckWaveConditions();
