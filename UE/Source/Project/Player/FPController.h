@@ -56,7 +56,7 @@ protected:
 	int myRespawns = 3;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
-	int myMinAllowedTime = 10.0f;
+	float myMinAllowedTime = 10.0f;
 	
 private:
 

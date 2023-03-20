@@ -49,7 +49,7 @@ void ARoom::Generate(ALevelManager* aLevelManager)
 {
 	Super::Generate(aLevelManager);
 	
-	CHECK_RETURN(!myPresets.Num()); 
+	CHECK_RETURN_LOG(!myPresets.Num(), "No presets for room " + GetLevel()->GetName()); 
 	
 	TSet<AActor*> affectedActors;
 	TSet<AActor*> enabledActors;
@@ -66,10 +66,13 @@ void ARoom::Generate(ALevelManager* aLevelManager)
 		// TODO: Filtering
 		//preset.myDifficuly;
 		//preset.myRequiredAbilities
+
+		// Compare abilities and difficulty
+		
 		index = tryIndex;
 	}
 
-	CHECK_RETURN(!myPresets.IsValidIndex(index));
+	CHECK_RETURN_LOG(!myPresets.IsValidIndex(index), "Failed to select a valid room preset in room " + GetLevel()->GetName());
 
 	for (auto& preset : myPresets)
 		for (auto& actor : preset.myActors)

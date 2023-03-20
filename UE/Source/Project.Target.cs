@@ -9,6 +9,7 @@ public class ProjectTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
+		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 
 		ExtraModuleNames.AddRange( new string[] { "Project", "GameDatabase" } );
 	}

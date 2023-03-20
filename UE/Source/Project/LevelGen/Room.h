@@ -13,14 +13,12 @@ struct FRoomPreset
 
 	UPROPERTY(EditAnywhere)
 	TArray<TWeakObjectPtr<AActor>> myActors;
-
-	// TODO: 
-	//UPROPERTY(EditAnywhere)
-	//int32 myDifficulty;
-
-	// TODO: 
-	//UPROPERTY(EditAnywhere)
-	//int32 myRequiredAbilities;
+ 
+	UPROPERTY(EditAnywhere)
+	float myDifficulty = 1.0f;
+	
+	UPROPERTY(EditAnywhere, meta = (Bitmask, BitmaskEnum = EFPCharacterAbilities))
+	int32 myRequiredAbilities;
 };
 
 UCLASS(Abstract)

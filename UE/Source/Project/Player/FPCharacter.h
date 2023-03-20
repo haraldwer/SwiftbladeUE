@@ -7,6 +7,7 @@
 
 class UFPCutscene;
 class UFPToombstone;
+
 UCLASS()
 class PROJECT_API AFPCharacter : public ACharacter
 {
