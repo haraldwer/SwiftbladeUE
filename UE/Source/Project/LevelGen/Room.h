@@ -46,17 +46,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Connections")
 	float myConnectionWidth = 300.0f;
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<USceneComponent> myRoot;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<USceneComponent> myEntry;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> myEntryMesh;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<USceneComponent> myExit;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> myExitMesh;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<USplineComponent> myPath;
 
 	// Predefined obstacles and abilities

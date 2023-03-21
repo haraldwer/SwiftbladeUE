@@ -12,7 +12,13 @@ struct FToombstoneEntry
 	int32 mySeed;
 	
 	UPROPERTY()
-	FVector_NetQuantize myLocation;
+	FVector myLocation;
+	
+	UPROPERTY()
+	int32 myArenaIndex;
+
+	UPROPERTY()
+	bool myInArena;
 };
 
 USTRUCT()

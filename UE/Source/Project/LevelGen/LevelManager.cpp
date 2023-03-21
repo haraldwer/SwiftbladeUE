@@ -29,18 +29,22 @@ void ALevelManager::GenerateLevelOrder()
 		if (i > 0)
 			myLevels.Add("SL_Section_Start" + str);
 		
-		// TODO: Weighted approach?
-		// TODO: Difficulty 
 		const int32 presetIndex = mySectionIndex >= 0 ?
 			mySectionIndex : ULevelRand::RandRange(0, mySectionPresets.Num() - 1);
 		if (mySectionPresets.IsValidIndex(presetIndex))
 		{
 			const auto& preset = mySectionPresets[presetIndex];
+			// TODO: Difficulty and ability filtering
 			if (const auto defaultObj = preset.GetDefaultObject())
 			{
-				// TODO: Possible randomize room order
-				for (auto& room : defaultObj->myRooms)
-					myLevels.Add(room.myLevelName + str);
+				// TODO: Room weights
+				TArray<FSectionPresetRoom> pool = defaultObj->myRooms;
+				while (pool.Num())
+				{
+					const int32 index = ULevelRand::RandRange(0, pool.Num() - 1);
+					myLevels.Add(pool[index].myLevelName + str);
+					pool.RemoveAtSwap(index);
+				}
 			}
 		}
 		

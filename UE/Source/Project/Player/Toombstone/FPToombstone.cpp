@@ -25,12 +25,15 @@ void UFPToombstone::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 void UFPToombstone::CreateStones() const
 {
 	const auto& blob = UMainSingelton::GetGameDB().GetBlob();
-	auto data = blob.Get();
-	const int32 seed = GetController().GetState().mySeed;
-	for (auto& stone : data.myToombstoneData.myToombstones)
+	const auto data = blob.Get();
+	const auto state = GetController().GetState();
+	for (const auto& stone : data.myToombstoneData.myToombstones)
 	{
-		if (stone.mySeed != seed)
+		if (stone.mySeed != state.mySeed ||
+			stone.myArenaIndex != state.myArenaIndex ||
+			stone.myInArena != state.myInArena)
 			continue;
+		
 		const auto rot = FRotator(0.0f, FMath::RandRange(0.0f, 360.0f), 0.0f);
 		GetWorld()->SpawnActor(myToombstoneClass, &stone.myLocation, &rot);
 	}
@@ -41,14 +44,16 @@ void UFPToombstone::StoreLocation() const
 	auto& blob = UMainSingelton::GetGameDB().GetBlob();
 	auto data = blob.Get();
 	auto& stones = data.myToombstoneData.myToombstones;
+	const auto state = GetController().GetState();
 	
 	FToombstoneEntry entry;
 	entry.myLocation = myLastValidLocation;
-	entry.mySeed = GetController().GetState().mySeed; 
+	entry.mySeed = state.mySeed;
+	entry.myArenaIndex = state.myArenaIndex;
+	entry.myInArena = state.myInArena;
 	
-	stones.Insert(entry, 0);
+	stones.Add(entry);
 	while (stones.Num() > myNumToombstones)
 		stones.RemoveAt(0);
 	blob.Set(data);
 }
-

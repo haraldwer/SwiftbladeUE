@@ -38,7 +38,7 @@ public:
 	//int32 myMaxDifficulty = -1;
 
 	// TODO: 
-	//UPROPERTY(EditDefaultsOnly)
-	//int32 myRequiredAbilities = -1;
+	UPROPERTY(EditAnywhere, meta = (Bitmask, BitmaskEnum = EFPCharacterAbilities))
+	int32 myRequiredAbilities = -1;
 	
 };

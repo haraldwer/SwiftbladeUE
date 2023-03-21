@@ -9,6 +9,7 @@
 #include "Project/Enemies/Enemy.h"
 #include "Project/Enemies/EnemyManager.h"
 #include "Project/Gameplay/Checkpoint.h"
+#include "Project/Gameplay/Abilities/Crystal.h"
 #include "Project/Gameplay/Breakable/Breakable.h"
 #include "Project/Player/FPCharacter.h"
 #include "Project/Player/FPController.h"
@@ -18,6 +19,7 @@
 #include "Project/Player/Animation/States/FPAnimationStateStrike.h"
 #include "Project/Player/Combat/FPCombat.h"
 #include "Project/Player/Movement/FPMovement.h"
+#include "Project/Player/Movement/States/FPMovementStateBoostCrystal.h"
 #include "Project/Player/Movement/States/FPMovementStateStrike.h"
 #include "Project/Utility/MainSingelton.h"
 
@@ -57,6 +59,18 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 			myHasHit = true;
 			
 			break;
+		}
+
+		// Crystal
+		if (const auto crystal = Cast<ACrystal>(owner))
+		{
+			ApplyHit(owner);
+
+			if (const auto state = GetMovement().GetState<UFPMovementStateBoostCrystal>())
+				state->SetTargetLocation(crystal->GetActorLocation());
+			GetMovement().SetState<UFPMovementStateBoostCrystal>();
+			
+			break; 
 		}
 
 		// Enemies

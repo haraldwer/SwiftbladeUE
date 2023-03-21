@@ -53,6 +53,9 @@ public:
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+	int myNumSeeds = 10;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	int myRespawns = 3;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")

@@ -29,7 +29,14 @@ void AFPController::BeginPlay()
 	{
 		auto state = GetState();
 		if (!state.mySeed)
-			state.mySeed = FMath::Rand();
+		{
+			state.mySeed = FMath::RandRange(1, myNumSeeds);
+			
+			auto& blob = UMainSingelton::GetGameDB().GetBlob();
+			auto blobData = blob.Get();
+			blobData.mySeedData.mySeed = state.mySeed;
+			blob.Set(blobData);
+		}
 		SetState(state);
 
 		ULevelRand::Init(state.mySeed + state.myArenaIndex * 10); 
@@ -105,19 +112,8 @@ void AFPController::CharacterKilled()
 
 	const auto character = GetFPCharacter();
 	character->DisableInput(this);
-
+	
 	LOG("Character killed");
-
-	FLeaderboardSubmission submission;
-	submission.mySeed = state.mySeed;
-	submission.myScore = FMath::Rand();
-	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
-	lb.Write(submission);
-
-	auto& blob = UMainSingelton::GetGameDB().GetBlob();
-	auto blobData = blob.Get();
-	blobData.mySeedData.mySeed = state.mySeed;
-	blob.Set(blobData);
 }
 
 int32 AFPController::GetRespawns() const
@@ -182,7 +178,7 @@ void AFPController::FinishTravel()
 			{
 				state.myArenaIndex = 0;
 				state.myRespawnCount = 0;
-				state.mySeed = FMath::Rand();
+				state.mySeed = 0;
 				SetState(state); 
 			}
 			state.myInArena ?
@@ -209,14 +205,17 @@ void AFPController::ReachEnd(const AGameEnd& aGameEnd)
 	
 	const auto character = GetFPCharacter();
 	CHECK_RETURN_LOG(!character, "Character nullptr");
-	
 	const auto time = character->GetTime();
+	CHECK_RETURN_LOG(!time, "Time nullptr");
+	
 	const auto scoreTime = time->GetScoreTime();
 	CHECK_RETURN(scoreTime < myMinAllowedTime); 
 	
 	myHasReachedEnd = true;
 
-	const auto state = GetState(); 
+	auto state = GetState();
+	state.myTime = scoreTime;
+	SetState(state); 
 	
 	FLeaderboardSubmission submission;
 	submission.mySeed = state.mySeed;
