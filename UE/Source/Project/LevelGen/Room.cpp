@@ -89,6 +89,11 @@ void ARoom::Generate(ALevelManager* aLevelManager)
 		{
 			actor->SetActorHiddenInGame(true);
 			actor->SetActorEnableCollision(false);
+			TArray<UPrimitiveComponent*> primitives;
+			actor->GetComponents(primitives, true);
+			for (const auto comp : primitives)
+				comp->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
+			
 		}
 	}
 }

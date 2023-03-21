@@ -3,6 +3,7 @@
 #include "FPMovementStateInAir.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Project/Player/Animation/States/FPAnimationStateInAir.h"
+#include "Project/Utility/Tools/CustomCamera.h"
 
 UClass* UFPMovementStateBoostCrystal::Update(const float aDT)
 {
@@ -36,8 +37,8 @@ void UFPMovementStateBoostCrystal::Enter()
 		Jump(FVector(0.0f, 0.0f, 1.0f));
 	
 	myStartVelocity = movement.GetLastUpdateVelocity();
-
-	const auto diff = (GetActorTransform().GetLocation() - myTarget).GetSafeNormal();
+	
+	const auto diff = (GetCamera().GetComponentLocation() - myTarget).GetSafeNormal();
 	GetIsInFreeze() ? myDirection = (myDirection + diff).GetSafeNormal() : myDirection = diff; 
 		
 	Super::Enter();
