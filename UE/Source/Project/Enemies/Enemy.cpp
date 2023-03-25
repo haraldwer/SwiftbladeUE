@@ -60,7 +60,7 @@ void AEnemy::Die()
 	Destroy();
 }
 
-bool AEnemy::IsActorInDamageHitbox(AActor* anActor) const
+bool AEnemy::IsActorInDamageHitbox(const AActor* anActor) const
 {
 	if (!anActor)
 		return false;

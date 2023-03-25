@@ -88,6 +88,9 @@ void AEnemyManager::InitWave(const int32 anIndex)
 		AEnemy* enemy = Cast<AEnemy>(GetWorld()->SpawnActor(enemyType, &trans, params));
 		AddEnemy(enemy); 
 	}
+
+	if (myOnWaveBegun.IsBound())
+		myOnWaveBegun.Broadcast(myWave); 
 }
 
 void AEnemyManager::AddEnemy(AEnemy* anEnemy)

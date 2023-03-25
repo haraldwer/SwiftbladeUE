@@ -26,46 +26,6 @@ void UFPAnimationStateStrike::Init()
 	}
 }
 
-UClass* UFPAnimationStateStrike::Update(float aDT)
-{
-	Super::Update(aDT);
-
-	const float timeDiff = GetCurrentTime() - myStrikeTimestamp; 
-	const float timePart = FMath::Clamp(timeDiff / myStrikeDuration, 0.0f, 1.0f);
-	
-	auto trans = GetDefaultHandTransform();
-
-	// Get entry trans
-	if (myEntries.IsValidIndex(myAnimIndex))
-	{
-		const auto& entry = myEntries[myAnimIndex];
-		const float weight =
-			FMath::Clamp(myCurve ? myCurve->GetFloatValue(timePart) : timePart, 0.0f, 1.0f);
-		trans = LerpTransWeight(
-			entry.myStart,
-			entry.myEnd,
-			weight,
-			weight);
-	}
-	
-	// Lerp to camera
-	const auto lerpTrans = LerpTransWeight(
-		trans,
-		ToCameraSpace(trans),
-		0.8f, 0.8f);
-	
-	FFPAnimationHandPositions hands;
-	hands.myRight = lerpTrans;
-	
-	OverrideSwordData(hands, 0.0f, 0.0f, true);
-	SetHands(hands, true);
-
-	FFPAnimationCameraData camera;
-	SetCamera(camera); 
-	
-	return nullptr;
-}
-
 void UFPAnimationStateStrike::Enter()
 {
 	Super::Enter();
@@ -80,4 +40,73 @@ void UFPAnimationStateStrike::Enter()
 		while (myAnimIndex == myPreviousIndex)
 			myAnimIndex = (myAnimIndex + 1) % num;	
 	myPreviousIndex = myAnimIndex;
+
+	myHasBounced = false; 
+}
+
+UClass* UFPAnimationStateStrike::Update(const float aDT)
+{
+	Super::Update(aDT);
+
+	auto trans = GetDefaultHandTransform();
+	
+	if (!myHasBounced)
+	{
+		const float timeDiff = GetCurrentTime() - myStrikeTimestamp; 
+		const float timePart = FMath::Clamp(timeDiff / myStrikeDuration, 0.0f, 1.0f);
+		const float curveWeight = myCurve ? myCurve->GetFloatValue(timePart) : timePart;
+		const float weight = FMath::Clamp(curveWeight, 0.0f, 1.0f);
+		trans = GetWeightedTrans(weight);
+	}
+	
+	// Lerp to camera
+	const auto lerpTrans = LerpTransWeight(
+		trans, ToCameraSpace(trans),
+		0.8f, 0.8f);
+	
+	FFPAnimationHandPositions hands;
+	hands.myRight = lerpTrans;
+	hands.myPosInterpSpd = myBounceLocSmoothing;
+	hands.myRotInterpSpd = myBounceRotSmoothing;
+
+	const float swordWeight = myHasBounced ? 1.0f : 0.0f; 
+	OverrideSwordData(hands, swordWeight, swordWeight, true);
+	SetHands(hands, !myHasBounced);
+
+	FFPAnimationCameraData camera;
+	SetCamera(camera); 
+	
+	return nullptr;
+}
+
+void UFPAnimationStateStrike::Bounce()
+{
+	return; 
+	
+	myHasBounced = true;
+
+	// Set hands to end position
+	const auto trans = GetWeightedTrans(1.0f);
+	
+	const auto lerpTrans = LerpTransWeight(
+		trans, ToCameraSpace(trans),
+		0.8f, 0.8f);
+	
+	FFPAnimationHandPositions hands;
+	hands.myRight = lerpTrans;
+	OverrideSwordData(hands, 0.0f, 0.0f, true);
+	SetHands(hands, true);
+}
+
+FTransform UFPAnimationStateStrike::GetWeightedTrans(const float aWeight)
+{
+	if (!myEntries.IsValidIndex(myAnimIndex))
+		return FTransform();
+	
+	const auto& entry = myEntries[myAnimIndex];
+	return LerpTransWeight(
+		entry.myStart,
+		entry.myEnd,
+		aWeight,
+		aWeight);
 }

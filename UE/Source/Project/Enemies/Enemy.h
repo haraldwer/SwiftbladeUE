@@ -15,10 +15,11 @@ public:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	int32 GetHealth() const { return myHealth; }
 	virtual float TakeDamage(float aDamageAmount, FDamageEvent const& aDamageEvent, AController* aEventInstigator, AActor* aDamageCauser) override;
 	void Die();
 
-	bool IsActorInDamageHitbox(AActor* anActor) const;
+	bool IsActorInDamageHitbox(const AActor* anActor) const;
 
 	class UObjectAnimator* GetObjectAnimator() const { return myObjectAnimator; }
 	class UPrimitiveComponent* GetCollider() const { return Cast<UPrimitiveComponent>(myCollider); }
@@ -46,7 +47,7 @@ protected:
 	class UObjectAnimator* myObjectAnimator;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	int myHealth = 1;
+	int32 myHealth = 1;
 
 private:
 	template <class T>

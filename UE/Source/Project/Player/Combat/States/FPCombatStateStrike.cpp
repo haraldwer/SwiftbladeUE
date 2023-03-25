@@ -15,6 +15,7 @@
 #include "Project/Player/FPController.h"
 #include "Project/Player/FPTime.h"
 #include "Project/Player/Actors/Sword.h"
+#include "Project/Player/Animation/FPAnimatorNew.h"
 #include "Project/Player/Animation/States/FPAnimationStateIdle.h"
 #include "Project/Player/Animation/States/FPAnimationStateStrike.h"
 #include "Project/Player/Combat/FPCombat.h"
@@ -64,12 +65,13 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 		// Crystal
 		if (const auto crystal = Cast<ACrystal>(owner))
 		{
-			ApplyHit(owner);
+			ApplyHit(crystal);
 
-			if (const auto state = GetMovement().GetState<UFPMovementStateBoostCrystal>())
+			auto& movement = GetMovement();
+			if (const auto state = movement.GetState<UFPMovementStateBoostCrystal>())
 				state->SetTargetLocation(crystal->GetActorLocation());
-			GetMovement().SetState<UFPMovementStateBoostCrystal>();
-			
+			movement.SetState<UFPMovementStateBoostCrystal>();
+			crystal->Break();
 			break; 
 		}
 
@@ -80,7 +82,7 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 			const FVector impulse = (enemy->GetActorLocation() - character.GetActorLocation()).GetSafeNormal() * myStrikeImpulse;
 			if (const auto enemyCollider = enemy->GetCollider())
 				enemyCollider->AddImpulseAtLocation(impulse, hitTrans.GetLocation());
-			
+
 			UGameplayStatics::ApplyDamage(
 				enemy,
 				1.0f,
@@ -88,6 +90,10 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 				sword,
 				UDamageType::StaticClass());
 
+			if (enemy->GetHealth() > 0)
+				if (auto strikeAnim = GetAnimator().GetState<UFPAnimationStateStrike>())
+					strikeAnim->Bounce();
+			
 			if (UMainSingelton::GetEnemyManager().GetIsLastEnemy())
 				GetTime().AddDilation(EDilationType::OUTGOING_DAMAGE, 1.0f, myDilationDuration, myDilationCurve);
 			

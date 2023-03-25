@@ -24,9 +24,12 @@ class PROJECT_API UFPAnimationStateStrike : public UFPAnimationStateBase
 public:
 
 	virtual void Init() override;
-	virtual UClass* Update(float aDT) override;
 	virtual void Enter() override;
+	virtual UClass* Update(float aDT) override;
+	
 	virtual int32 Priority() const override { return 2; }
+	
+	void Bounce();
 
 protected:
 
@@ -34,13 +37,23 @@ protected:
 	class UCurveFloat* myCurve;
 	
 	UPROPERTY(EditDefaultsOnly)
-	float myStrikeDuration = 0.5f; 
+	float myStrikeDuration = 0.5f;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float myBounceLocSmoothing = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myBounceRotSmoothing = 10.0f; 
 	
 private:
+
+	FTransform GetWeightedTrans(float aWeight); 
 	
 	TArray<FFPStrikeAnimEntry> myEntries;
 	int32 myAnimIndex = 0;
 	int32 myPreviousIndex = 0; 
 	float myStrikeTimestamp = 0.0f; 
 
+	bool myHasBounced = false;
+	
 };

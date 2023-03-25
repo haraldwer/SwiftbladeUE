@@ -18,15 +18,12 @@ ASplineFaceMesh::ASplineFaceMesh()
 
 	myMesh = CreateDefaultSubobject<UProceduralMeshComponent>("Mesh");
 	myMesh->SetupAttachment(RootComponent);
-
-	Generate();
 }
 
-void ASplineFaceMesh::BeginPlay()
+void ASplineFaceMesh::OnConstruction(const FTransform& Transform)
 {
-	Super::BeginPlay();
+	Super::OnConstruction(Transform);
 
-	// TODO: Why no collision without this? 
 	Generate();
 }
 

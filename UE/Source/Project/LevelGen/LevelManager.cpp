@@ -34,13 +34,18 @@ void ALevelManager::GenerateLevelOrder()
 		if (mySectionPresets.IsValidIndex(presetIndex))
 		{
 			const auto& preset = mySectionPresets[presetIndex];
+
 			// TODO: Difficulty and ability filtering
+			
 			if (const auto defaultObj = preset.GetDefaultObject())
 			{
 				// TODO: Room weights
+				
 				TArray<FSectionPresetRoom> pool = defaultObj->myRooms;
-				while (pool.Num())
+				const int32 numRooms = defaultObj->myNumRoomsToUse > 0 ? defaultObj->myNumRoomsToUse : pool.Num(); 
+				for (int32 roomNum = 0; roomNum < numRooms; roomNum++)
 				{
+					CHECK_BREAK(!pool.Num())
 					const int32 index = ULevelRand::RandRange(0, pool.Num() - 1);
 					myLevels.Add(pool[index].myLevelName + str);
 					pool.RemoveAtSwap(index);
@@ -48,11 +53,13 @@ void ALevelManager::GenerateLevelOrder()
 			}
 		}
 		
-		myLevels.Add("SL_Section_End" + str);
-		const FString nextStr = FString("_") + (i > 9 ? "" : "0") + FString::FromInt(i);
-		myArenaIndices.Add(myLevels.Num());
-		if (i <= myNumbArenas)
+		if (i < myNumbArenas)
+		{
+			myLevels.Add("SL_Section_End" + str);
+			myArenaIndices.Add(myLevels.Num());
+			const FString nextStr = FString("_") + (i > 9 ? "" : "0") + FString::FromInt(i);
 			myLevels.Add("SL_Arena" + nextStr + str);
+		}
 	}
 	myLevels.Add("SL_End_0"); // End of game
 }

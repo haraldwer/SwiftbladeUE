@@ -10,6 +10,10 @@ class PROJECT_API ACrystal : public AActor
 	GENERATED_BODY()
 
 public:
+
 	ACrystal();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Break();
 	
 };

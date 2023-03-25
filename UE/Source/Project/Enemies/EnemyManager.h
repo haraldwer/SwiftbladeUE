@@ -6,6 +6,7 @@
 #include "EnemyManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemiesCleared);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaveBegun, int32, aWave);
 
 UCLASS()
 class PROJECT_API AEnemyManager : public AActor
@@ -31,6 +32,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnEnemiesCleared myOnEnemiesCleared;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnWaveBegun myOnWaveBegun; 
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UEnemyConfig> myDefaultConfig; 

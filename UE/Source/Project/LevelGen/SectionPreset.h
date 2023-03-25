@@ -24,10 +24,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FSectionPresetRoom> myRooms;
-
-	// TODO: 
-	//UPROPERTY(EditDefaultsOnly)
-	//int32 numRoomsToUse = -1;
+ 
+	UPROPERTY(EditDefaultsOnly)
+	int32 myNumRoomsToUse = -1;
 
 	// TODO: 
 	//UPROPERTY(EditDefaultsOnly)

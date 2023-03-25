@@ -15,7 +15,8 @@ class PROJECT_API ASplineFaceMesh : public AActor
 public:
 
 	ASplineFaceMesh();
-	virtual void BeginPlay() override;
+
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UFUNCTION(CallInEditor)
 	void Generate() const;
