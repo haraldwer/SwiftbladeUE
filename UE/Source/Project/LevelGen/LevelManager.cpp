@@ -21,7 +21,7 @@ ALevelManager::ALevelManager()
 	mySectionComp = CreateDefaultSubobject<USectionComponent>("SectionComp");
 }
 
-void ALevelManager::GenerateLevelOrder(const int32 aChapter) const
+void ALevelManager::GenerateLevelOrder(const int32 aChapter)
 {
 	const USectionComponent* comp = mySectionComp.Get();
 	CHECK_RETURN(!comp);

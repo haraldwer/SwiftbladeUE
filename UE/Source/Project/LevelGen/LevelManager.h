@@ -20,7 +20,7 @@ public:
 	UFUNCTION()
 	void LevelLoaded();
 
-	void GenerateLevelOrder(int32 aChapter) const;
+	void GenerateLevelOrder(int32 aChapter);
 	void LoadSection(int32 anArenaIndex);
 	void LoadArena(int32 anArenaIndex);
 	

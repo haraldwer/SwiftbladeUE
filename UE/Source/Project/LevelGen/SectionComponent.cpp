@@ -4,7 +4,7 @@
 #include "LevelRand.h"
 #include "SectionPreset.h"
 
-void USectionComponent::GenerateLevelOrder(const int32 aChapter, TArray<FString> someLevels, TArray<int32> someArenaIndices) const
+void USectionComponent::GenerateLevelOrder(const int32 aChapter, TArray<FString>& someLevels, TArray<int32>& someArenaIndices) const
 {
 	CHECK_RETURN_LOG(!myChapters.IsValidIndex(aChapter), "Invalid chapter index");
 	const TSubclassOf<UChapterPreset>& chapterClass = myChapters[aChapter];
@@ -58,7 +58,7 @@ void USectionComponent::GenerateLevelOrder(const int32 aChapter, TArray<FString>
 		}
 
 		// Arena
-		if (!section.myArena.IsEmpty() || &sectionClass == &chapter.mySections.Last())
+		if (!section.myArena.IsEmpty())
 		{
 			someLevels.Add(section.mySectionEnd + str);
 			someArenaIndices.Add(someLevels.Num());

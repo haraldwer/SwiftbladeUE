@@ -13,7 +13,7 @@ class PROJECT_API USectionComponent : public UActorComponent
 
 public:
 	
-	void GenerateLevelOrder(int32 aChapter, TArray<FString> someLevels, TArray<int32> someArenaIndices) const;
+	void GenerateLevelOrder(int32 aChapter, TArray<FString>& someLevels, TArray<int32>& someArenaIndices) const;
 
 protected:
 	
