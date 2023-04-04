@@ -51,7 +51,10 @@ protected:
 	TSubclassOf<class AEffect> mySliceEffectBP;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ASwordSoul> mySoulClass; 
+	TSubclassOf<ASwordSoul> mySoulClass;
+	
+	UPROPERTY(EditAnywhere)
+	bool myRotate = true;  
 
 private:
 	

@@ -1,5 +1,6 @@
 #include "LevelManager.h"
 
+#include "SectionComponent.h"
 #include "SectionPreset.h"
 #include "TimerManager.h"
 #include "Components/LightComponent.h"
@@ -17,54 +18,17 @@ ALevelManager::ALevelManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	myPathSpline = CreateDefaultSubobject<USplineComponent>("PathSpline");
+	mySectionComp = CreateDefaultSubobject<USectionComponent>("SectionComp");
 }
 
-void ALevelManager::GenerateLevelOrder()
+void ALevelManager::GenerateLevelOrder(const int32 aChapter) const
 {
-	myLevels.Reset();
-	myLevels.Add("SL_Start_0"); // Start of game
-	for (int i = 0; i < myNumbArenas + 1; i++)
-	{
-		const FString str = "_" + FString::FromInt(i);
-		if (i > 0)
-			myLevels.Add("SL_Section_Start" + str);
-		
-		const int32 presetIndex = mySectionIndex >= 0 ?
-			mySectionIndex : ULevelRand::RandRange(0, mySectionPresets.Num() - 1);
-		if (mySectionPresets.IsValidIndex(presetIndex))
-		{
-			const auto& preset = mySectionPresets[presetIndex];
-
-			// TODO: Difficulty and ability filtering
-			
-			if (const auto defaultObj = preset.GetDefaultObject())
-			{
-				// TODO: Room weights
-				
-				TArray<FSectionPresetRoom> pool = defaultObj->myRooms;
-				const int32 numRooms = defaultObj->myNumRoomsToUse > 0 ? defaultObj->myNumRoomsToUse : pool.Num(); 
-				for (int32 roomNum = 0; roomNum < numRooms; roomNum++)
-				{
-					CHECK_BREAK(!pool.Num())
-					const int32 index = ULevelRand::RandRange(0, pool.Num() - 1);
-					myLevels.Add(pool[index].myLevelName + str);
-					pool.RemoveAtSwap(index);
-				}
-			}
-		}
-		
-		if (i < myNumbArenas)
-		{
-			myLevels.Add("SL_Section_End" + str);
-			myArenaIndices.Add(myLevels.Num());
-			const FString nextStr = FString("_") + (i > 9 ? "" : "0") + FString::FromInt(i);
-			myLevels.Add("SL_Arena" + nextStr + str);
-		}
-	}
-	myLevels.Add("SL_End_0"); // End of game
+	const USectionComponent* comp = mySectionComp.Get();
+	CHECK_RETURN(!comp);
+	comp->GenerateLevelOrder(aChapter, myLevels, myArenaIndices);
 }
 
-void ALevelManager::LoadSection(const int anArenaIndex)
+void ALevelManager::LoadSection(const int32 anArenaIndex)
 {
 	CHECK_RETURN_LOG(anArenaIndex < 0, "Arena index out of range");
 	
@@ -84,7 +48,7 @@ void ALevelManager::LoadSection(const int anArenaIndex)
 	LoadLevels(levelsToLoad);
 }
 
-void ALevelManager::LoadArena(const int anArenaIndex)
+void ALevelManager::LoadArena(const int32 anArenaIndex)
 {
 	CHECK_RETURN_LOG(anArenaIndex < 0 || anArenaIndex >= myArenaIndices.Num(), "Arena index out of range");
 	const int32 index = myArenaIndices[anArenaIndex];
@@ -120,7 +84,7 @@ void ALevelManager::LoadNextLevel()
 	loadInfo.ExecutionFunction = "LevelLoaded";
 	loadInfo.Linkage = 0;
 	loadInfo.UUID = 0;
-	UGameplayStatics::LoadStreamLevel(this, *choppedName, true, true, loadInfo);
+	UGameplayStatics::LoadStreamLevel(this, *choppedName, true, false, loadInfo);
 	
 	myPendingLevel = pendingLevel;
 }
@@ -174,7 +138,7 @@ void ALevelManager::SetupLevel()
 		if (loadedLevel.myExitLocation.Z < myLowestEnd)
 			myLowestEnd = loadedLevel.myExitLocation.Z;
 		
-		if (USplineComponent* roomPath = (IsValid(room) ? room->GetPath() : nullptr))
+		if (const USplineComponent* roomPath = (IsValid(room) ? room->GetPath() : nullptr))
 		{
 			TArray<FSplinePoint> points;
 			const int32 startIndex = myPathSpline->GetNumberOfSplinePoints();

@@ -71,7 +71,7 @@ void ASword::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(!myPlayer.IsValid())
+	if(!myPlayer.IsValid() && myRotate)
 	{
 		myTimer += DeltaTime;
 		SetActorLocationAndRotation(

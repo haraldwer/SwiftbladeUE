@@ -15,11 +15,15 @@ enum class EFPTravelReason : uint8
 
 struct FFPState
 {
-	EFPTravelReason myTravelReason = EFPTravelReason::NONE;
+	int32 myChapter = 0;
+	
 	int32 myArenaIndex = 0;
 	bool myInArena = false;
+	EFPTravelReason myTravelReason = EFPTravelReason::NONE;
+	
 	int32 myRespawnCount = 0;
 	int32 mySeed = 0;
 	float myTime = 0;
+	
 	bool myHasSword = false;
 };

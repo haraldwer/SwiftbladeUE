@@ -1,0 +1,10 @@
+
+
+This is Swiftblade, a project I'm working on! 
+
+It's influenced by Ghostrunner, Devil Daggers and Ultrakill. Can you tell? 
+
+I'm very happy with where the game is headed, so I've decided to start sharing progress. 
+
+Let me know what you think! 
+#gamedev #indiedev #UnrealEngine 

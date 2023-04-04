@@ -13,6 +13,8 @@ struct FSectionPresetRoom
 	FString myLevelName;
 
 	// TODO: Weighted randomness
+	UPROPERTY(EditAnywhere)
+	float myWeight = 1.0f; 
 };
 
 UCLASS(Blueprintable)
@@ -28,16 +30,13 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	int32 myNumRoomsToUse = -1;
 
-	// TODO: 
-	//UPROPERTY(EditDefaultsOnly)
-	//int32 myMinDifficulty = -1;
+	UPROPERTY(EditDefaultsOnly)
+	FString myArena = "SL_Arena_00";
+	
+	UPROPERTY(EditDefaultsOnly)
+	FString mySectionStart = "SL_Section_Start";
 
-	// TODO: 
-	//UPROPERTY(EditDefaultsOnly)
-	//int32 myMaxDifficulty = -1;
-
-	// TODO: 
-	UPROPERTY(EditAnywhere, meta = (Bitmask, BitmaskEnum = EFPCharacterAbilities))
-	int32 myRequiredAbilities = -1;
+	UPROPERTY(EditDefaultsOnly)
+	FString mySectionEnd = "SL_Section_End"; 
 	
 };

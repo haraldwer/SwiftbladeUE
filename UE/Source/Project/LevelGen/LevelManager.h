@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "LevelManager.generated.h"
 
+class USectionComponent;
 class USplineComponent;
 class USectionPreset;
 
@@ -19,29 +20,23 @@ public:
 	UFUNCTION()
 	void LevelLoaded();
 
-	void GenerateLevelOrder();
-	void LoadSection(int anArenaIndex);
-	void LoadArena(int anArenaIndex);
+	void GenerateLevelOrder(int32 aChapter) const;
+	void LoadSection(int32 anArenaIndex);
+	void LoadArena(int32 anArenaIndex);
 	
 	float GetLowestEnd() const { return myLowestEnd; }
 	USplineComponent* GetPathSpline() const { return myPathSpline.Get(); }
 
 protected:
 	
-	UPROPERTY(EditDefaultsOnly)
-	int myNumbArenas = 2;
-
-	UPROPERTY(EditDefaultsOnly)
-	TArray<TSubclassOf<USectionPreset>> mySectionPresets;
-
-	UPROPERTY(EditDefaultsOnly)
-	int32 mySectionIndex = -1; 
-
 	UPROPERTY(EditDefaultsOnly, Category="Optimization")
 	float myMeshDistance = 5000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category="Optimization")
 	float myLightDistance = 4000.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USectionComponent> mySectionComp; 
 
 private:
 
@@ -70,8 +65,9 @@ private:
 	TArray<FLoadedLevel> myLoadedLevels; 
 	
 	float myLowestEnd = 0.0f;
-	int mySpawnEnemies = false;
+	bool mySpawnEnemies = false;
 	
 	UPROPERTY()
-	TObjectPtr<USplineComponent> myPathSpline; 
+	TObjectPtr<USplineComponent> myPathSpline;
+	
 };

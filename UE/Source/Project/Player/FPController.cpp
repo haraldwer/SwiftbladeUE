@@ -42,7 +42,7 @@ void AFPController::BeginPlay()
 		ULevelRand::Init(state.mySeed + state.myArenaIndex * 10); 
 		
 		auto& levelGen = UMainSingelton::GetLevelManager();
-		levelGen.GenerateLevelOrder();
+		levelGen.GenerateLevelOrder(state.myChapter);
 		state.myInArena ?
 			levelGen.LoadArena(state.myArenaIndex) :
 			levelGen.LoadSection(state.myArenaIndex);
