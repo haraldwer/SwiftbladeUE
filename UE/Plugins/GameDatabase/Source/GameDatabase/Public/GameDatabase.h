@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 #include "GameDatabase.generated.h"
 
 class UAuthentication;

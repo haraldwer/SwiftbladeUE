@@ -1,6 +1,7 @@
 #include "Room.h"
 
 #include "LevelRand.h"
+#include "Engine/Level.h"
 
 ARoom::ARoom()
 {

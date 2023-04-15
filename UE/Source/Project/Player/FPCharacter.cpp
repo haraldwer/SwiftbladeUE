@@ -12,6 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Combat/FPCombat.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/InputComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SphereComponent.h"
 #include "Effects/FPPostProcessing.h"

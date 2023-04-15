@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "PropGroup.generated.h"
 
+class UShapeComponent;
 class AGeneratorBase;
 
 UENUM()

@@ -29,7 +29,6 @@ void USectionComponent::GenerateLevelOrder(const int32 aChapter, TArray<FString>
 			someLevels.Add(section.mySectionStart + str);
 
 		// The actual rooms
-		// TODO: Room weights
 		TArray<FSectionPresetRoom> pool = section.myRooms;
 		const int32 numRooms = section.myNumRoomsToUse > 0 ? section.myNumRoomsToUse : pool.Num(); 
 		for (int32 roomNum = 0; roomNum < numRooms; roomNum++)

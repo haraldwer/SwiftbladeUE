@@ -12,6 +12,7 @@ enum class EMenuType : uint8
 	UNKNOWN,
 	PAUSE,
 	MAIN,
+	PLAY,
 	OPTIONS,
 	LEADERBOARD,
 	AUTHENTICATION,

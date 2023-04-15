@@ -1,6 +1,7 @@
 #include "Hand.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Materials/Material.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 AHand::AHand()
@@ -12,7 +13,6 @@ void AHand::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//create dynamic material anywhere u like, Constructor or anywhere .
 	if (const auto matInst = UMaterialInstanceDynamic::Create(myMaterial, this))
 	{
 		myMatInst = matInst;
@@ -35,7 +35,6 @@ void AHand::Tick(const float aDT)
 		SetActorTickEnabled(false);
 	}
 
-	// Set hand material
 	if (myMatInst)
 		myMatInst->SetScalarParameterValue("Strength", myMagicStrength);
 }

@@ -6,6 +6,7 @@
 #include "Components/LightComponent.h"
 #include "Components/SplineComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/Level.h"
 #include "Engine/LevelStreaming.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Enemies/EnemyManager.h"

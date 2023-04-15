@@ -3,6 +3,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Project/LevelGen/GeneratorBase.h"
 #include "Project/LevelGen/LevelRand.h"

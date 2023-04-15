@@ -9,6 +9,8 @@
 #include "Camera/CameraActor.h"
 #include "Combat/FPCombat.h"
 #include "Components/Blob.h"
+#include "Components/InputComponent.h"
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/Gameplay/GameEnd.h"
