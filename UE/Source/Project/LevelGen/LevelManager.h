@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "LevelManager.generated.h"
 
+class ARoom;
 class USectionComponent;
 class USplineComponent;
 class USectionPreset;
@@ -26,6 +27,9 @@ public:
 	
 	float GetLowestEnd() const { return myLowestEnd; }
 	USplineComponent* GetPathSpline() const { return myPathSpline.Get(); }
+
+	ARoom* GetRoom(int32 anIndex) const;
+	int32 FindRoomIndex(const ARoom& aRoom) const;
 
 protected:
 	
@@ -61,6 +65,7 @@ private:
 		TWeakObjectPtr<ULevelStreaming> myStreamingLevel;
 		TWeakObjectPtr<ULevel> myLevel; 
 		FVector myExitLocation = FVector::ZeroVector;
+		TWeakObjectPtr<ARoom> myRoom; 
 	};
 	TArray<FLoadedLevel> myLoadedLevels; 
 	

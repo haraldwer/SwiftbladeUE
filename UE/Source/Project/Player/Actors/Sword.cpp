@@ -38,14 +38,25 @@ FTransform ASword::GetHitTransform(const AActor* anActor) const
 {
 	CHECK_RETURN(!myPlayer.IsValid(), FTransform());
 	FTransform trans = GetTransform();
-	
+
+	// Find sword location
 	const FVector base = trans.GetLocation() + GetActorForwardVector() * 20.0f;
 	const FVector start = base + GetActorUpVector() * myEffectStartOffset;
 	const FVector end = base + GetActorUpVector() * myEffectEndOffset;
 	const FVector point = anActor ?
 		FMath::ClosestPointOnLine(start, end, anActor->GetActorLocation()) :
 		FMath::Lerp(start, end, 0.5f);
-	trans.SetLocation(point);
+
+	// Line trace
+	FHitResult hit;
+	FCollisionQueryParams params;
+	params.bTraceComplex = true;
+	params.bFindInitialOverlaps = true;
+	params.AddIgnoredActor(this);
+	params.AddIgnoredActor(myPlayer.Get());
+	GetWorld()->LineTraceSingleByChannel(hit, point, anActor->GetActorLocation(), ECC_WorldDynamic, params);
+	
+	trans.SetLocation(hit.bBlockingHit ? hit.Location : point);
 	return trans; 
 }
 

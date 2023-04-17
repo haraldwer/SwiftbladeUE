@@ -58,6 +58,20 @@ void ALevelManager::LoadArena(const int32 anArenaIndex)
 	LoadLevels({ index });
 }
 
+ARoom* ALevelManager::GetRoom(const int32 anIndex) const
+{
+	CHECK_RETURN(!myLoadedLevels.IsValidIndex(anIndex), nullptr);
+	return myLoadedLevels[anIndex].myRoom.Get(); 
+}
+
+int32 ALevelManager::FindRoomIndex(const ARoom& aRoom) const
+{
+	for (int32 i = 0; i < myLoadedLevels.Num(); i++)
+		if (myLoadedLevels[i].myRoom == &aRoom)
+			return i;
+	return -1; 
+}
+
 void ALevelManager::LoadLevels(const TArray<int32>& someLevelsToLoad)
 {
 	myLevelsToLoad.Insert(someLevelsToLoad, myLevelsToLoad.Num());
@@ -117,11 +131,12 @@ void ALevelManager::SetupLevel()
 		loadedLevel.myLevel = level;
 
 		// Find room
-		const ARoom* room = nullptr;
+		ARoom* room = nullptr;
 		if (AActor** roomPtr = level->Actors.FindByPredicate([](const AActor* aActor)
 			{ return aActor->IsA(ARoom::StaticClass()); }))
 			room = Cast<ARoom>(*roomPtr);
 		else LOG("Missing room for level " + level->GetName());
+		loadedLevel.myRoom = room; 
 		
 		const FTransform enterTrans = IsValid(room) ? room->GetEntry() : FTransform::Identity;
 		const FTransform exitTrans = IsValid(room) ? room->GetExit() : FTransform::Identity;
@@ -133,7 +148,6 @@ void ALevelManager::SetupLevel()
 
 		const FVector enterPos = lastRoomExit - enterTrans.GetLocation();
 		level->ApplyWorldOffset(enterPos, false);
-		LOG("Pos: " + enterPos.ToString());
 
 		loadedLevel.myExitLocation = enterPos - enterTrans.GetLocation() + exitTrans.GetLocation(); 
 		if (loadedLevel.myExitLocation.Z < myLowestEnd)

@@ -40,6 +40,9 @@ public:
 
 protected:
 
+	void GenerateRoom();
+	void GenerateConnection(ALevelManager* aLevelManager);
+
 	UFUNCTION(CallInEditor)
 	void UpdatePath() const;
 	
@@ -66,5 +69,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Presets")
 	int32 myPresetIndex = -1; 
+
+	UPROPERTY(EditAnywhere, Category="Connections")
+	TArray<TSubclassOf<AActor>> myConnections; 
 	
 };

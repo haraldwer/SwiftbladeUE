@@ -6,7 +6,7 @@
 
 class UChapterPreset;
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(meta=(BlueprintSpawnableComponent))
 class PROJECT_API USectionComponent : public UActorComponent
 {
 	GENERATED_BODY()

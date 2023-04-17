@@ -3,6 +3,7 @@
 #include "GameDatabase.h"
 #include "Components/Leaderboard.h"
 #include "Project/Player/FPController.h"
+#include "Project/Player/FPStateSubsystem.h"
 #include "Project/Utility/MainSingelton.h"
 
 void UMenuStats::Populate()
@@ -28,4 +29,15 @@ void UMenuStats::Populate()
 	lb.myOnListSuccess.AddUniqueDynamic(this, &UMenuStats::OnDataLoaded);
 	lb.myOnListError.AddUniqueDynamic(this, &UMenuStats::UMenuStats::OnLoadingFailed);
 	lb.List(request);
+}
+
+void UMenuStats::SetNextChapterState()
+{
+	const auto gameInstance = GetGameInstance();
+	CHECK_RETURN_LOG(!gameInstance, "GameInstance nullptr")
+	const auto subsystem = gameInstance->GetSubsystem<UFPStateSubsystem>();
+	CHECK_RETURN_LOG(!subsystem, "FPStateSubsystem nullptr")
+	auto state = subsystem->Get();
+	state.myChapter++;
+	subsystem->Set(state);
 }

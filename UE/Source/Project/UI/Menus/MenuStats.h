@@ -38,5 +38,11 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnLoadingFailed(const FString& anError);
+
+	UFUNCTION(BlueprintPure)
+	bool IsFinalChapter() const { return false; }
+	
+	UFUNCTION(BlueprintCallable)
+	void SetNextChapterState();
 	
 };

@@ -37,6 +37,6 @@ public:
 	FString mySectionStart = "SL_Section_Start";
 
 	UPROPERTY(EditDefaultsOnly)
-	FString mySectionEnd = "SL_Section_End"; 
+	FString mySectionEnd = "SL_Section_End";
 	
 };

@@ -1,5 +1,6 @@
 #include "Room.h"
 
+#include "LevelManager.h"
 #include "LevelRand.h"
 #include "Engine/Level.h"
 
@@ -49,7 +50,12 @@ void ARoom::BeginPlay()
 void ARoom::Generate(ALevelManager* aLevelManager)
 {
 	Super::Generate(aLevelManager);
-	
+	GenerateRoom();
+	GenerateConnection(aLevelManager);
+}
+
+void ARoom::GenerateRoom()
+{
 	CHECK_RETURN_LOG(!myPresets.Num(), "No presets for room " + GetLevel()->GetName()); 
 	
 	TSet<AActor*> affectedActors;
@@ -69,6 +75,7 @@ void ARoom::Generate(ALevelManager* aLevelManager)
 		//preset.myRequiredAbilities
 
 		// Compare abilities and difficulty
+		// Or maybe just compare what chapter and arena? 
 		
 		index = tryIndex;
 	}
@@ -97,6 +104,20 @@ void ARoom::Generate(ALevelManager* aLevelManager)
 			
 		}
 	}
+}
+
+void ARoom::GenerateConnection(ALevelManager* aLevelManager)
+{
+	CHECK_RETURN_LOG(!myConnections.Num(), "No connections");
+	
+	// TODO: Find common connection
+	//if (aLevelManager)
+	//const int32 roomIndex = aLevelManager->FindRoomIndex(*this);
+	//const ARoom* nextRoom = aLevelManager->GetRoom(roomIndex + 1);
+	
+	const int32 connectionIndex = ULevelRand::RandRange(0, myConnections.Num() - 1);
+	const auto connection = myConnections[connectionIndex];
+	SpawnGeneratedActor(connection, GetExit());
 }
 
 void ARoom::UpdatePath() const
