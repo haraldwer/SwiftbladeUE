@@ -4,6 +4,7 @@
 #include "Project/LevelGen/GeneratorBase.h"
 #include "PropGenerator.generated.h"
 
+class UArrowComponent;
 class USplineComponent;
 class UPropConfig;
 class APropGroup;
@@ -28,6 +29,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USplineComponent> mySpline;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UArrowComponent> myTop;
 
 	UPROPERTY(EditAnywhere)
 	int32 mySubdivisions = 32;

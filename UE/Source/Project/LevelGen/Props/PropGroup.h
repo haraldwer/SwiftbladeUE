@@ -38,6 +38,11 @@ public:
 	float GetYawRot() const { return myYawRot; }
 	float GetMinWallDist() const { return myMinWallDist; }
 	float GetMaxWallDist() const { return myMaxWallDist; }
+
+	float GetMinHeight() const { return myMinHeight; }
+	float GetMaxHeight() const { return myMaxHeight; }
+	float GetMinCeilDist() const { return myMinCeilDist; }
+	
 	EPropPlacementMode GetPlacementMode() const { return myPlacementMode; }
 
 protected:
@@ -83,5 +88,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	float myYawRot = 360.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myMinHeight = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myMaxHeight = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float myMinCeilDist = 0.0f;
 	
 };

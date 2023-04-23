@@ -1,5 +1,6 @@
 #include "PropGenerator.h"
 
+#include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
@@ -13,10 +14,14 @@
 APropGenerator::APropGenerator()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
+	
 	mySpline = CreateDefaultSubobject<USplineComponent>("Spline");
 	mySpline->SetMobility(EComponentMobility::Static);
-	SetRootComponent(mySpline); 
+	SetRootComponent(mySpline);
+
+	myTop = CreateDefaultSubobject<UArrowComponent>("Top");
+	myTop->SetMobility(EComponentMobility::Static);
+	myTop->SetupAttachment(RootComponent);
 }
 
 void APropGenerator::BeginPlay()
@@ -70,9 +75,14 @@ void APropGenerator::CreateGroup(UPropConfig& aConfig)
 		const float yaw = FMath::RadiansToDegrees(FMath::Atan2(dir.Y, dir.X));
 		const float yawRot = defaultObject->GetYawRot();
 		const float rotOffset = ULevelRand::FRandRange(-yawRot * 0.5f, yawRot * 0.5f);
-		const float height = GetActorLocation().Z;
 		
-		const FTransform trans = FTransform(FRotator(0.0f, yaw + rotOffset + 90.0f, 0.0f), FVector(loc.X, loc.Y, height));
+		const float height = ULevelRand::FRandRange(defaultObject->GetMinHeight(), defaultObject->GetMaxHeight());
+		const float ceil = myTop->GetRelativeLocation().Z - defaultObject->GetMinCeilDist();
+		const float maxHeight = FMath::Min(defaultObject->GetMaxHeight(), ceil);
+		const float clampedHeight = FMath::Clamp(height, defaultObject->GetMinHeight(), maxHeight);
+		const float zPos = GetActorLocation().Z + clampedHeight;
+		
+		const FTransform trans = FTransform(FRotator(0.0f, yaw + rotOffset + 90.0f, 0.0f), FVector(loc.X, loc.Y, zPos));
 
 		// Avoid overlaps with existing stuff
 		if (FindOverlaps(*defaultObject, trans))
