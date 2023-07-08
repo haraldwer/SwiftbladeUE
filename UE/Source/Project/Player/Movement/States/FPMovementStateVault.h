@@ -33,7 +33,7 @@ protected:
 	float mySweepStartZ = 60.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float mySweepEndZ = -60.0f;
+	float mySweepEndZ = -30.0f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float mySweepRadius = 20.0f;
