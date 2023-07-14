@@ -22,7 +22,6 @@
 #include "Project/Player/Movement/FPMovement.h"
 #include "Project/Player/Movement/States/FPMovementStateBoostCrystal.h"
 #include "Project/Player/Movement/States/FPMovementStateStrike.h"
-#include "Project/Utility/MainSingelton.h"
 
 UClass* UFPCombatStateStrike::Update(float aDT)
 {
