@@ -10,40 +10,38 @@
 #include "Combat/FPCombat.h"
 #include "Components/Blob.h"
 #include "Components/InputComponent.h"
-#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/Gameplay/GameEnd.h"
 #include "Project/LevelGen/LevelRand.h"
-#include "Project/LevelGen/LevelManager.h"
-#include "Project/UI/Menus/MenuManager.h"
-#include "Project/UI/Prompts/PromptManager.h"
+#include "..\LevelGen\LevelSubsystem.h"
+#include "..\UI\Menus\MenuSubsystem.h"
+#include "..\UI\Prompts\PromptSubsystem.h"
 #include "Project/Utility/GameUtility.h"
-#include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
 void AFPController::BeginPlay()
 {
 	Super::BeginPlay();
-	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::LEVEL_FADEIN);
+	UPromptSubsystem::Get().CreatePrompt(EPromptType::LEVEL_FADEIN);
 
 	if (UGameUtility::IsInBaseLevel())
 	{
-		auto state = GetState();
+		auto state = UFPStateSubsystem::Get().GetState();
 		if (!state.mySeed)
 		{
 			state.mySeed = FMath::RandRange(1, myNumSeeds);
-			
-			auto& blob = UMainSingelton::GetGameDB().GetBlob();
+
+			auto& blob = UGameDatabase::Get().GetBlob();
 			auto blobData = blob.Get();
 			blobData.mySeedData.mySeed = state.mySeed;
 			blob.Set(blobData);
 		}
-		SetState(state);
+		UFPStateSubsystem::Get().SetState(state);
 
 		ULevelRand::Init(state.mySeed + state.myArenaIndex * 10); 
 		
-		auto& levelGen = UMainSingelton::GetLevelManager();
+		auto& levelGen = ULevelSubsystem::Get(); 
 		levelGen.GenerateLevelOrder(state.myChapter);
 		state.myInArena ?
 			levelGen.LoadArena(state.myArenaIndex) :
@@ -74,24 +72,6 @@ UCustomCamera* AFPController::GetCamera() const
 	return nullptr;
 }
 
-FFPState AFPController::GetState() const
-{
-	const auto gameInstance = GetGameInstance();
-	CHECK_RETURN_LOG(!gameInstance, "GameInstance nullptr", FFPState())
-	const auto subsystem = gameInstance->GetSubsystem<UFPStateSubsystem>();
-	CHECK_RETURN_LOG(!subsystem, "FPStateSubsystem nullptr", FFPState())
-	return subsystem->Get();
-}
-
-void AFPController::SetState(const FFPState& aState) const
-{
-	const auto gameInstance = GetGameInstance();
-	CHECK_RETURN_LOG(!gameInstance, "GameInstance nullptr")
-	const auto subsystem = gameInstance->GetSubsystem<UFPStateSubsystem>();
-	CHECK_RETURN_LOG(!subsystem, "FPStateSubsystem nullptr")
-	subsystem->Set(aState);
-}
-
 void AFPController::UpdateState(FFPState& aState) const
 {
 	const auto character = GetFPCharacter();
@@ -104,13 +84,13 @@ void AFPController::UpdateState(FFPState& aState) const
 
 void AFPController::CharacterKilled()
 {
-	FFPState state = GetState();
+	FFPState state = UFPStateSubsystem::Get().GetState();
 	state.myRespawnCount++;
-	SetState(state); 
+	UFPStateSubsystem::Get().SetState(state); 
 	if (const auto character = GetFPCharacter())
 		character->OnLivesChanged(GetRemainingLives());
 	
-	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::DEATH);
+	UPromptSubsystem::Get().CreatePrompt(EPromptType::DEATH);
 
 	const auto character = GetFPCharacter();
 	character->DisableInput(this);
@@ -125,7 +105,7 @@ int32 AFPController::GetRespawns() const
 
 int32 AFPController::GetRemainingLives() const
 {
-	return GetRespawns() - GetState().myRespawnCount;
+	return GetRespawns() - UFPStateSubsystem::Get().GetState().myRespawnCount;
 }
 
 void AFPController::Respawn()
@@ -139,10 +119,10 @@ bool AFPController::TrySetCheckpoint(ACheckpoint& aCheckpoint)
 	CHECK_RETURN_LOG(!aCheckpoint.IsEnabled(), "Checkpoint not yet enabled", false);
 	CHECK_RETURN_LOG(myCheckpoint == &aCheckpoint, "Checkpoint already set", false);
 
-	auto state = GetState();
+	auto state = UFPStateSubsystem::Get().GetState();
 	state.myRespawnCount = 0;
 	state.myArenaIndex++;
-	SetState(state);
+	UFPStateSubsystem::Get().SetState(state);
 	
 	if (const auto character = GetFPCharacter())
 		character->OnLivesChanged(GetRemainingLives());
@@ -156,22 +136,22 @@ bool AFPController::TrySetCheckpoint(ACheckpoint& aCheckpoint)
 void AFPController::UseCheckpoint(const ACheckpoint& aCheckpoint) const
 {
 	CHECK_RETURN_LOG(&aCheckpoint != myCheckpoint, "Attempted to travel to unknown checkpoint");
-	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::CHECKPOINT);
+	UPromptSubsystem::Get().CreatePrompt(EPromptType::CHECKPOINT);
 }
 
 void AFPController::StartTravel(const EFPTravelReason aReason)
 {
 	LOG("Start travel ");
-	auto state = GetState();
+	auto state = UFPStateSubsystem::Get().GetState();
 	state.myTravelReason = aReason;
 	UpdateState(state);
-	SetState(state);
-	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::LEVEL_FADEOUT);
+	UFPStateSubsystem::Get().SetState(state);
+	UPromptSubsystem::Get().CreatePrompt(EPromptType::LEVEL_FADEOUT);
 }
 
 void AFPController::FinishTravel()
 {
-	auto state = GetState();
+	auto state = UFPStateSubsystem::Get().GetState();
 	switch (state.myTravelReason)
 	{	
 	case EFPTravelReason::RESPAWN:
@@ -181,7 +161,7 @@ void AFPController::FinishTravel()
 				state.myArenaIndex = 0;
 				state.myRespawnCount = 0;
 				state.mySeed = 0;
-				SetState(state); 
+				UFPStateSubsystem::Get().SetState(state); 
 			}
 			state.myInArena ?
 				EnterArena() : EnterSection();
@@ -215,22 +195,22 @@ void AFPController::ReachEnd(const AGameEnd& aGameEnd)
 	
 	myHasReachedEnd = true;
 
-	auto state = GetState();
+	auto state = UFPStateSubsystem::Get().GetState();
 	state.myTime = scoreTime;
-	SetState(state); 
+	UFPStateSubsystem::Get().SetState(state); 
 	
 	FLeaderboardSubmission submission;
 	submission.mySeed = state.mySeed;
 	submission.myScore = scoreTime;
-	const auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
+	const auto& lb = UGameDatabase::Get().GetLeaderboard();
 	lb.Write(submission);
 
-	auto& blob = UMainSingelton::GetGameDB().GetBlob();
+	auto& blob = UGameDatabase::Get().GetBlob();
 	auto blobData = blob.Get();
 	blobData.mySeedData.mySeed = state.mySeed;
 	blob.Set(blobData);
 
-	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::OUTRO);
+	UPromptSubsystem::Get().CreatePrompt(EPromptType::OUTRO);
 }
 
 void AFPController::SetEnablePawnControls(const bool aEnabled)
@@ -244,17 +224,17 @@ void AFPController::SetEnablePawnControls(const bool aEnabled)
 
 void AFPController::EnterSection() const
 {
-	auto state = GetState();
+	auto state = UFPStateSubsystem::Get().GetState();
 	state.myInArena = false;
-	SetState(state);
+	UFPStateSubsystem::Get().SetState(state);
 	UGameplayStatics::OpenLevel(GetWorld(), "ML_Base");
 }
 
 void AFPController::EnterArena() const
 {
-	auto state = GetState();
+	auto state = UFPStateSubsystem::Get().GetState();
 	state.myInArena = true;
-	SetState(state); 
+	UFPStateSubsystem::Get().SetState(state); 
 	UGameplayStatics::OpenLevel(GetWorld(), "ML_Base");
 }
 
@@ -268,7 +248,7 @@ void AFPController::SetupInputComponent()
 
 void AFPController::PausePressed()
 {
-	auto& menuManager = UMainSingelton::GetMenuManger();
+	auto& menuManager = UMenuSubsystem::Get();
 	if (menuManager.IsAnyMenuOpen())
 	{
 		if (!menuManager.IsMenuTop(EMenuType::MAIN))

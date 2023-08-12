@@ -4,6 +4,7 @@
 #include "FPCamera.h"
 #include "FPController.h"
 #include "FPCutscene.h"
+#include "FPStateSubsystem.h"
 #include "FPTime.h"
 #include "Actors/Hand.h"
 #include "Actors/Sword.h"
@@ -21,10 +22,9 @@
 #include "Movement/FPMovement.h"
 #include "Project/Gameplay/Door.h"
 #include "Project/Gameplay/GameEnd.h"
-#include "Project/LevelGen/LevelManager.h"
-#include "Project/UI/Prompts/PromptManager.h"
+#include "..\LevelGen\LevelSubsystem.h"
+#include "..\UI\Prompts\PromptSubsystem.h"
 #include "Project/Utility/GameUtility.h"
-#include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 #include "Project/Utility/Tools/Effect.h"
 #include "Toombstone/FPToombstone.h"
@@ -116,8 +116,7 @@ void AFPCharacter::BeginPlay()
 
 	if (UGameUtility::IsInBaseLevel())
 	{
-		if (const auto controller = GetFPController())
-			InitFromState(controller->GetState()); 
+		InitFromState(); 
 	}
 	else
 	{
@@ -158,7 +157,7 @@ void AFPCharacter::TickActor(float DeltaTime, ELevelTick Tick, FActorTickFunctio
 				controller->ReachEnd(*gameEnd);
 
 	// Check lowest Z
-	const float lowestPoint = UMainSingelton::GetLevelManager().GetLowestEnd();
+	const float lowestPoint = ULevelSubsystem::Get().GetLowestEnd();
 	if (GetActorLocation().Z < lowestPoint + myKillZ)
 		Die("OutOfBounds");
 }
@@ -187,18 +186,19 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	InputComponent->BindAction("Block", IE_Pressed, myFPCombat, &UFPCombat::Block); 
 }
 
-void AFPCharacter::InitFromState(const FFPState& aState) const
-{	
+void AFPCharacter::InitFromState() const
+{
+	const auto state = UFPStateSubsystem::Get().GetState();
 	if (myFPTime)
-		myFPTime->SetInitialTime(aState.myTime);
+		myFPTime->SetInitialTime(state.myTime);
 	if (myFPToombstone)
 		myFPToombstone->CreateStones();
 
-	if (aState.myHasSword)
+	if (state.myHasSword)
 	{
 		if (myFPCombat)
 			myFPCombat->SetHasSword(true);
-		if (aState.myRespawnCount != 0 && aState.myTravelReason == EFPTravelReason::RESPAWN)
+		if (state.myRespawnCount != 0 && state.myTravelReason == EFPTravelReason::RESPAWN)
 			myFPAnimator->SetState<UFPAnimationStateDeath>(); 
 	}
 }
@@ -255,7 +255,7 @@ void AFPCharacter::OnLivesChanged(const int32 aNewLifeCount) const
 
 void AFPCharacter::DoorOpened(ADoor* aDoor) const
 {
-	UMainSingelton::GetPromptManager().CreatePrompt(EPromptType::LEVEL_END); 
+	UPromptSubsystem::Get().CreatePrompt(EPromptType::LEVEL_END); 
 }
 
 bool AFPCharacter::HasMagic() const

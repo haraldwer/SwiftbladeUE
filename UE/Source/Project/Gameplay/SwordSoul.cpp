@@ -2,9 +2,9 @@
 
 #include "Components/SplineComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Project/LevelGen/LevelManager.h"
+#include "..\LevelGen\LevelSubsystem.h"
 #include "Project/Player/FPCharacter.h"
-#include "Project/Utility/MainSingelton.h"
+#include "Project/Utility/GameUtility.h"
 
 ASwordSoul::ASwordSoul()
 {
@@ -23,10 +23,10 @@ void ASwordSoul::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	const auto player = UMainSingelton::GetLocalPlayer();
+	const auto player = UGameUtility::GetLocalPlayer();
 	CHECK_RETURN(!player);
 
-	const auto& levelMan = UMainSingelton::GetLevelManager();
+	const auto& levelMan = ULevelSubsystem::Get(); 
 	const auto spline = levelMan.GetPathSpline();
 	CHECK_RETURN(!spline);
 	const float locKey = spline->FindInputKeyClosestToWorldLocation(player->GetActorLocation());
@@ -62,7 +62,7 @@ void ASwordSoul::Tick(float DeltaTime)
 
 FTransform ASwordSoul::GetSplineTrans(const FVector aLocation, const float aDistanceOffset)
 {
-	const auto& levelMan = UMainSingelton::GetLevelManager();
+	const auto& levelMan = ULevelSubsystem::Get(); 
 	const auto spline = levelMan.GetPathSpline();
 	CHECK_RETURN(!spline, FTransform::Identity);
 	const float locKey = spline->FindInputKeyClosestToWorldLocation(aLocation);

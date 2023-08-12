@@ -16,7 +16,7 @@ public:
 	UFUNCTION(CallInEditor, Category="Generation")
 	void Generate() { Generate(nullptr); }
 	
-	virtual void Generate(class ALevelManager* aLevelManager);
+	virtual void Generate(class ULevelSubsystem* aLevelSubsystem);
 
 	UFUNCTION(CallInEditor, Category="Generation")
 	virtual void Clear();

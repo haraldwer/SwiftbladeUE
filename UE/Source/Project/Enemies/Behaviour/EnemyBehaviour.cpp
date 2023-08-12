@@ -1,9 +1,11 @@
 ﻿#include "EnemyBehaviour.h"
 
 #include "DrawDebugHelpers.h"
-#include "Project/Enemies/EnemyManager.h"
+#include "..\EnemySubsystem.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Project/Enemies/Enemy.h"
 #include "Project/Player/FPCharacter.h"
+#include "Project/Utility/GameUtility.h"
 #include "Project/Utility/Tools/Animation/ObjectAnimator.h"
 #include "States/EnemyStateIdle.h"
 
@@ -80,20 +82,15 @@ AActor* UEnemyBehaviour::FindTarget() const
 	const FVector location = owner->GetActorLocation();
 	const FVector forward = owner->GetActorForwardVector();
 
-	if (AFPCharacter* player = UMainSingelton::GetLocalPlayer())
-	{
+	if (AFPCharacter* player = UGameUtility::GetLocalPlayer())
 		if (CanTarget(player, location, forward))
 			return player;
-	}
 	
 	if (myCanTargetEnemies)
-	{
-		for (const auto& enemy : UMainSingelton::GetEnemyManager().GetEnemies())
-		{
-			if (CanTarget(enemy, location, forward))
-				return enemy;
-		}
-	}
+		for (const auto& enemy : UEnemySubsystem::Get().GetEnemies())
+			if (const auto ptr = enemy.Get())
+				if (CanTarget(ptr, location, forward))
+					return ptr;
 	
 	return nullptr;
 }

@@ -14,8 +14,10 @@ class PROJECT_API UFPStateSubsystem : public UGameInstanceSubsystem
 
 public: 
 	
-	void Set(const FFPState& aState) { myState = aState; }
-	const FFPState& Get() const { return myState; }
+	static UFPStateSubsystem& Get();
+	
+	void SetState(const FFPState& aState) { myState = aState; }
+	const FFPState& GetState() const { return myState; }
 
 private: 
 	

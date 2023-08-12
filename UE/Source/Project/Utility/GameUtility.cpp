@@ -2,7 +2,10 @@
 
 #include "Components/Authentication.h"
 #include "GameDatabase.h"
+#include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project/Player/FPCharacter.h"
+#include "Project/Player/FPController.h"
 
 bool UGameUtility::IsInBaseLevel()
 {
@@ -14,7 +17,9 @@ bool UGameUtility::IsInBaseLevel()
 
 bool UGameUtility::IsAuthenticated()
 {
-	return UMainSingelton::GetGameDB().GetAuthentication().IsAuthenticated(); 
+	const auto gameDB = GetGameInstance().GetSubsystem<UGameDatabase>();
+	CHECK_RETURN(!gameDB, false);
+	return gameDB->GetAuthentication().IsAuthenticated(); 
 }
 
 AFPController* UGameUtility::GetLocalController()
@@ -30,24 +35,27 @@ AFPCharacter* UGameUtility::GetLocalPlayer()
 	return Cast<AFPCharacter>(controller->GetCharacter());
 }
 
-ACustomGameMode& UGameUtility::GetGameMode()
+AGameModeBase& UGameUtility::GetGameMode()
 {
 	const auto world = GEngine->GetCurrentPlayWorld();
 	CHECK_ASSERT(!world, "World nullptr");
 	const auto instance = UGameplayStatics::GetGameMode(world);
 	CHECK_ASSERT(!instance, "GameMode nullptr");
-	const auto customInstance = Cast<ACustomGameMode>(instance);
-	CHECK_ASSERT(!customInstance, "Custom GameMode nullptr");
-	return *customInstance;
+	return *instance;
 }
 
-UCustomGameInstance& UGameUtility::GetGameInstance()
+UGameInstance& UGameUtility::GetGameInstance()
 {
 	const auto world = GEngine->GetCurrentPlayWorld();
 	CHECK_ASSERT(!world, "World nullptr");
 	const auto instance = UGameplayStatics::GetGameInstance(world);
 	CHECK_ASSERT(!instance, "Instance nullptr");
-	const auto customInstance = Cast<UCustomGameInstance>(instance);
-	CHECK_ASSERT(!customInstance, "Custom instance nullptr");
-	return *customInstance;
+	return *instance;
+}
+
+UWorld& UGameUtility::GetCurrentWorld()
+{
+	const auto world = GEngine->GetCurrentPlayWorld();
+	CHECK_ASSERT(!world, "World nullptr");
+	return *world; 
 }

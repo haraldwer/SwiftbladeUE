@@ -414,6 +414,43 @@ private:
 
 };
 
+/**
+ * Authenticate Refresh (using session refresh token)
+ */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAuthenticateRefresh, FNakamaError, Error, UNakamaSession*, Session);
+
+UCLASS()
+class NAKAMABLUEPRINTS_API UNakamaClientAuthenticateRefresh: public UBlueprintAsyncActionBase
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY()
+	UNakamaClient *NakamaClient;
+
+	UPROPERTY()
+	UNakamaSession *UserSession;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAuthenticateRefresh OnSuccess;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAuthenticateRefresh OnError;
+
+	/**
+	 * Refresh a user's session using a refresh token retrieved from a previous authentication request.
+	 * @param Client The Client to use.
+	 * @param Session The session of the user.
+	**/
+	UFUNCTION(BlueprintCallable, Category = "Nakama|Authentication", meta = (BlueprintInternalUseOnly = "true"))
+	static UNakamaClientAuthenticateRefresh* AuthenticateRefresh(UNakamaClient *Client, UNakamaSession* Session);
+
+	virtual void Activate() override;
+
+};
+
 
 /// <summary>
 /// Restore Session
@@ -1403,9 +1440,10 @@ public:
 	 * @param Limit The number of matches to list.
 	 * @param Label The label to filter the match list on.
 	 * @param Authoritative True to include authoritative matches.
+	 * @param Query A query for the matches to filter.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Nakama|Realtime", meta = (BlueprintInternalUseOnly = "true"))
-	static UNakamaClientListMatches* ListMatches(UNakamaClient* Client, UNakamaSession *Session, int32 MinSize, int32 MaxSize, int32 Limit, FString Label, bool Authoritative);
+	static UNakamaClientListMatches* ListMatches(UNakamaClient* Client, UNakamaSession *Session, int32 MinSize, int32 MaxSize, int32 Limit, FString Label, FString Query, bool Authoritative);
 
 	virtual void Activate() override;
 
@@ -1414,6 +1452,7 @@ private:
 	int32 MinSize;
 	int32 MaxSize;
 	int32 Limit;
+	FString Query;
 	FString Label;
 	bool Authoritative;
 
@@ -2297,7 +2336,7 @@ private:
  * Read Storage Objects
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReadStorageObjects, FNakamaError, Error, TArray <FNakamaStoreObjectData>, StorageObjects);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReadStorageObjects, FNakamaError, Error, const TArray <FNakamaStoreObjectData>&, StorageObjects);
 
 UCLASS()
 class NAKAMABLUEPRINTS_API UNakamaClientReadStorageObjects : public UBlueprintAsyncActionBase

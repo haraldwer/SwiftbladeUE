@@ -29,7 +29,6 @@ UENUM(BlueprintType)
 enum class ENakamaClientType : uint8
 {
 	DEFAULT UMETA(DisplayName = "Default"), // Creates a default client to interact with Nakama server.
-	GRPC UMETA(DisplayName = "gRPC"), // Creates the gRPC client to interact with Nakama server.
 	REST UMETA(DisplayName = "REST"), // Creates the REST client (HTTP/1.1) to interact with Nakama server.
 };
 
@@ -259,6 +258,13 @@ public:
 	 */
 	UFUNCTION(Category = "Nakama|Authentication")
 	void AuthenticateApple(FString Token, FString Username, bool CreateAccount, TMap<FString, FString> Vars, const FOnAuthUpdate& Success, const FOnError& Error);
+
+	/**
+	 * Refresh a user's session using a refresh token retrieved from a previous authentication request.
+	 * @param Session The session of the user.
+	**/
+	UFUNCTION(Category = "Nakama|Authentication")
+	void AuthenticateRefresh(UNakamaSession* Session, const FOnAuthUpdate& Success, const FOnError& Error);
 
 	/// <summary>
 	/// Restore Session
@@ -529,10 +535,11 @@ public:
 	 * @param MaxSize The maximum number of match participants.
 	 * @param Limit The number of matches to list.
 	 * @param Label The label to filter the match list on.
+	 * @param Query A query for the matches to filter..
 	 * @param Authoritative True to include authoritative matches.
 	 */
 	UFUNCTION(Category = "Nakama|Realtime")
-	void ListMatches(UNakamaSession *Session, int32 MinSize, int32 MaxSize, int32 Limit, FString Label, bool Authoritative, const FOnMatchlist& Success, const FOnError& Error);
+	void ListMatches(UNakamaSession *Session, int32 MinSize, int32 MaxSize, int32 Limit, FString Label, FString Query, bool Authoritative, const FOnMatchlist& Success, const FOnError& Error);
 
 
 	/// <summary>
@@ -795,6 +802,22 @@ public:
 	 */
 	UFUNCTION(Category = "Nakama|Realtime|RPC")
 	void RPC(UNakamaSession* Session, FString FunctionId, FString Payload, const FOnRPC& Success, const FOnError& Error);
+
+	/// <summary>
+	/// RPCHttpKey
+	/// </summary>
+
+	/**
+	 * Send an RPC message to the server using HTTP key.
+	 *
+	 * @param HttpKey The HTTP key for the server.
+	 * @param FunctionId The ID of the function to execute.
+	 * @param Payload The string content to send to the server.
+	 * @param Session The session of the user.
+	 */
+	UFUNCTION(Category = "Nakama|Realtime|RPC")
+	void RPCHttpKey(FString HttpKey, FString FunctionId, FString Payload, const FOnRPC& Success, const FOnError& Error);
+
 
 	/// <summary>
 	/// List Channel Messages

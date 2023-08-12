@@ -6,6 +6,17 @@
 #include "Components/Blob.h"
 #include "GameDBModule.h"
 
+UGameDatabase& UGameDatabase::Get()
+{
+	const auto world = GEngine->GetCurrentPlayWorld();
+	check(world && "Invalid world");
+	const auto gameInstance = world->GetGameInstance();
+	check(gameInstance && "Invalid gameinstance");
+	const auto subsystem = gameInstance->GetSubsystem<UGameDatabase>();
+	check(subsystem && "Invalid subsystem");
+	return *subsystem;
+}
+
 void UGameDatabase::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);

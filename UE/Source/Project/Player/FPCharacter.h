@@ -21,7 +21,7 @@ public:
 	virtual void TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void InitFromState(const FFPState& aState) const;
+	void InitFromState() const;
 
 	// Input getters
 	float GetSensitivity() const						{ return mySensitivity; }

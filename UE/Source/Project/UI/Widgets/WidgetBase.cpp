@@ -1,7 +1,7 @@
 ﻿#include "WidgetBase.h"
 
 #include "Project/Player/FPController.h"
-#include "Project/Utility/MainSingelton.h"
+#include "Project/Utility/GameUtility.h"
 #include "Project/Utility/Tools/CustomCamera.h"
 
 void UWidgetBase::NativeConstruct()
@@ -18,7 +18,7 @@ void UWidgetBase::AddToCamera()
 		return;
 	}
 	
-	const auto controller = UMainSingelton::GetLocalController();
+	const auto controller = UGameUtility::GetLocalController();
 	const auto camera = controller ? controller->GetCamera() : nullptr;
 	if (!camera)
 	{
@@ -33,15 +33,15 @@ void UWidgetBase::RemoveFromCamera()
 {
 	if (!myCameraWidget)
 	{
-		RemoveFromViewport();
+		RemoveFromParent();
 		return;
 	}
 	
-	const auto controller = UMainSingelton::GetLocalController();
+	const auto controller = UGameUtility::GetLocalController();
 	const auto camera = controller ? controller->GetCamera() : nullptr;
 	if (!camera)
 	{
-		RemoveFromViewport();
+		RemoveFromParent();
 		LOG("Failed to remove widget to in-game view");
 		return;
 	}

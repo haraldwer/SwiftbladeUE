@@ -55,9 +55,6 @@ void UNakamaClient::InitializeSystem(const FString& ServerKey, const FString& Ho
 	case ENakamaClientType::DEFAULT:
 		Client = NakamaCoreClientFactory::createNakamaClient(parameters,NLogLevel::Info);
 		break;
-	case ENakamaClientType::GRPC:
-		Client = createGrpcClient(parameters);
-		break;;
 	case ENakamaClientType::REST:
 		Client = NakamaCoreClientFactory::createNakamaClient(parameters,NLogLevel::Info);
 		break;;
@@ -131,7 +128,7 @@ void UNakamaClient::AuthenticateCustom(FString UserID, FString Username, bool Cr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -143,7 +140,7 @@ void UNakamaClient::AuthenticateCustom(FString UserID, FString Username, bool Cr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -166,7 +163,7 @@ void UNakamaClient::AuthenticateEmail(FString Email, FString Password, FString U
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -178,7 +175,7 @@ void UNakamaClient::AuthenticateEmail(FString Email, FString Password, FString U
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -200,7 +197,7 @@ void UNakamaClient::AuthenticateDevice(FString DeviceID, FString Username, bool 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -212,7 +209,7 @@ void UNakamaClient::AuthenticateDevice(FString DeviceID, FString Username, bool 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -240,7 +237,7 @@ void UNakamaClient::AuthenticateSteam(FString SteamToken, FString Username, bool
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -253,7 +250,7 @@ void UNakamaClient::AuthenticateSteam(FString SteamToken, FString Username, bool
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -274,7 +271,7 @@ void UNakamaClient::AuthenticateGoogle(FString AccessToken, FString Username, bo
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -286,7 +283,7 @@ void UNakamaClient::AuthenticateGoogle(FString AccessToken, FString Username, bo
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -307,7 +304,7 @@ void UNakamaClient::AuthenticateGameCenter(FString PlayerId, FString BundleId, i
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -319,7 +316,7 @@ void UNakamaClient::AuthenticateGameCenter(FString PlayerId, FString BundleId, i
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -352,7 +349,7 @@ void UNakamaClient::AuthenticateFacebook(FString AccessToken, FString Username, 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -363,7 +360,7 @@ void UNakamaClient::AuthenticateFacebook(FString AccessToken, FString Username, 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -390,7 +387,7 @@ void UNakamaClient::AuthenticateApple(FString Token, FString Username, bool Crea
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -401,7 +398,7 @@ void UNakamaClient::AuthenticateApple(FString Token, FString Username, bool Crea
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -409,6 +406,34 @@ void UNakamaClient::AuthenticateApple(FString Token, FString Username, bool Crea
 	NStringMap Variables = FNakamaUtils::TMapToFStringMap(Vars);
 
 	Client->authenticateApple(FNakamaUtils::UEStringToStdString(Token), FNakamaUtils::UEStringToStdString(Username), CreateAccount, Variables, successCallback, errorCallback);
+}
+
+void UNakamaClient::AuthenticateRefresh(UNakamaSession* Session, const FOnAuthUpdate& Success, const FOnError& Error)
+{
+	if (!Client)
+		return;
+
+	auto successCallback = [this, Success](NSessionPtr session)
+	{
+		if(!FNakamaUtils::IsClientActive(this))
+			return;
+
+		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
+		ResultSession->UserSession = session; // Reference for C++ code
+		ResultSession->SessionData = session; // Reference for Blueprints
+		Success.Broadcast(ResultSession);
+	};
+
+	auto errorCallback = [this, Error](const NError& error)
+	{
+		if(!FNakamaUtils::IsClientActive(this))
+			return;
+
+		const FNakamaError NakamaError = error;
+		Error.Broadcast(NakamaError);
+	};
+
+	Client->authenticateRefresh(Session->UserSession, successCallback, errorCallback);
 }
 
 /**
@@ -436,7 +461,7 @@ void UNakamaClient::LinkCustom(UNakamaSession* Session, FString CustomId, const 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -445,7 +470,7 @@ void UNakamaClient::LinkCustom(UNakamaSession* Session, FString CustomId, const 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -461,7 +486,7 @@ void UNakamaClient::LinkDevice(UNakamaSession* Session, FString DeviceId, const 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -470,7 +495,7 @@ void UNakamaClient::LinkDevice(UNakamaSession* Session, FString DeviceId, const 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -486,7 +511,7 @@ void UNakamaClient::LinkEmail(UNakamaSession* Session, FString Email, FString Pa
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -495,7 +520,7 @@ void UNakamaClient::LinkEmail(UNakamaSession* Session, FString Email, FString Pa
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -512,7 +537,7 @@ void UNakamaClient::LinkFacebook(UNakamaSession* Session, FString AccessToken, b
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -521,7 +546,7 @@ void UNakamaClient::LinkFacebook(UNakamaSession* Session, FString AccessToken, b
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -538,7 +563,7 @@ void UNakamaClient::LinkGameCenter(UNakamaSession* Session, FString PlayerId, FS
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -547,7 +572,7 @@ void UNakamaClient::LinkGameCenter(UNakamaSession* Session, FString PlayerId, FS
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -574,7 +599,7 @@ void UNakamaClient::LinkGoogle(UNakamaSession* Session, FString AccessToken, con
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -583,7 +608,7 @@ void UNakamaClient::LinkGoogle(UNakamaSession* Session, FString AccessToken, con
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -599,7 +624,7 @@ void UNakamaClient::LinkSteam(UNakamaSession* Session, FString SteamToken, const
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -608,7 +633,7 @@ void UNakamaClient::LinkSteam(UNakamaSession* Session, FString SteamToken, const
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -624,7 +649,7 @@ void UNakamaClient::LinkApple(UNakamaSession* Session, FString Token, const FOnL
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -633,7 +658,7 @@ void UNakamaClient::LinkApple(UNakamaSession* Session, FString Token, const FOnL
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -654,7 +679,7 @@ void UNakamaClient::UnLinkCustom(UNakamaSession* Session, FString CustomId, cons
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -663,7 +688,7 @@ void UNakamaClient::UnLinkCustom(UNakamaSession* Session, FString CustomId, cons
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -680,7 +705,7 @@ void UNakamaClient::UnLinkDevice(UNakamaSession* Session, FString DeviceId, cons
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -689,7 +714,7 @@ void UNakamaClient::UnLinkDevice(UNakamaSession* Session, FString DeviceId, cons
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -706,7 +731,7 @@ void UNakamaClient::UnLinkEmail(UNakamaSession* Session, FString Email, FString 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -715,7 +740,7 @@ void UNakamaClient::UnLinkEmail(UNakamaSession* Session, FString Email, FString 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -735,7 +760,7 @@ void UNakamaClient::UnLinkFacebook(UNakamaSession* Session, FString AccessToken,
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -744,7 +769,7 @@ void UNakamaClient::UnLinkFacebook(UNakamaSession* Session, FString AccessToken,
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -762,7 +787,7 @@ void UNakamaClient::UnLinkGameCenter(UNakamaSession* Session, FString PlayerId, 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -771,7 +796,7 @@ void UNakamaClient::UnLinkGameCenter(UNakamaSession* Session, FString PlayerId, 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -798,7 +823,7 @@ void UNakamaClient::UnLinkGoogle(UNakamaSession* Session, FString AccessToken, c
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -807,7 +832,7 @@ void UNakamaClient::UnLinkGoogle(UNakamaSession* Session, FString AccessToken, c
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -824,7 +849,7 @@ void UNakamaClient::UnLinkSteam(UNakamaSession* Session, FString SteamToken, con
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -833,7 +858,7 @@ void UNakamaClient::UnLinkSteam(UNakamaSession* Session, FString SteamToken, con
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -850,7 +875,7 @@ void UNakamaClient::UnLinkApple(UNakamaSession* Session, FString Token, const FO
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -859,7 +884,7 @@ void UNakamaClient::UnLinkApple(UNakamaSession* Session, FString Token, const FO
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -880,7 +905,7 @@ void UNakamaClient::RefreshSession(UNakamaSession* Session, const FOnAuthRefresh
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -889,7 +914,7 @@ void UNakamaClient::RefreshSession(UNakamaSession* Session, const FOnAuthRefresh
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
 		ResultSession->UserSession = session; // Reference for C++ code
 		ResultSession->SessionData = session; // Reference for Blueprints
@@ -913,7 +938,7 @@ void UNakamaClient::ImportFacebookFriends(UNakamaSession* Session, FString Token
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -921,7 +946,7 @@ void UNakamaClient::ImportFacebookFriends(UNakamaSession* Session, FString Token
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -943,7 +968,7 @@ void UNakamaClient::GetUserAccount(UNakamaSession* Session, const FOnUserAccount
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaAccount MyAccount = account; // This already does all convertions
 
 		Success.Broadcast(MyAccount);
@@ -953,7 +978,7 @@ void UNakamaClient::GetUserAccount(UNakamaSession* Session, const FOnUserAccount
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -975,7 +1000,7 @@ void UNakamaClient::GetUsers(UNakamaSession* Session, TArray<FString> UserIds, T
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		TArray<FNakamaUser> Users;
 
 		for (auto& user : users.users)
@@ -992,7 +1017,7 @@ void UNakamaClient::GetUsers(UNakamaSession* Session, TArray<FString> UserIds, T
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1049,7 +1074,7 @@ void UNakamaClient::UpdateAccount(UNakamaSession* Session, FString Username, FSt
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1058,7 +1083,7 @@ void UNakamaClient::UpdateAccount(UNakamaSession* Session, FString Username, FSt
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 
 	};
@@ -1083,7 +1108,7 @@ UNakamaRealtimeClient* UNakamaClient::SetupRealtimeClient(UNakamaSession* Sessio
 	ENakamaRealtimeClientProtocol Protocol, float TickInterval, FString DisplayName)
 {
 	UNakamaRealtimeClient* NewClient = NewObject<UNakamaRealtimeClient>(); // Function returns this as a object
-	NewClient->RtClient = NakamaCoreClientFactory::createNakamaRtClient(Client,Port);
+	NewClient->RtClient = NakamaCoreClientFactory::createNakamaRtClient(Client);
 	NewClient->TickInterval = TickInterval;
 	NewClient->_displayName = DisplayName;
 	NewClient->Session = Session;
@@ -1097,38 +1122,7 @@ UNakamaRealtimeClient* UNakamaClient::SetupRealtimeClient(UNakamaSession* Sessio
 	return NewClient;
 }
 
-
-/*
-void UNakamaClient::SetupRealtimeClient(UNakamaSession *Session, bool ShowAsOnline, int32 Port, ENakamaRealtimeClientProtocol Protocol, float TickInterval, FString DisplayName,
-	const FOnRealtimeClientConnected& Success, const FOnRealtimeClientError& Error) // Return a RealTime Client UObject..
-{
-	UNakamaRealtimeClient* NewClient = NewObject<UNakamaRealtimeClient>(); // Function returns this as a object
-	NewClient->RtClient = Client->createRtClient(Port);
-	NewClient->TickInterval = TickInterval;
-	NewClient->_displayName = DisplayName;
-	NewClient->bIsActive = true;
-
-	// Connect Callback
-	NewClient->Listener.setConnectCallback([this, NewClient, Success]()
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Nakama Realtime Client Setup: Socket connected"));
-		Success.Broadcast(NewClient);
-	});
-
-	NewClient->Listener.setErrorCallback([this, Error](const NRtError& Err)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Nakama Realtime Client Setup: Socket Connect Error"));
-		Error.Broadcast();
-
-	});
-
-	const NRtClientProtocol SelectedProtocol = static_cast<NRtClientProtocol>(Protocol);
-
-	NewClient->RtClient->setListener(&NewClient->Listener);
-	NewClient->RtClient->connect(Session->UserSession, ShowAsOnline, SelectedProtocol);
-}*/
-
-void UNakamaClient::ListMatches(UNakamaSession* Session, int32 MinSize, int32 MaxSize, int32 Limit, FString Label,
+void UNakamaClient::ListMatches(UNakamaSession* Session, int32 MinSize, int32 MaxSize, int32 Limit, FString Label, FString Query,
 	bool Authoritative, const FOnMatchlist& Success, const FOnError& Error)
 {
 	if (!Client || !Session)
@@ -1138,7 +1132,7 @@ void UNakamaClient::ListMatches(UNakamaSession* Session, int32 MinSize, int32 Ma
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaMatchList MatchList = *list;
 		Success.Broadcast(MatchList);
 
@@ -1148,7 +1142,7 @@ void UNakamaClient::ListMatches(UNakamaSession* Session, int32 MinSize, int32 Ma
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1161,6 +1155,7 @@ void UNakamaClient::ListMatches(UNakamaSession* Session, int32 MinSize, int32 Ma
 		MaxSize,
 		Limit,
 		{},
+		FNakamaUtils::UEStringToStdString(Query),
 		Authoritative,
 		successCallback,
 		errorCallback);
@@ -1173,6 +1168,7 @@ void UNakamaClient::ListMatches(UNakamaSession* Session, int32 MinSize, int32 Ma
 		MaxSize,
 		Limit,
 		FNakamaUtils::UEStringToStdString(Label),
+		FNakamaUtils::UEStringToStdString(Query),
 		Authoritative,
 		successCallback,
 		errorCallback);
@@ -1195,7 +1191,7 @@ void UNakamaClient::GetFriends(UNakamaSession* Session, int32 Limit, ENakamaFrie
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaFriendList FriendsList = *friends; // Handles array etc..
 
 		// Follow Friends - do it here
@@ -1216,7 +1212,7 @@ void UNakamaClient::GetFriends(UNakamaSession* Session, int32 Limit, ENakamaFrie
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1245,7 +1241,7 @@ void UNakamaClient::AddFriends(UNakamaSession* Session, TArray<FString> Ids, TAr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1253,7 +1249,7 @@ void UNakamaClient::AddFriends(UNakamaSession* Session, TArray<FString> Ids, TAr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1298,7 +1294,7 @@ void UNakamaClient::RemoveFriends(UNakamaSession* Session, TArray<FString> Ids, 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1306,7 +1302,7 @@ void UNakamaClient::RemoveFriends(UNakamaSession* Session, TArray<FString> Ids, 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1351,7 +1347,7 @@ void UNakamaClient::BlockFriends(UNakamaSession* Session, TArray<FString> Ids, T
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1359,7 +1355,7 @@ void UNakamaClient::BlockFriends(UNakamaSession* Session, TArray<FString> Ids, T
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1408,7 +1404,7 @@ void UNakamaClient::CreateGroup(UNakamaSession* Session, FString GroupName, FStr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaGroup Group = group;
 		UE_LOG(LogTemp, Warning, TEXT("New group ID: %s"), *Group.Id);
 		Success.Broadcast(Group);
@@ -1418,7 +1414,7 @@ void UNakamaClient::CreateGroup(UNakamaSession* Session, FString GroupName, FStr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1444,7 +1440,7 @@ void UNakamaClient::ListGroups(UNakamaSession* Session, FString GroupNameFilter,
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaGroupList AllGroups = *list; // Contains an array of listed groups and a cursor for next pages
 		Success.Broadcast(AllGroups);
 
@@ -1454,7 +1450,7 @@ void UNakamaClient::ListGroups(UNakamaSession* Session, FString GroupNameFilter,
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1478,7 +1474,7 @@ void UNakamaClient::JoinGroup(UNakamaSession* Session, FString GroupId, const FO
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UE_LOG(LogTemp, Warning, TEXT("Sent group join request"));
 		Success.Broadcast();
 	};
@@ -1487,7 +1483,7 @@ void UNakamaClient::JoinGroup(UNakamaSession* Session, FString GroupId, const FO
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1506,7 +1502,7 @@ void UNakamaClient::ListUserGroups(UNakamaSession* Session, FString UserId, int3
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaUserGroupList AllUserGroups = *list;
 
 		Success.Broadcast(AllUserGroups);
@@ -1517,14 +1513,23 @@ void UNakamaClient::ListUserGroups(UNakamaSession* Session, FString UserId, int3
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
 
 	NUserGroupState GroupState = static_cast<NUserGroupState>(State);
 
-    Client->listUserGroups(Session->UserSession, FNakamaUtils::UEStringToStdString(UserId), Limit, GroupState, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	if(State == ENakamaGroupState::ALL)
+	{
+		Client->listUserGroups(Session->UserSession, FNakamaUtils::UEStringToStdString(UserId), Limit, {}, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	}
+	else
+	{
+		Client->listUserGroups(Session->UserSession, FNakamaUtils::UEStringToStdString(UserId), Limit, GroupState, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	}
+
+
 }
 
 void UNakamaClient::ListGroupUsers(UNakamaSession* Session, FString GroupId, int32 Limit, ENakamaGroupState State,
@@ -1537,7 +1542,7 @@ void UNakamaClient::ListGroupUsers(UNakamaSession* Session, FString GroupId, int
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaGroupUsersList ReturnedGroup = *list;
 		UE_LOG(LogTemp, Warning, TEXT("Users in Group %i"), ReturnedGroup.GroupUsers.Num());
 		Success.Broadcast(ReturnedGroup);
@@ -1547,14 +1552,21 @@ void UNakamaClient::ListGroupUsers(UNakamaSession* Session, FString GroupId, int
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
 
 	NUserGroupState GroupState = static_cast<NUserGroupState>(State);
 
-    Client->listGroupUsers(Session->UserSession, FNakamaUtils::UEStringToStdString(GroupId), Limit, GroupState, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	if(State == ENakamaGroupState::ALL)
+	{
+		Client->listGroupUsers(Session->UserSession, FNakamaUtils::UEStringToStdString(GroupId), Limit, {}, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	}
+	else
+	{
+		Client->listGroupUsers(Session->UserSession, FNakamaUtils::UEStringToStdString(GroupId), Limit, GroupState, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	}
 }
 
 void UNakamaClient::UpdateGroup(UNakamaSession* Session, FString GroupId, FString Name, FString Description,
@@ -1567,7 +1579,7 @@ void UNakamaClient::UpdateGroup(UNakamaSession* Session, FString GroupId, FStrin
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1575,7 +1587,7 @@ void UNakamaClient::UpdateGroup(UNakamaSession* Session, FString GroupId, FStrin
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1601,7 +1613,7 @@ void UNakamaClient::LeaveGroup(UNakamaSession* Session, FString GroupId, const F
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1609,7 +1621,7 @@ void UNakamaClient::LeaveGroup(UNakamaSession* Session, FString GroupId, const F
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1627,7 +1639,7 @@ void UNakamaClient::AddGroupUsers(UNakamaSession* Session, FString GroupId, TArr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1635,7 +1647,7 @@ void UNakamaClient::AddGroupUsers(UNakamaSession* Session, FString GroupId, TArr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1665,7 +1677,7 @@ void UNakamaClient::PromoteGroupUsers(UNakamaSession* Session, FString GroupId, 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1673,7 +1685,7 @@ void UNakamaClient::PromoteGroupUsers(UNakamaSession* Session, FString GroupId, 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1702,7 +1714,7 @@ void UNakamaClient::KickGroupUsers(UNakamaSession* Session, FString GroupId, TAr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1710,7 +1722,7 @@ void UNakamaClient::KickGroupUsers(UNakamaSession* Session, FString GroupId, TAr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1741,7 +1753,7 @@ void UNakamaClient::DemoteGroupUsers(UNakamaSession* Session, FString GroupId, T
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1749,7 +1761,7 @@ void UNakamaClient::DemoteGroupUsers(UNakamaSession* Session, FString GroupId, T
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1775,7 +1787,7 @@ void UNakamaClient::DeleteGroup(UNakamaSession* Session, FString GroupId, const 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1783,7 +1795,7 @@ void UNakamaClient::DeleteGroup(UNakamaSession* Session, FString GroupId, const 
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1805,7 +1817,7 @@ void UNakamaClient::ListNotifications(UNakamaSession* Session, int32 Limit, FStr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1814,7 +1826,7 @@ void UNakamaClient::ListNotifications(UNakamaSession* Session, int32 Limit, FStr
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaNotificationList NotificationList = *list;
 		Success.Broadcast(NotificationList);
 
@@ -1833,7 +1845,7 @@ void UNakamaClient::DeleteNotifications(UNakamaSession* Session, TArray<FString>
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1842,7 +1854,7 @@ void UNakamaClient::DeleteNotifications(UNakamaSession* Session, TArray<FString>
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		Success.Broadcast();
 	};
 
@@ -1870,7 +1882,7 @@ void UNakamaClient::WriteStorageObjects(UNakamaSession* Session, TArray<FNakamaS
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaStoreObjectAcks StorageObjectsAcks = acks;
 
 		UE_LOG(LogTemp, Warning, TEXT("Successfully stored objects: %i"), StorageObjectsAcks.StorageObjects.Num());
@@ -1881,7 +1893,7 @@ void UNakamaClient::WriteStorageObjects(UNakamaSession* Session, TArray<FNakamaS
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1923,7 +1935,7 @@ void UNakamaClient::ReadStorageObjects(UNakamaSession* Session, TArray<FNakamaRe
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		TArray <FNakamaStoreObjectData> ObjectsResult;
 
 		for (auto& object : objects)
@@ -1941,7 +1953,7 @@ void UNakamaClient::ReadStorageObjects(UNakamaSession* Session, TArray<FNakamaRe
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -1972,17 +1984,8 @@ void UNakamaClient::ListStorageObjects(UNakamaSession* Session, FString Collecti
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
-		FNakamaStorageObjectList StorageObjects;
 
-		for (auto& object : list->objects)
-		{
-			FNakamaStoreObjectData Object = object; // Converts
-
-			// Add to array
-			StorageObjects.Objects.Add(Object);
-		}
-
+		FNakamaStorageObjectList StorageObjects = *list;
 		Success.Broadcast(StorageObjects);
 	};
 
@@ -1990,7 +1993,7 @@ void UNakamaClient::ListStorageObjects(UNakamaSession* Session, FString Collecti
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2015,7 +2018,7 @@ void UNakamaClient::RemoveStorageObjects(UNakamaSession* Session,
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2024,7 +2027,7 @@ void UNakamaClient::RemoveStorageObjects(UNakamaSession* Session,
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UE_LOG(LogTemp, Warning, TEXT("Successfully deleted storage objects:"));
 		Success.Broadcast();
 	};
@@ -2057,7 +2060,7 @@ void UNakamaClient::RPC(UNakamaSession* Session, FString FunctionId, FString Pay
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2066,7 +2069,7 @@ void UNakamaClient::RPC(UNakamaSession* Session, FString FunctionId, FString Pay
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaRPC RpcCallback = rpc; // Converts
 
 		UE_LOG(LogTemp, Warning, TEXT("RPC Success with ID: %s"), *RpcCallback.Id);
@@ -2075,6 +2078,39 @@ void UNakamaClient::RPC(UNakamaSession* Session, FString FunctionId, FString Pay
 	};
 
 	Client->rpc(Session->UserSession, FNakamaUtils::UEStringToStdString(FunctionId), FNakamaUtils::UEStringToStdString(Payload), successCallback, errorCallback);
+}
+
+/**
+ * RPCHttpKey
+ */
+
+void UNakamaClient::RPCHttpKey(FString HttpKey, FString FunctionId, FString Payload, const FOnRPC& Success, const FOnError& Error)
+{
+	if (!Client)
+		return;
+
+	auto errorCallback = [this, Error](const NError& error)
+	{
+		if(!FNakamaUtils::IsClientActive(this))
+			return;
+
+		const FNakamaError NakamaError = error;
+		Error.Broadcast(NakamaError);
+	};
+
+	auto successCallback = [this, Success](const NRpc rpc)
+	{
+		if(!FNakamaUtils::IsClientActive(this))
+			return;
+
+		const FNakamaRPC RpcCallback = rpc; // Converts
+
+		UE_LOG(LogTemp, Warning, TEXT("RPC Success with ID: %s"), *RpcCallback.Id);
+
+		Success.Broadcast(RpcCallback);
+	};
+
+	Client->rpc(FNakamaUtils::UEStringToStdString(HttpKey), FNakamaUtils::UEStringToStdString(FunctionId), FNakamaUtils::UEStringToStdString(Payload), successCallback, errorCallback);
 }
 
 /**
@@ -2091,7 +2127,7 @@ void UNakamaClient::ListChannelMessages(UNakamaSession* Session, FString Channel
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2100,7 +2136,7 @@ void UNakamaClient::ListChannelMessages(UNakamaSession* Session, FString Channel
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaChannelMessageList ChannelMessageList = *list;
 
 		for(auto &Message : ChannelMessageList.Messages)
@@ -2145,7 +2181,7 @@ void UNakamaClient::WriteLeaderboardRecord(UNakamaSession* Session, FString Lead
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2154,7 +2190,7 @@ void UNakamaClient::WriteLeaderboardRecord(UNakamaSession* Session, FString Lead
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaLeaderboardRecord LeaderboardRecord = record;
 
 		UE_LOG(LogTemp, Warning, TEXT("New leaderboard record with score %lld"), LeaderboardRecord.Score);
@@ -2183,7 +2219,7 @@ void UNakamaClient::ListLeaderboardRecords(UNakamaSession* Session, FString Lead
     	{
     		if(!FNakamaUtils::IsClientActive(this))
     			return;
-    		
+
     		const FNakamaError NakamaError = error;
     		Error.Broadcast(NakamaError);
     	};
@@ -2192,7 +2228,7 @@ void UNakamaClient::ListLeaderboardRecords(UNakamaSession* Session, FString Lead
     	{
     		if(!FNakamaUtils::IsClientActive(this))
     			return;
-    		
+
     		FNakamaLeaderboardRecordList RecordsList = *recordsList;
     		Success.Broadcast(RecordsList);
     	};
@@ -2237,7 +2273,7 @@ void UNakamaClient::ListLeaderboardRecordsAroundOwner(UNakamaSession* Session, F
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2246,7 +2282,7 @@ void UNakamaClient::ListLeaderboardRecordsAroundOwner(UNakamaSession* Session, F
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaLeaderboardRecordList RecordsList = *recordsList; // Convert
 		Success.Broadcast(RecordsList);
 	};
@@ -2271,7 +2307,7 @@ void UNakamaClient::DeleteLeaderboardRecord(UNakamaSession* Session, FString Lea
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2280,7 +2316,7 @@ void UNakamaClient::DeleteLeaderboardRecord(UNakamaSession* Session, FString Lea
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UE_LOG(LogTemp, Warning, TEXT("Deleted Leaderboard Record"));
 		Success.Broadcast();
 	};
@@ -2302,7 +2338,7 @@ void UNakamaClient::WriteTournamentRecord(UNakamaSession* Session, FString Tourn
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2311,7 +2347,7 @@ void UNakamaClient::WriteTournamentRecord(UNakamaSession* Session, FString Tourn
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaLeaderboardRecord LeaderboardRecord = record;
 		UE_LOG(LogTemp, Warning, TEXT("New Tournament record with score %lld"), LeaderboardRecord.Score);
 		Success.Broadcast(LeaderboardRecord);
@@ -2337,7 +2373,7 @@ void UNakamaClient::ListTournamentRecords(UNakamaSession* Session, FString Tourn
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2346,7 +2382,7 @@ void UNakamaClient::ListTournamentRecords(UNakamaSession* Session, FString Tourn
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaTournamentRecordList TournamentList = *list;
 		Success.Broadcast(TournamentList);
 	};
@@ -2376,7 +2412,7 @@ void UNakamaClient::ListTournamentRecordsAroundOwner(UNakamaSession* Session, FS
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2385,7 +2421,7 @@ void UNakamaClient::ListTournamentRecordsAroundOwner(UNakamaSession* Session, FS
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaTournamentRecordList TournamentList = *list;
 		Success.Broadcast(TournamentList);
 	};
@@ -2408,7 +2444,7 @@ void UNakamaClient::JoinTournament(UNakamaSession* Session, FString TournamentId
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2417,7 +2453,7 @@ void UNakamaClient::JoinTournament(UNakamaSession* Session, FString TournamentId
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		UE_LOG(LogTemp, Warning, TEXT("Joined Tournament with Id: %s"), *TournamentId);
 		Success.Broadcast();
 	};
@@ -2435,7 +2471,7 @@ void UNakamaClient::ListTournaments(UNakamaSession* Session, int32 CategoryStart
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		FNakamaError NakamaError = error;
 		Error.Broadcast(NakamaError);
 	};
@@ -2444,7 +2480,7 @@ void UNakamaClient::ListTournaments(UNakamaSession* Session, int32 CategoryStart
 	{
 		if(!FNakamaUtils::IsClientActive(this))
 			return;
-		
+
 		const FNakamaTournamentList TournamentList = *list; // Converts
 		UE_LOG(LogTemp, Warning, TEXT("Got Tournaments: %llu"), list->tournaments.size());
 		Success.Broadcast(TournamentList);

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "MenuManager.h"
+#include "MenuSubsystem.h"
 #include "Project/UI/Widgets/WidgetBase.h"
 #include "MenuBase.generated.h"
 

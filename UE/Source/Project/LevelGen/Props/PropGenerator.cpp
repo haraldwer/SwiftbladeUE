@@ -31,9 +31,9 @@ void APropGenerator::BeginPlay()
 		Generate(nullptr); 
 }
 
-void APropGenerator::Generate(ALevelManager* aLevelManager)
+void APropGenerator::Generate(ULevelSubsystem* aLevelSubsystem)
 {
-	Super::Generate(aLevelManager);
+	Super::Generate(aLevelSubsystem);
 	
 	CalculateArea(); 
 	

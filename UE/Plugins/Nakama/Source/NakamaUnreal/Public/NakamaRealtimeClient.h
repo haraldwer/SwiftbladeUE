@@ -161,6 +161,31 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Nakama|Authentication|Disconnect")
 	void Disconnect();
 
+	/**
+	 * @return True if connected to server.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Nakama|Realtime")
+	bool IsConnected();
+
+	/**
+	 * Get heartbeat interval in milliseconds.
+	 *
+	 * @return heartbeat interval value or opt::nullopt if disabled
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Nakama|Realtime")
+	int32 GetHeartbeatIntervalMs();
+
+	/**
+	 * Set heartbeat interval in milliseconds. Disconnect event will be
+	 * detected in at most 2 x interval.
+	 *
+	 * Default is 5 seconds.
+	 *
+	 * @param IntervalMs interval in ms send heartbeats in. Passing opt::nullopt disables heartbeats.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Nakama|Realtime")
+	void SetHeartbeatIntervalMs(int32 IntervalMs);
+
 	// Events (bindable from blueprints or c++)
 	UPROPERTY(BlueprintAssignable, Category = "Nakama|Events")
 	FOnConnect ConnectedEvent;
@@ -317,6 +342,17 @@ public:
 	 */
 	UFUNCTION(Category = "Nakama|Chat|Messaging")
 	void SendDirectMessage(FString UserID, FString Content, const FOnWriteChatMessage& Success, const FOnRtError& Error);
+
+	/**
+	 * Update a chat message to a channel on the server.
+	 *
+	 * @param ChannelId The ID of the chat channel with the message.
+	 * @param MessageId The ID of the message to update.
+	 * @param Content The content update for the message. Must be a JSON object.
+	 */
+	UFUNCTION(Category = "Nakama|Chat|Messaging")
+	void UpdateChatMessage(FString ChannelId, FString MessageId, FString Content, const FOnWriteChatMessage& Success, const FOnRtError& Error);
+
 
 	/// <summary>
 	/// Chat

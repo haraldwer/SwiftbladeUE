@@ -1,10 +1,9 @@
 #include "FPToombstone.h"
 
 #include "Project/Player/FPCharacter.h"
-#include "Project/Player/FPController.h"
 #include "GameDatabase.h"
 #include "Components/Blob.h"
-#include "Project/Utility/MainSingelton.h"
+#include "Project/Player/FPStateSubsystem.h"
 
 UFPToombstone::UFPToombstone()
 {
@@ -24,9 +23,9 @@ void UFPToombstone::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 void UFPToombstone::CreateStones() const
 {
-	const auto& blob = UMainSingelton::GetGameDB().GetBlob();
+	const auto& blob = UGameDatabase::Get().GetBlob();
 	const auto data = blob.Get();
-	const auto state = GetController().GetState();
+	const auto state = UFPStateSubsystem::Get().GetState();
 	for (const auto& stone : data.myToombstoneData.myToombstones)
 	{
 		if (stone.mySeed != state.mySeed ||
@@ -41,10 +40,10 @@ void UFPToombstone::CreateStones() const
 
 void UFPToombstone::StoreLocation() const
 {
-	auto& blob = UMainSingelton::GetGameDB().GetBlob();
+	auto& blob = UGameDatabase::Get().GetBlob();
 	auto data = blob.Get();
 	auto& stones = data.myToombstoneData.myToombstones;
-	const auto state = GetController().GetState();
+	const auto state = UFPStateSubsystem::Get().GetState();
 	
 	FToombstoneEntry entry;
 	entry.myLocation = myLastValidLocation;

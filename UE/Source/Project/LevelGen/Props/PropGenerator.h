@@ -20,7 +20,7 @@ public:
 	APropGenerator();
 
 	virtual void BeginPlay() override;
-	virtual void Generate(ALevelManager* aLevelManager) override;
+	virtual void Generate(ULevelSubsystem* aLevelSubsystem) override;
 
 protected:
 	

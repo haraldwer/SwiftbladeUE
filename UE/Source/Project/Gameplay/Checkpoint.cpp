@@ -1,9 +1,8 @@
 #include "Checkpoint.h"
 
-#include "Project/Enemies/EnemyManager.h"
+#include "../Enemies/EnemySubsystem.h"
 #include "Project/Player/FPController.h"
 #include "Project/Utility/GameUtility.h"
-#include "Project/Utility/MainSingelton.h"
 
 ACheckpoint::ACheckpoint()
 {
@@ -15,7 +14,7 @@ void ACheckpoint::BeginPlay()
 	Super::BeginPlay();
 
 	if (UGameUtility::IsInBaseLevel())
-		UMainSingelton::GetEnemyManager().myOnEnemiesCleared.AddDynamic(this, &ACheckpoint::Enable);
+		UEnemySubsystem::Get().myOnEnemiesCleared.AddDynamic(this, &ACheckpoint::Enable);
 	else
 		Enable();
 }

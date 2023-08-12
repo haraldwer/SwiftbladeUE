@@ -1,0 +1,22 @@
+
+- Generate grid - 
+Start with squares
+Abstract shapes
+
+- Core loop - 
+Have grid
+Have possibilities for each position
+Until solved
+	Select type for one position
+		Propogate and clean up possibilities
+
+ - Sockets - 
+Socket system, one socket for each edge
+Socket "types"
+Socket class with evaluate function
+
+ - Rules - 
+Rules for limiting possibilities
+
+
+

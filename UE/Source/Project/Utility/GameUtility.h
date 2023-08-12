@@ -18,14 +18,14 @@ public:
 	UFUNCTION(BlueprintPure)
 	static bool IsAuthenticated();
 
-
 	UFUNCTION(BlueprintCallable)
 	static class AFPController* GetLocalController();
 	
 	UFUNCTION(BlueprintCallable)
 	static class AFPCharacter* GetLocalPlayer();
 	
-	static class ACustomGameMode& GetGameMode();
-	static class UCustomGameInstance& GetGameInstance();	
+	static AGameModeBase& GetGameMode();
+	static UGameInstance& GetGameInstance();
+	static UWorld& GetCurrentWorld();
 	
 };

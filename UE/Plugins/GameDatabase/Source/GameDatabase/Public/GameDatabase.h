@@ -20,6 +20,8 @@ class GAMEDATABASE_API UGameDatabase : public UGameInstanceSubsystem
 	friend class UDBComponent;
 
 public:
+
+	static UGameDatabase& Get();
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 

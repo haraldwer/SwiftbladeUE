@@ -130,7 +130,7 @@ void UNakamaClientAuthenticateEmail::Activate()
 			return;
 
 		const FNakamaError NakamaError = error;
-		OnError.Broadcast(NakamaError, nullptr);
+		OnError.Broadcast(NakamaError, {});
 		SetReadyToDestroy();
 	};
 
@@ -454,6 +454,53 @@ void UNakamaClientAuthenticateApple::Activate()
 
 	const NStringMap Variables = FNakamaUtils::TMapToFStringMap(Vars);
 	NakamaClient->Client->authenticateApple(FNakamaUtils::UEStringToStdString(Token), FNakamaUtils::UEStringToStdString(Username), bCreateAccount, Variables, successCallback, errorCallback);
+}
+
+UNakamaClientAuthenticateRefresh* UNakamaClientAuthenticateRefresh::AuthenticateRefresh(UNakamaClient* Client,
+	UNakamaSession* Session)
+{
+	if(Client != nullptr)
+	{
+		UNakamaClientAuthenticateRefresh* Node = NewObject<UNakamaClientAuthenticateRefresh>();
+		Node->NakamaClient = Client;
+		Node->UserSession = Session;
+
+		return Node;
+	}
+
+	return nullptr;
+}
+
+void UNakamaClientAuthenticateRefresh::Activate()
+{
+	if(!NakamaClient)
+		return;
+
+	auto successCallback = [&](NSessionPtr session)
+	{
+		if(!FNakamaUtils::IsClientActive(NakamaClient))
+			return;
+
+		UNakamaSession *ResultSession = NewObject<UNakamaSession>();
+		ResultSession->UserSession = session; // Reference for C++ code
+		ResultSession->SessionData = session; // Reference for Blueprints
+
+		OnSuccess.Broadcast({}, ResultSession);
+		SetReadyToDestroy();
+	};
+
+	auto errorCallback = [&](const NError& error)
+	{
+		if(!FNakamaUtils::IsClientActive(NakamaClient))
+			return;
+
+		const FNakamaError NakamaError = error;
+		OnError.Broadcast(NakamaError, {});
+		SetReadyToDestroy();
+
+	};
+
+	NakamaClient->Client->authenticateRefresh(UserSession->UserSession, successCallback, errorCallback);
 }
 
 UNakamaClientLinkCustom* UNakamaClientLinkCustom::LinkCustom(UNakamaClient* Client, UNakamaSession* Session,
@@ -1138,7 +1185,7 @@ void UNakamaClientUpdateAccount::Activate()
 }
 
 UNakamaClientListMatches* UNakamaClientListMatches::ListMatches(UNakamaClient* Client, UNakamaSession* Session,
-	int32 MinSize, int32 MaxSize, int32 Limit, FString Label, bool Authoritative)
+	int32 MinSize, int32 MaxSize, int32 Limit, FString Label, FString Query, bool Authoritative)
 {
 	if(Client != nullptr && Session != nullptr)
 	{
@@ -1149,8 +1196,8 @@ UNakamaClientListMatches* UNakamaClientListMatches::ListMatches(UNakamaClient* C
 		Node->MaxSize = MaxSize;
 		Node->Limit = Limit;
 		Node->Label = Label;
+		Node->Query = Query;
 		Node->Authoritative = Authoritative;
-
 		return Node;
 	}
 
@@ -1191,6 +1238,7 @@ void UNakamaClientListMatches::Activate()
 		MaxSize,
 		Limit,
 		{},
+		FNakamaUtils::UEStringToStdString(Query),
 		Authoritative,
 		successCallback,
 		errorCallback);
@@ -1203,6 +1251,7 @@ void UNakamaClientListMatches::Activate()
 		MaxSize,
 		Limit,
 		FNakamaUtils::UEStringToStdString(Label),
+		FNakamaUtils::UEStringToStdString(Query),
 		Authoritative,
 		successCallback,
 		errorCallback);
@@ -1677,7 +1726,16 @@ void UNakamaClientListUserGroups::Activate()
 	};
 
 	NUserGroupState GroupState = static_cast<NUserGroupState>(State);
-    NakamaClient->Client->listUserGroups(UserSession->UserSession, FNakamaUtils::UEStringToStdString(UserId), Limit, GroupState, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+
+	if(State == ENakamaGroupState::ALL)
+	{
+		NakamaClient->Client->listUserGroups(UserSession->UserSession, FNakamaUtils::UEStringToStdString(UserId), Limit, {}, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	}
+	else
+	{
+		NakamaClient->Client->listUserGroups(UserSession->UserSession, FNakamaUtils::UEStringToStdString(UserId), Limit, GroupState, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	}
+
 }
 
 UNakamaClientListListGroupUsers* UNakamaClientListListGroupUsers::ListGroupUsers(UNakamaClient* Client,
@@ -1727,7 +1785,16 @@ void UNakamaClientListListGroupUsers::Activate()
 
 	NUserGroupState GroupState = static_cast<NUserGroupState>(State);
 
-    NakamaClient->Client->listGroupUsers(UserSession->UserSession, FNakamaUtils::UEStringToStdString(GroupId), Limit, GroupState, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	if(State == ENakamaGroupState::ALL)
+	{
+		NakamaClient->Client->listGroupUsers(UserSession->UserSession, FNakamaUtils::UEStringToStdString(GroupId), Limit, {}, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	}
+	else
+	{
+		NakamaClient->Client->listGroupUsers(UserSession->UserSession, FNakamaUtils::UEStringToStdString(GroupId), Limit, GroupState, FNakamaUtils::UEStringToStdString(Cursor), successCallback, errorCallback);
+	}
+
+
 }
 
 UNakamaClientUpdateGroup* UNakamaClientUpdateGroup::UpdateGroup(UNakamaClient* Client, UNakamaSession* Session,
@@ -2471,7 +2538,7 @@ void UNakamaClientRPC::Activate()
 
 		const FNakamaError NakamaError = error;
 
-		OnSuccess.Broadcast(NakamaError, {});
+		OnError.Broadcast(NakamaError, {});
 		SetReadyToDestroy();
 	};
 

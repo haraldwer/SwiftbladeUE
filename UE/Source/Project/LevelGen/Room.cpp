@@ -1,6 +1,6 @@
 #include "Room.h"
 
-#include "LevelManager.h"
+#include "LevelSubsystem.h"
 #include "LevelRand.h"
 #include "Engine/Level.h"
 
@@ -47,7 +47,7 @@ void ARoom::BeginPlay()
 	Generate(nullptr); 
 }
 
-void ARoom::Generate(ALevelManager* aLevelManager)
+void ARoom::Generate(ULevelSubsystem* aLevelManager)
 {
 	Super::Generate(aLevelManager);
 	GenerateRoom();
@@ -106,7 +106,7 @@ void ARoom::GenerateRoom()
 	}
 }
 
-void ARoom::GenerateConnection(ALevelManager* aLevelManager)
+void ARoom::GenerateConnection(ULevelSubsystem* aLevelManager)
 {
 	CHECK_RETURN_LOG(!myConnections.Num(), "No connections");
 	

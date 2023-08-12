@@ -1,10 +1,9 @@
 #include "Enemy.h"
 
-#include "EnemyManager.h"
+#include "EnemySubsystem.h"
 #include "Behaviour/EnemyBehaviour.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/ShapeComponent.h"
-#include "Project/Utility/MainSingelton.h"
 #include "Project/Utility/Tools/Animation/ObjectAnimator.h"
 
 AEnemy::AEnemy()
@@ -29,7 +28,7 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	UMainSingelton::GetEnemyManager().AddEnemy(this);
+	UEnemySubsystem::Get().AddEnemy(this);
 }
 
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -56,7 +55,7 @@ void AEnemy::Die()
 	if (myBehaviour)
 		myBehaviour->OnDied();
 	OnDied();
-	UMainSingelton::GetEnemyManager().RemoveEnemy(this);
+	UEnemySubsystem::Get().RemoveEnemy(this);
 	Destroy();
 }
 

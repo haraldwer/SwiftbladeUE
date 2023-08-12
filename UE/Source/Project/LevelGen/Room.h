@@ -31,7 +31,7 @@ public:
 	ARoom();
 
 	virtual void BeginPlay() override;
-	virtual void Generate(ALevelManager* aLevelManager) override;
+	virtual void Generate(ULevelSubsystem* aLevelManager) override;
 	
 	FTransform GetEntry() const;
 	FTransform GetExit() const;
@@ -41,7 +41,7 @@ public:
 protected:
 
 	void GenerateRoom();
-	void GenerateConnection(ALevelManager* aLevelManager);
+	void GenerateConnection(ULevelSubsystem* aLevelManager);
 
 	UFUNCTION(CallInEditor)
 	void UpdatePath() const;

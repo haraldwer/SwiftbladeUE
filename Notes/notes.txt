@@ -1,0 +1,28 @@
+
+
+Fr779^zMd@cSECe$SfphspA5r!r69F
+
+
+
+Play Super Meat Boy
+- Good room progression
+
+Chapter art reference images
+Define outdoor environment
+
+Story through dialog in between gameplay
+ - Maybe make generic system? 
+
+
+
+
+Subsystems
+MenuManager
+PromptManager
+EnemyManager
+LevelGenerator
+GameDB
+
+
+
+

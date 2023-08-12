@@ -7,7 +7,7 @@
 #include "GameFramework/DamageType.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project/Enemies/Enemy.h"
-#include "Project/Enemies/EnemyManager.h"
+#include "Project/Enemies/EnemySubsystem.h"
 #include "Project/Gameplay/Checkpoint.h"
 #include "Project/Gameplay/Abilities/Crystal.h"
 #include "Project/Gameplay/Breakable/Breakable.h"
@@ -93,7 +93,7 @@ UClass* UFPCombatStateStrike::Update(float aDT)
 				if (auto strikeAnim = GetAnimator().GetState<UFPAnimationStateStrike>())
 					strikeAnim->Bounce();
 			
-			if (UMainSingelton::GetEnemyManager().GetIsLastEnemy())
+			if (UEnemySubsystem::Get().GetIsLastEnemy())
 				GetTime().AddDilation(EDilationType::OUTGOING_DAMAGE, 1.0f, myDilationDuration, myDilationCurve);
 			
 			myHasHit = true;

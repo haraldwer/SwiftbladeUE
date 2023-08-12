@@ -16,17 +16,12 @@ class PROJECT_API AFPController : public APlayerController
 
 public:
 
-	virtual ~AFPController() override = default;
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION(BlueprintCallable)
 	class AFPCharacter* GetFPCharacter() const;
 	class UCustomCamera* GetCamera() const;
-
-	FFPState GetState() const;
-	void SetState(const FFPState& aState) const;
-	void UpdateState(FFPState& aState) const;
 
 	void CharacterKilled();
 	
@@ -70,6 +65,8 @@ private:
 	
 	virtual void SetupInputComponent() override;
 	void PausePressed();
+
+	void UpdateState(FFPState& aState) const;
 	
 	TWeakObjectPtr<ACheckpoint> myCheckpoint;
 

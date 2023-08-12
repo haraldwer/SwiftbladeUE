@@ -9,7 +9,7 @@ AGeneratorBase::AGeneratorBase()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AGeneratorBase::Generate(ALevelManager* aLevelManager)
+void AGeneratorBase::Generate(ULevelSubsystem* aLevelSubsystem)
 {
 	Clear();
 	FlushPersistentDebugLines(GetWorld());

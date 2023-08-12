@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "PromptManager.h"
+#include "PromptSubsystem.h"
 #include "Project/UI/Widgets/WidgetBase.h"
 #include "PromptBase.generated.h"
 

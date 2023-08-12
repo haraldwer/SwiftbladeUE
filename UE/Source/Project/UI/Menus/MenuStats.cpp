@@ -4,14 +4,14 @@
 #include "Components/Leaderboard.h"
 #include "Project/Player/FPController.h"
 #include "Project/Player/FPStateSubsystem.h"
-#include "Project/Utility/MainSingelton.h"
+#include "Project/Utility/GameUtility.h"
 
 void UMenuStats::Populate()
 {
-	const auto controller = UMainSingelton::GetLocalController();
+	const auto controller = UGameUtility::GetLocalController();
 	CHECK_RETURN_LOG(!controller, "Controller nullptr");
 
-	const FFPState state = controller->GetState();
+	const FFPState state = UFPStateSubsystem::Get().GetState(); 
 	
 	FStatsData stats;
 	stats.myScore = state.myTime;
@@ -25,7 +25,7 @@ void UMenuStats::Populate()
 	request.myType = ELeaderboardType::GLOBAL;
 	request.mySeedType = ELeaderboardSeed::SPECIFIC;
 	
-	auto& lb = UMainSingelton::GetGameDB().GetLeaderboard();
+	auto& lb = UGameDatabase::Get().GetLeaderboard();
 	lb.myOnListSuccess.AddUniqueDynamic(this, &UMenuStats::OnDataLoaded);
 	lb.myOnListError.AddUniqueDynamic(this, &UMenuStats::UMenuStats::OnLoadingFailed);
 	lb.List(request);
@@ -33,11 +33,8 @@ void UMenuStats::Populate()
 
 void UMenuStats::SetNextChapterState()
 {
-	const auto gameInstance = GetGameInstance();
-	CHECK_RETURN_LOG(!gameInstance, "GameInstance nullptr")
-	const auto subsystem = gameInstance->GetSubsystem<UFPStateSubsystem>();
-	CHECK_RETURN_LOG(!subsystem, "FPStateSubsystem nullptr")
-	auto state = subsystem->Get();
+	auto& subsystem = UFPStateSubsystem::Get(); 
+	auto state = subsystem.GetState();
 	state.myChapter++;
-	subsystem->Set(state);
+	subsystem.SetState(state);
 }

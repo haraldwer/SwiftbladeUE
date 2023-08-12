@@ -1,0 +1,16 @@
+
+Nakama console
+http://127.0.0.1:7351
+admin
+password
+
+Docker for hosting
+
+Todo:
+Change default login?
+Setup data tables? 
+
+https://www.snopekgames.com/tutorial/2021/how-host-nakama-server-10mo
+
+Hosting 10$ / month
+https://www.linode.com/pricing/
