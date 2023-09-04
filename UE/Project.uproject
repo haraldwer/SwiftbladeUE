@@ -375,6 +375,10 @@
 		{
 			"Name": "ModelingToolsEditorMode",
 			"Enabled": true
+		},
+		{
+			"Name": "WFCGeneration",
+			"Enabled": true
 		}
 	]
 }

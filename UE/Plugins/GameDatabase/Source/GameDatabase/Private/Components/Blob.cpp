@@ -3,7 +3,6 @@
 #include "JsonObjectConverter.h"
 #include "NakamaClient.h"
 #include "NakamaSession.h"
-#include "UObject/UnrealTypePrivate.h"
 
 void UBlob::Init()
 {
